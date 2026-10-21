@@ -20,7 +20,8 @@ REL_TOL = 1e-12
 
 def compare(data_dir, mature_weight_kg=None, released_path=RELEASED):
     """(exact, within tolerance, [differences]) over every limit and max type."""
-    released = json.load(open(released_path, encoding="utf-8"))["limits"]
+    with open(released_path, encoding="utf-8") as f:
+        released = json.load(f)["limits"]
     data = table.load(data_dir)
     exact = close = 0
     diffs = []

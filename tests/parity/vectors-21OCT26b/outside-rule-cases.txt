@@ -1,0 +1,14 @@
+formulas cases with an input outside its rule: 338 {'grid': 84, 'selection-edge': 55, 'selection-wildcard': 3, 'g10-edge': 105, 'g130-edge': 30, 'random': 61} {('G10',): 231, ('O1',): 58, ('G130',): 41, ('G10', 'G130'): 8}
+   ('grid-0020', [('G10', 'abc')], None)
+   ('grid-0021', [('G10', 'abc')], None)
+   ('grid-0022', [('G10', 'abc')], None)
+   ('grid-0023', [('G10', 'abc')], None)
+   ('grid-0044', [('G10', 'abc')], None)
+   ('grid-0045', [('G10', 'abc')], None)
+values cases with an input outside its rule: 10 {'5f': 10} {('E3',): 10}
+   ('VS-0092', [('E3', 0.0)], ['batch5-5f'])
+   ('VS-0093', [('E3', 0.0)], ['batch5-5f'])
+   ('VS-0094', [('E3', -1.0)], ['batch5-5f'])
+   ('VS-0095', [('E3', -1.0)], ['batch5-5f'])
+   ('VS-0096', [('E3', 0.4)], ['batch5-5f'])
+   ('VS-0097', [('E3', 0.4)], ['batch5-5f'])

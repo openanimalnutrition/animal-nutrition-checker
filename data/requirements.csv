@@ -1,0 +1,22 @@
+id,name,standard,edition,species,life_stage,mer_kcal_per_mbw,notes,energy_notes
+nrc-dog-adult,NRC RA Dog Maintenance,NRC,NRC-2006,canine,adult-maintenance,,n003,n028
+aafco-dog-adult,AAFCO Dog Maintenance,AAFCO,AAFCO-2026,canine,adult-maintenance,,,n029
+fediaf-dog-adult-mer95,FEDIAF Dog (MER 95 kcal/kg^0.75),FEDIAF,FEDIAF-2025,canine,adult-maintenance,95,n004 n005,n030
+fediaf-dog-adult-mer110,FEDIAF Dog (MER 110 kcal/kg^0.75),FEDIAF,FEDIAF-2025,canine,adult-maintenance,110,n006 n007,n031
+nrc-cat-adult,NRC RA Cat Maintenance,NRC,NRC-2006,feline,adult-maintenance,,n008 n009,n032
+aafco-cat-adult,AAFCO Cat Maintenance,AAFCO,AAFCO-2026,feline,adult-maintenance,,,n033
+fediaf-cat-adult-mer75,FEDIAF Cat (MER 75 kcal/kg^0.67),FEDIAF,FEDIAF-2025,feline,adult-maintenance,75,n010 n011,n034
+fediaf-cat-adult-mer100,FEDIAF Cat (MER 100 kcal/kg^0.67),FEDIAF,FEDIAF-2025,feline,adult-maintenance,100,n012 n013,n035
+nrc-puppy-4-14-wk,NRC RA Puppy 4-14 Wk Growth,NRC,NRC-2006,canine,growth,,n014 n015,n036 n037
+nrc-puppy-14-wk-plus,NRC RA Puppy 14 Wk+ Growth,NRC,NRC-2006,canine,growth,,n016 n017,n038
+aafco-dog-growth-reproduction,AAFCO Dog Growth (Small & Medium) and Reproduction,AAFCO,AAFCO-2026,canine,growth gestation-lactation,,,n039
+aafco-dog-growth-large-breed,AAFCO Large Breed Dog Growth,AAFCO,AAFCO-2026,canine,growth,,n002,n040
+fediaf-dog-early-growth-reproduction,FEDIAF Dog Early Growth (< 14 wk) & Reproduction,FEDIAF,FEDIAF-2025,canine,growth gestation-lactation,,n018,n041 n042
+fediaf-dog-late-growth,FEDIAF Dog Late Growth (>/= 14 wk),FEDIAF,FEDIAF-2025,canine,growth,,n019,n043
+nrc-kitten,NRC RA Kitten Growth,NRC,NRC-2006,feline,growth,,n020 n021,n044
+aafco-cat-growth-reproduction,AAFCO Cat Growth and Reproduction,AAFCO,AAFCO-2026,feline,growth gestation-lactation,,,n045
+fediaf-cat-growth,FEDIAF Cat Growth,FEDIAF,FEDIAF-2025,feline,growth,,n022,n046
+nrc-dog-gestation-lactation,NRC RA Dog Late Gestation & Peak Lactation,NRC,NRC-2006,canine,gestation-lactation,,n023,n047 n048
+nrc-cat-late-gestation,NRC RA Cat Late Gestation,NRC,NRC-2006,feline,gestation-lactation,,n024,n049
+nrc-cat-peak-lactation,NRC RA Cat Peak Lactation,NRC,NRC-2006,feline,gestation-lactation,,n025,n050
+fediaf-cat-reproduction,FEDIAF Cat Reproduction,FEDIAF,FEDIAF-2025,feline,gestation-lactation,,n026,n051

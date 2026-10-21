@@ -12,14 +12,15 @@ import os
 import re
 import sys
 
-from oan import table
+from oan import release, table
 
-NUTRIENTS_HEADER = ["id", "name", "unit", "basis", "k", "mbw_of", "enterable", "ig_code",
-                    "notes"]
+NUTRIENTS_HEADER = ["id", "name", "unit", "amount", "basis", "k", "mbw_of", "enterable",
+                    "ig_code", "notes"]
 REQUIREMENTS_HEADER = ["id", "name", "standard", "edition", "species", "life_stage",
                        "mer_kcal_per_mbw", "notes", "energy_notes"]
-LIMITS_HEADER = ["nutrient", "min", "min_rule", "min_source", "max", "max_rule", "max_type",
-                 "max_source", "min_notes", "max_notes"]
+LIMITS_HEADER = ["nutrient", "min", "min_unit", "min_rule", "min_source", "max", "max_unit",
+                 "max_rule", "max_type", "max_source", "min_notes", "max_notes"]
+AMOUNTS = ["g", "mg", "mcg", "IU", ""]
 NOTES_HEADER = ["id", "scope", "text", "origin"]
 
 STANDARDS = {"NRC": ["NRC-2006"], "AAFCO": ["AAFCO-2026"], "FEDIAF": ["FEDIAF-2025"]}
@@ -82,7 +83,8 @@ def read(path, header, report):
     """The rows of a CSV file as (line number, dict), after checking the format."""
     name = os.path.relpath(path, report.root)
     try:
-        raw = open(path, "rb").read()
+        with open(path, "rb") as f:
+            raw = f.read()
     except OSError:
         report.error(name, "the file is missing")
         return []
@@ -151,6 +153,8 @@ def validate(data_dir, against=None):
         where = "nutrients.csv line %d" % line
         if r["basis"] not in BASES:
             report.error(where + " basis", "basis must be one of " + ", ".join(BASES))
+        if r["amount"] not in AMOUNTS:
+            report.error(where + " amount", "amount must be g, mg, mcg, IU or empty")
         if r["k"] not in ("", "blank", "N/A"):
             problem = number_problem(r["k"])
             if problem:
@@ -163,6 +167,7 @@ def validate(data_dir, against=None):
             report.error(where + " ig_code", "not a code of the IG's nutrient code system")
         check_note_refs(r["notes"], where + " notes", note_ids, report)
     nutrient_order = [r["id"] for _, r in nutrients]
+    nutrients_by_id = {r["id"]: r for _, r in nutrients}
 
     requirements = read(os.path.join(data_dir, "requirements.csv"), REQUIREMENTS_HEADER,
                         report)
@@ -212,8 +217,8 @@ def validate(data_dir, against=None):
                     nid, seen[nid]))
                 continue
             seen[nid] = line
-            check_limit(r, "min", where, req, report)
-            check_limit(r, "max", where, req, report)
+            check_limit(r, "min", where, req, nutrients_by_id.get(nid), report)
+            check_limit(r, "max", where, req, nutrients_by_id.get(nid), report)
             numeric_max = r["max"] not in ("none",)
             if numeric_max and r["max_type"] not in MAX_TYPES:
                 report.error(where + " max_type", "a maximum needs its type, one of " +
@@ -240,6 +245,14 @@ def validate(data_dir, against=None):
                 report.error(name, "no row for nutrient %r (every nutrient needs a row; "
                              'write "none" where the standard sets nothing)' % nid)
         by_requirement[req["id"]] = {r["nutrient"]: (line, r) for line, r in rows}
+
+    try:
+        rel = release.read_release(data_dir)
+        if rel.get("content_sha256") != release.content_hash(data_dir):
+            report.warn("RELEASE", "the content hash is not that of these files; the release "
+                        "step writes a new one")
+    except OSError:
+        report.warn("RELEASE", "missing; the release step writes it")
 
     if report.errors:
         return report
@@ -290,7 +303,7 @@ def validate(data_dir, against=None):
     return report
 
 
-def check_limit(r, bound, where, req, report):
+def check_limit(r, bound, where, req, nutrient, report):
     text = r[bound]
     rule = r[bound + "_rule"]
     field = "%s %s" % (where, bound)
@@ -301,6 +314,9 @@ def check_limit(r, bound, where, req, report):
     kind = table.RULES[rule][0]
     if rule == "mbw-from-per-mcal" and not req["mer_kcal_per_mbw"]:
         report.error(field + "_rule", "this requirement has no MER in requirements.csv")
+    unit = r[bound + "_unit"]
+    if text in ("none", "") and unit:
+        report.error(field + "_unit", "only a figure has a printed unit")
     if text == "none":
         if rule != "printed":
             report.error(field + "_rule", 'a "none" cell takes the rule "printed"')
@@ -310,6 +326,11 @@ def check_limit(r, bound, where, req, report):
             report.error(field, 'empty: write the figure, or "none" if the standard sets '
                          "nothing")
         return
+    if unit and nutrient:
+        try:
+            table.unit_factor(unit, nutrient, req["species"])
+        except table.DataError as e:
+            report.error(field + "_unit", str(e))
     if kind == "derived":
         report.error(field, "the rule %s computes this value; leave the figure empty "
                      "(a typed number here would go stale when its source changes)" % rule)

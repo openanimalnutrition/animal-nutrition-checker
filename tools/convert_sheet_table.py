@@ -64,14 +64,18 @@ REQUIREMENTS = {
 }
 
 NUM = r"(\d+(?:\.\d+)?)"
+# formula -> (printed unit kind, rule, greater than). "kg DM": the template divided a
+# figure printed per kg DM by 4 (4,000 kcal ME per kg DM); "vitamin-d-mcg": it multiplied
+# a figure printed in mcg by 40 IU/mcg.
 CONSTANT_RULES = [
-    (re.compile(r"=\(%s/\(4\*1000\)\)\*1000" % NUM), "per-4000-kcal", False),
-    (re.compile(r"=\(%s/4000\)\*1000" % NUM), "per-4000-kcal", False),
-    (re.compile(r"=%s/4" % NUM), "per-4000-kcal", False),
-    (re.compile(r"=%s/4\+0\.000000001" % NUM), "per-4000-kcal", True),
-    (re.compile(r"=%s\*40" % NUM), "vitamin-d-mcg", False),
-    (re.compile(r"=%s/0\.6" % NUM), "folic-acid-to-dfe", False),
+    (re.compile(r"=\(%s/\(4\*1000\)\)\*1000" % NUM), "kg DM", "printed", False),
+    (re.compile(r"=\(%s/4000\)\*1000" % NUM), "kg DM", "printed", False),
+    (re.compile(r"=%s/4" % NUM), "kg DM", "printed", False),
+    (re.compile(r"=%s/4\+0\.000000001" % NUM), "kg DM", "printed", True),
+    (re.compile(r"=%s\*40" % NUM), "vitamin-d-mcg", "printed", False),
+    (re.compile(r"=%s/0\.6" % NUM), "", "folic-acid-to-dfe", False),
 ]
+MBW_BASIS = {"canine": "kg BW^0.75", "feline": "kg BW^0.67"}
 LATE_GROWTH = re.compile(
     r"=IF\(AND\(N\('Standards \| Dyn Decile Sys Table'!\$E\$3\)>0,"
     r"N\('Standards \| Dyn Decile Sys Table'!\$E\$3\)<=15\),%s,%s\)" % (NUM, NUM))
@@ -108,27 +112,41 @@ def typed_figure(value):
     return plain(text), False
 
 
-def convert_cell(cell, row_no, col, nutrient_id, sel, row_ids):
-    """(figure text, rule) for one limit cell."""
+def convert_cell(cell, row_no, col, nutrient, sel, row_ids):
+    """(figure text, printed unit, rule) for one limit cell."""
+    nutrient_id = nutrient["id"]
     if cell is None:
         raise ValueError("blank limit cell %s%d" % (col, row_no))
     if cell == "none":
-        return "none", "printed"
+        return "none", "", "printed"
     if isinstance(cell, (int, float)) and not isinstance(cell, bool):
         figure, greater = typed_figure(cell)
-        return (">" if greater else "") + figure, "printed"
+        return (">" if greater else "") + figure, "", "printed"
     if not isinstance(cell, dict):
         raise ValueError("unexpected cell %s%d %r" % (col, row_no, cell))
     f = cell["formula"]
-    for pattern, rule, greater in CONSTANT_RULES:
+    for pattern, unit_kind, rule, greater in CONSTANT_RULES:
         m = pattern.fullmatch(f)
         if m:
-            return (">" if greater else "") + plain(m.group(1)), rule
+            if unit_kind == "kg DM":
+                if nutrient["basis"] != "per-mcal":
+                    raise ValueError("per kg DM figure on a %s row %s%d" % (
+                        nutrient["basis"], col, row_no))
+                unit = nutrient["amount"] + "/kg DM"
+            elif unit_kind == "vitamin-d-mcg":
+                if nutrient["basis"] == "per-mcal":
+                    unit = "mcg/1000 kcal"
+                else:
+                    unit = "mcg/" + MBW_BASIS[sel["species"]]
+            else:
+                unit = ""
+            return (">" if greater else "") + plain(m.group(1)), unit, rule
     m = LATE_GROWTH.fullmatch(f)
     if m:
-        return plain(m.group(1)) + "|" + plain(m.group(2)), "fediaf-late-growth-by-mature-weight"
+        return (plain(m.group(1)) + "|" + plain(m.group(2)), "",
+                "fediaf-late-growth-by-mature-weight")
     if f == "=(N38+N42)/M44" and nutrient_id == "la-aa-to-epa-dha-ratio" and col == "N":
-        return "", "la-aa-over-epa-dha"
+        return "", "", "la-aa-over-epa-dha"
     m = REF.fullmatch(f)
     if m and m.group(1) == col:
         ref_id = row_ids[int(m.group(2))]
@@ -137,11 +155,11 @@ def convert_cell(cell, row_no, col, nutrient_id, sel, row_ids):
             mer = op[1:-5]
             if ref_id + "-mbw" != nutrient_id or mer != sel["mer"]:
                 raise ValueError("MBW formula %s%d %s does not fit" % (col, row_no, f))
-            return "", "mbw-from-per-mcal"
+            return "", "", "mbw-from-per-mcal"
         if op == "*0.3" and ref_id.startswith("vitamin-a") and nutrient_id.startswith("retinol"):
-            return "", "retinol-from-vitamin-a-iu"
+            return "", "", "retinol-from-vitamin-a-iu"
         if op == "/0.3" and ref_id.startswith("retinol") and nutrient_id.startswith("vitamin-a"):
-            return "", "vitamin-a-iu-from-retinol"
+            return "", "", "vitamin-a-iu-from-retinol"
     raise ValueError("unrecognised formula %s%d %s" % (col, row_no, f))
 
 
@@ -176,7 +194,8 @@ def write_csv(path, header, rows):
 def main(table_path, notes_path, sources_path, out_dir):
     table = json.load(open(table_path, encoding="utf-8"))
     sheet_notes = parse_notes(notes_path)
-    sources = json.load(open(sources_path, encoding="utf-8")) if sources_path != "-" else {}
+    sources = (json.load(open(sources_path, encoding="utf-8"))["sources"]
+               if sources_path != "-" else {})
     rows = {r["row"]: r for r in table["rows"]}
     s01_by_s02 = {s["s02_row"]: s for s in table["s01_rows"] if s["s02_row"]}
 
@@ -260,6 +279,14 @@ def main(table_path, notes_path, sources_path, out_dir):
             basis = "energy-density"
         else:
             raise ValueError("unit %r" % unit)
+        amount_text = unit.split("Cats:")[0].replace("Dogs:", "").strip()
+        amount = ""
+        for a in ("mcg", "mg", "g", "IU"):
+            if amount_text.startswith(a):
+                amount = a
+                break
+        if basis in ("ratio", "energy-density"):
+            amount = ""
         if s01 is None:
             k_text = ""
         elif k is None:
@@ -269,13 +296,15 @@ def main(table_path, notes_path, sources_path, out_dir):
         else:
             k_text = plain(repr(float(k)))
         nutrient_out.append({
-            "id": nid, "name": rows[r]["key"], "unit": unit, "basis": basis, "k": k_text,
+            "id": nid, "name": rows[r]["key"], "unit": unit, "amount": amount, "basis": basis,
+            "k": k_text,
             "mbw_of": nid[:-4] if nid.endswith("-mbw") else "",
             "enterable": "yes" if s01 else "no", "ig_code": IG_CODES.get(nid, ""),
             "notes": " ".join(attach.get(("nutrient", nid), [])),
         })
     write_csv(os.path.join(out_dir, "nutrients.csv"),
-              ["id", "name", "unit", "basis", "k", "mbw_of", "enterable", "ig_code", "notes"],
+              ["id", "name", "unit", "amount", "basis", "k", "mbw_of", "enterable", "ig_code",
+               "notes"],
               nutrient_out)
 
     # requirements.csv
@@ -289,8 +318,9 @@ def main(table_path, notes_path, sources_path, out_dir):
                 "energy_notes": " ".join(attach.get(("energy", s["id"]), []))} for s in sels])
 
     # standards/<edition>/<requirement>.csv
-    header = ["nutrient", "min", "min_rule", "min_source", "max", "max_rule", "max_type",
-              "max_source", "min_notes", "max_notes"]
+    header = ["nutrient", "min", "min_unit", "min_rule", "min_source", "max", "max_unit",
+              "max_rule", "max_type", "max_source", "min_notes", "max_notes"]
+    nutrients_by_id = {n["id"]: n for n in nutrient_out}
     for s in sels:
         out = []
         for r in nutrient_rows:
@@ -298,11 +328,17 @@ def main(table_path, notes_path, sources_path, out_dir):
             cells = rows[r]["cells"]
             line = {"nutrient": nid}
             for bound, col in (("min", s["min_col"]), ("max", s["max_col"])):
-                figure, rule = convert_cell(cells.get(col), r, col, nid, s, row_ids)
+                figure, unit, rule = convert_cell(cells.get(col), r, col, nutrients_by_id[nid],
+                                                  s, row_ids)
                 src = sources.get("%s/%s/%s" % (s["id"], nid, bound), {})
+                if "figure" in src:
+                    figure, unit = src["figure"], src["unit"]
+                if figure not in ("none", "") and not src.get("source"):
+                    raise ValueError("no source for %s %s %s" % (s["id"], nid, bound))
                 if src.get("rule"):
                     rule = src["rule"]
                 line[bound] = figure
+                line[bound + "_unit"] = unit
                 line[bound + "_rule"] = rule
                 line[bound + "_source"] = src.get("source", "")
                 line[bound + "_notes"] = " ".join(attach.get((bound, s["id"], nid), []))
