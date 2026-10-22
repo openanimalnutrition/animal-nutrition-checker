@@ -102,8 +102,8 @@ biotin,none,,printed,,none,,printed,,,,
 biotin-mbw,none,,printed,,none,,printed,,,,
 cobalamin,8.75,mcg/1000 kcal,printed,"Table 15-5, p. 360",none,,printed,,,,
 cobalamin-mbw,1.15,mcg/kg BW^0.75,printed,"Table 15-5, p. 360",none,,printed,,,,
-choline,340,,printed,"Table 15-5, p. 360",500,,template,PSM,"template-set, see note n164",n163,n164
-choline-mbw,45,,printed,"Table 15-5, p. 360",none,,printed,,,n168,
+choline,340,,printed,"Table 15-5, p. 360, AI column; see NRC p. 233",500,,template,PSM,"template-set, see note n164",n163,n164
+choline-mbw,45,,printed,"Table 15-5, p. 360, AI column; see NRC p. 233",none,,printed,,,n168,
 vitamin-c,none,,printed,,none,,printed,,,,
 water,none,,printed,,none,,printed,,,,
 carbohydrate,none,,printed,,none,,printed,,,,

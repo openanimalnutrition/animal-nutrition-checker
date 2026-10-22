@@ -46,6 +46,16 @@ the Open Animal Nutrition organisation.
 No CSV cell holds an expression. A value computed from another (for example a per-MBW
 maximum) has an empty figure, so it cannot go stale when its source changes.
 
+## Data versions
+
+The data version (in `data/RELEASE`) is the code's own; the template sheet stays at
+Version 21OCT26b. The frozen baseline in `tests/parity/` is never edited.
+
+| Data version | Change |
+|---|---|
+| 21OCT26b.1 | The 21OCT26b requirement table as CSV, with a source for every figure |
+| 21OCT26b.2 | Source text only: the five NRC dog choline minimums (340 mg/Mcal, 45 mg/kg BW^0.75) now say "AI column; see NRC p. 233" (steward, 21 Oct 2026). No value changed |
+
 ## Checks
 
 ```
