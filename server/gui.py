@@ -110,7 +110,7 @@ def parse_paste(data, text):
 STYLE_LINK = '<link rel="stylesheet" href="/static/style.css">'
 
 
-def page(data, body, title="Open Animal Nutrition checker"):
+def page(data, body, title="Open Animal Nutrition Checker"):
     caveat_items = "".join("<li>%s</li>" % e(c["text"])
                            for c in result.caveats.caveats(data.version))
     return ("<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\">"
@@ -166,9 +166,12 @@ def step2(data, rid, request=None, message=""):
     return ('%s<form method="post" action="/check"><input type="hidden" name="requirement" '
             'value="%s"><h2>%s</h2>%s<fieldset><legend>Animal</legend>%s</fieldset>'
             '<p><label>What is entered <select name="subject">%s</select></label></p>'
-            '<fieldset><legend>Paste lines: name, low, high</legend><textarea name="paste" '
-            'rows="5" cols="60"></textarea><p><button type="submit" formaction="/parse">'
-            'Parse the pasted lines</button></p></fieldset>'
+            '<fieldset><legend>Or paste values instead of typing them</legend><p><small>One '
+            'nutrient per line: name, low, high (for example: Calcium, Ca, 1.2, 3). Leave low '
+            'or high empty if you have only one. Click Parse to see how each line was read; '
+            'the values then fill the table below, and nothing is checked until you click '
+            'Check.</small></p><textarea name="paste" rows="5" cols="60"></textarea><p><button '
+            'type="submit" formaction="/parse">Parse the pasted lines</button></p></fieldset>'
             '<p><button type="submit">Check</button></p>'
             '<table><thead><tr><th>Nutrient</th><th>Unit</th><th>Low (Min entry)</th>'
             '<th>High (Max entry)</th></tr></thead><tbody>%s</tbody></table>'

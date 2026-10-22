@@ -211,6 +211,12 @@ class Server(unittest.TestCase):
         self.assertIn("default-src 'none'", csp)
         self.assertNotIn("script-src", csp)
         self.assertEqual(r.headers["x-content-type-options"], "nosniff")
+        # Under no-referrer, browsers send "Origin: null" with a form and every check fails.
+        self.assertEqual(r.headers["referrer-policy"], "same-origin")
+        r = self.http.post("/check", data=dict(form_of(REQUEST)), headers={"origin": "null"})
+        self.assertEqual(r.status_code, 403)
+        r = self.http.post("/check", data=dict(form_of(REQUEST)), headers={"origin": BASE})
+        self.assertEqual(r.status_code, 200)
         self.assertNotIn("access-control-allow-origin", r.headers)
 
     def test_steps(self):

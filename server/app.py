@@ -44,7 +44,9 @@ HEADERS = {
     "Content-Security-Policy": "default-src 'none'; style-src 'self'; form-action 'self'; "
                                "frame-ancestors 'none'; base-uri 'none'",
     "X-Content-Type-Options": "nosniff",
-    "Referrer-Policy": "no-referrer",
+    # same-origin, not no-referrer: under no-referrer a browser sends "Origin: null" with a
+    # form, which the Origin check must refuse (found in the steward's GUI review, 22 Oct).
+    "Referrer-Policy": "same-origin",
     "Cache-Control": "no-store",
 }
 
