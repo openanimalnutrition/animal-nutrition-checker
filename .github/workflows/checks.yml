@@ -2,8 +2,10 @@
 # run locally. On a pull request it also writes the impact report of the change (data/
 # against the data of the branch merged into) to the run's summary page.
 #
-# Written in phase 4 (22 Oct 2026; the contract job in phase 5) before the repository was
-# pushed: not yet run on GitHub.
+# Written in phase 4 (22 Oct 2026; the contract job in phase 5). First run on GitHub on
+# 22 Oct 2026: ubuntu-latest (26.04) has no Python 3.9, so the 3.9 job runs on 24.04, which
+# has 3.9.25, the box's version. When 24.04 is retired, 3.9 needs another route or the
+# README's "Python 3.9 or later" changes.
 # No secrets; the token can only read; a pull request from a fork runs the same way.
 name: checks
 
@@ -17,10 +19,15 @@ permissions:
 
 jobs:
   checks:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        python: ["3.9", "3.x"]
+        include:
+          - python: "3.9"
+            os: ubuntu-24.04
+          - python: "3.x"
+            os: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
