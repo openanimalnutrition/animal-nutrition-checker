@@ -214,6 +214,15 @@ def _entry_cells(entry):
         e(entry["status"]))
 
 
+def notes_fold(data, ids):
+    """A nutrient's notes, closed until opened (no JavaScript)."""
+    if not ids:
+        return ""
+    items = "".join("<li><b>%s</b> (%s): %s</li>" % (
+        e(i), e(data.notes[i]["origin"]), e(data.notes[i]["text"])) for i in ids)
+    return "<details><summary>Notes (%d)</summary><ul>%s</ul></details>" % (len(ids), items)
+
+
 def result_page(data, request, res):
     report = "".join("<li>%s: %s</li>" % (e(i["input"]), e(i["text"]))
                      for i in res["input_report"] if i["status"] != "defaulted")
@@ -224,12 +233,12 @@ def result_page(data, request, res):
         unavailable = n["limits_unavailable"]
         rows_html.append(
             "<tr><td>%s<br><small>%s</small></td><td>%s</td><td>%s</td><td>%s<br><small>%s, "
-            "%s</small></td>%s%s<td><ul>%s</ul><small>%s</small></td></tr>" % (
+            "%s</small></td>%s%s<td><ul>%s</ul>%s</td></tr>" % (
                 e(n["name"]), e(n["unit"]),
                 _num(n["minimum"]) or ("none" if not unavailable else e(unavailable["text"])),
                 _num(n["standard_minimum"]), _num(n["range_high"]), e(n["max_type"]),
                 e(n["max_provenance"]), _entry_cells(n["low"]), _entry_cells(n["high"]),
-                conds, e(" ".join(n["notes"]))))
+                conds, notes_fold(data, n["notes"])))
     checks = "".join("<li>%s: low %s, high %s%s</li>" % (
         e(c["id"]), e(c["low"]["text"] or c["low"]["result"]),
         e(c["high"]["text"] or c["high"]["result"]),

@@ -23,6 +23,12 @@ the Open Animal Nutrition organisation.
 | `oan/bands.py` | The 14 bands: which band of a row a value is in |
 | `oan/limits.py` | Each nutrient's minimum, maximum, range high and the type of the range high, for one request |
 | `oan/outcomes.py` | What the checker says about each entry (a band or another outcome), and NRC's text checks |
+| `oan/interpret.py` | The adequacy interpretation of each entry: the proposed verdict, the comparisons with the minimum and the range high, the open point that leaves it without a verdict |
+| `oan/conditions.py` | The conditions on each nutrient: the template's known limitations, by requirement and row |
+| `oan/caveats.py` | The Result's fixed texts, as the steward approved them: the caveats, the status lines, the reasons |
+| `oan/result.py` | The Result: `check()` (check_diet), `get_limits`, `list_requirements`, `describe_inputs`, `get_notes`, and its one byte form |
+| `docs/result.schema.json` | The Result's published schema, `oan-check-result/1` |
+| `server/` | The GUI and the MCP server, one small app (runs in Docker: `Dockerfile`, `server/requirements.lock`) |
 | `tools/check.py` | Every automatic check in one command (what a pull request must pass) |
 | `tools/impact_report.py` | The impact report of a data change, old data against new: evidence for the steward |
 | `tools/` (other) | The one-time converters from the template (the table, the export's cell values), the source finder, the validator runner |
@@ -35,6 +41,8 @@ the Open Animal Nutrition organisation.
 | `tests/models/energy_model.py` | An energy model written separately from the sources, reading the same figures, to check the core on changed data |
 | `tests/models/values_model.py`, `tests/models/formulas_model.py` | The same for the limits and bands: models written separately from the specifications, reading the same data |
 | `tests/model_agreement.py` | Runs each model and the core on the same data and lists where they disagree |
+| `tests/test_phase5.py`, `tests/schema_check.py` | The Result, verdicts and conditions; a small schema checker (standard library) |
+| `tests/contract/` | The server's contract tests, run in the test image |
 | `tests/vectors-extra/` | Cases written after the freeze for what the frozen vectors do not test (the text checks; row 10, the header cells, the energy row of the table, the edges shown below band edges), not frozen |
 
 ## The data
@@ -74,8 +82,20 @@ the Open Animal Nutrition organisation.
     of the calculated carbohydrate maximum, the n-6:n-3 ratio maximums' defaults). A figure
     that is a maximum carries its type (TPL when the template sets it; the puppy calcium
     maximum of 4.5 is NRC's calcium SUL). The shape of each rule is in `oan/limits.py`.
-- `notes.csv`: the template's notes as records.
+- `notes.csv`: the template's notes as records, each with the tab and cell it comes from.
+- `limitations.csv`: the template's ten known limitations, word for word (Standards tab A140 to
+  A149).
+- `conditions.csv`: where each limitation puts a condition on a result: the requirements
+  (`*`, a species, a standard or ids), the rows, the case (a closed list in
+  `oan/conditions.py`), the "depends on" line the steward approved, and the notes.
+- `open-minimums.csv`: minimums whose verdict stays open, and when (the 15 AAFCO cells that
+  AAFCO prints differently in its two tables, while the AAFCO dry matter factor is above 1).
 - `RELEASE`: the data version and the content hash.
+
+A minimum's rule says whose it is: `printed` (and the rules that convert a printed figure)
+and `standard-derived` (the standard's own figure by the standard's own rule) count as the
+standard's, so a value below it can be `deficient`; `template` is the template's own, and a
+value below it gets no verdict (IG open point 6, as the steward settled it on 22 Oct 2026).
 
 No CSV cell holds an expression. A value computed from another (for example a per-MBW
 maximum) has an empty figure, so it cannot go stale when its source changes.
@@ -90,6 +110,7 @@ Version 21OCT26b. The frozen baseline in `tests/parity/` is never edited.
 | 21OCT26b.1 | The 21OCT26b requirement table as CSV, with a source for every figure |
 | 21OCT26b.2 | Source text only: the five NRC dog choline minimums (340 mg/Mcal, 45 mg/kg BW^0.75) now say "AI column; see NRC p. 233" (steward, 21 Oct 2026). No value changed |
 | 21OCT26b.3 | `energy.csv`: the energy figures of 21OCT26b, moved from the template's formulas into data with a source for each (steward, 21 Oct 2026). No value changed |
+| 21OCT26b.5 | The Standards tab's 133 notes (n169-n301), and every note's tab and cell; the 31 minimums the template takes from NRC's own figure by NRC's own rule get the rule `standard-derived` (the 29 NRC RA Cat Late Gestation MBW minimums by Table 15-14 footnote d, and pantothenic acid 1.44 mg/Mcal under both NRC queen selections); `limitations.csv`, `conditions.csv`, `open-minimums.csv` (steward, 22 Oct 2026). No value changed |
 | 21OCT26b.4 | `template.csv`: the template's own figures and its four extra rows, moved from the Standards tab's formulas into data with a source for each (steward, 21 Oct 2026). No value changed |
 
 The frozen baseline gained the same `energy.csv` once, in phase 2, and the same
@@ -119,11 +140,22 @@ nice -n 10 python3 -I -B tests/test_phase1b.py          # number handling, input
 nice -n 10 python3 -I -B tests/test_phase2.py           # energy figures, energy, bands, row 11
 nice -n 10 python3 -I -B tests/test_phase3.py           # template figures, limits, outcomes, models
 nice -n 10 python3 -I -B tests/test_phase4.py           # real-Sheets check, impact report, parity page
+nice -n 10 python3 -I -B tests/test_phase5.py           # the Result, verdicts, conditions, schema
 nice -n 10 python3 -I -B tests/run_vectors.py           # the test vectors, counted per file
 nice -n 10 python3 -I -B tests/real_sheets_check.py     # against the export's own values
 nice -n 10 python3 -I -B tests/roundtrip.py data        # the limits against 21OCT26b
 nice -n 10 python3 -I -B tools/validate_data.py data    # the validator
 nice -n 10 python3 -I -B tools/impact_report.py OLD_DATA NEW_DATA   # a data change's impact
+```
+
+The server's contract tests run in Docker (the GUI's JSON and the MCP's check_diet are the
+same bytes; the caveats are in every result; no excess above a non-authoritative maximum;
+oversize, malformed and unknown requests are rejected; an MCP client lists and calls every
+tool):
+
+```
+docker build --target test -t oan-checker:test .
+docker run --rm --network none --read-only --tmpfs /tmp oan-checker:test
 ```
 
 The impact report (evidence for the steward, not an oracle) lists the validator's findings
@@ -147,8 +179,8 @@ Phase 2: energy (the figures as data, the energy core, the bands, row 11). Phase
 minimums, maximums, range highs and bands of rows 12-130, the type of each range high per
 request (the IG's Maximum types), the outcomes other than a band, and NRC's five text
 checks (the template's figures as data). Phase 4: the parity gate (the real-Sheets check,
-the difference list, the impact report, the automatic checks). Verdicts (deficient, excess)
-come with the Result in phase 5.
+the difference list, the impact report, the automatic checks). Phase 5: the Result
+(`oan-check-result/1`), the proposed verdicts, the conditions, the GUI and the MCP server.
 
 **Parity with Version 21OCT26b: no case differs; the three differences in
 `docs/parity-21OCT26b.md` were approved by the steward** (21 and 22 Oct 2026).
@@ -182,5 +214,33 @@ values 8,595 values, formulas 51,229 (53 cases skipped, as in the original: a wi
 unmatched requirement name), energy every case. With a figure changed, the core and the
 models still agree (tests/test_phase3.py, tests/test_phase4.py).
 
-Next: phase 5 (the Result, the GUI and the MCP server), then the IG pull request that
-declares the code the reference.
+## The Result, the GUI and the MCP server
+
+Every result starts with four caveats: a non-normative reference implementation of the
+proposed computation; the steward's disclosed interest; not a safety or compliance
+assessment, nor veterinary advice; and conditions and open points. Per entry it gives the
+band, how the value compares with the minimum and the range high, the proposed verdict
+(`deficient`, `excess` or none, always "proposed, pending ratification"), the open IG point
+that leaves it without one, and a one-line status. The rules (steward, 22 Oct 2026):
+- `deficient` below the standard's part of the minimum, including a minimum raised for a
+  caloric restriction or by the AAFCO dry matter factor, arginine, large-breed puppy calcium
+  and the `standard-derived` minimums; below a minimum the template sets itself, no verdict
+  (IG open point 6);
+- `excess` only above an authoritative maximum; above a conditional, template-set or
+  derived-provisional one the value is "not excess";
+- both compared at 7 decimal places, as the bands are, so a verdict agrees with its band (IG
+  open point 7).
+
+The MCP tools (stateless Streamable HTTP at `/mcp`): `list_requirements`, `describe_inputs`,
+`get_limits`, `check_diet` and `get_notes`. Each returns the whole Result as structured
+content and as a text block whose first lines are the caveats. The GUI (`/`) takes the same
+inputs and its "download JSON" gives the same bytes.
+
+Run it locally (Docker; port 8790 on this computer only):
+
+```
+docker build --target runtime -t oan-checker:dev .
+docker run --rm --read-only --tmpfs /tmp --cpus 1 --memory 512m -p 127.0.0.1:8790:8790 oan-checker:dev
+```
+
+Next: the IG pull request that declares the code the reference; then hosting (phase 6).

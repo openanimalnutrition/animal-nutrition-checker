@@ -270,7 +270,9 @@ def _nutrient(data, check, nid, entries):
             outcome = outcomes.describe(value, side, lim)
         reason_text = _reason_text(outcome.reason) if outcome.reason else ""
         out[side] = interpret.entry(value, outcome, lim, standard_min, provenance, open_row,
-                                    standard, k, reason_text)
+                                    standard, k, reason_text,
+                                    energy_row=nid == inputs.ENERGY_ENTRY,
+                                    restricted=request.restricted)
     if out["low"] and out["high"]:
         out["summary"] = "%s to %s" % (out["low"]["outcome"], out["high"]["outcome"])
     out["conditions"] = conditions.for_nutrient(data.tables, request, nid,
@@ -493,6 +495,27 @@ def facts_read(data, rid):
     return [f for f in inputs.FACTS if f in read]
 
 
+MAX_NOTE_IDS = 50
+
+
+def get_notes(data, request):
+    """The texts of notes, by id (at most MAX_NOTE_IDS), with the tab and cell of the template
+    each comes from, in the envelope."""
+    if not isinstance(request, dict) or set(request) != {"ids"} or \
+            not isinstance(request["ids"], list):
+        raise RequestError('get_notes takes {"ids": [note ids]}')
+    ids = request["ids"]
+    if not ids or len(ids) > MAX_NOTE_IDS:
+        raise RequestError("give 1 to %d note ids" % MAX_NOTE_IDS)
+    unknown = [i for i in ids if not isinstance(i, str) or i not in data.notes]
+    if unknown:
+        raise RequestError("unknown note ids: %s" % ", ".join(map(str, unknown[:10])))
+    out = _envelope(data, "get_notes")
+    out["note_texts"] = [{"id": i, "text": data.notes[i]["text"],
+                          "origin": data.notes[i]["origin"]} for i in _dedupe(ids)]
+    return out
+
+
 def list_requirements(data):
     out = _envelope(data, "list_requirements")
     out["requirements"] = [
@@ -516,7 +539,8 @@ def describe_inputs(data):
         elif kind == "list":
             item["items"] = list(rule(data.tables))
         facts.append(item)
-    entries = [{"id": inputs.ENERGY_ENTRY, "name": ENERGY_NAME, "unit": ENERGY_UNIT}]
+    entries = [{"id": inputs.ENERGY_ENTRY, "name": ENERGY_NAME, "unit": ENERGY_UNIT,
+                "description": caveats.ENERGY_ENTRY_TEXT}]
     for nid in limits.nutrient_ids(data.tables):
         name, unit, basis, ig_code, _ = _row_info(data, nid)
         item = {"id": nid, "name": name, "unit": unit, "basis": basis}
@@ -531,7 +555,7 @@ def describe_inputs(data):
                       "used",
             "entries": "{nutrient id: {\"low\": number, \"high\": number}} with at least one, "
                        "or a bare number: low on a row with a minimum, high on a row without "
-                       "one",
+                       "one. " + caveats.ENTRIES_TEXT,
             "subject": "diet (default) or requirement range: a label only",
         },
         "animal_facts": facts,

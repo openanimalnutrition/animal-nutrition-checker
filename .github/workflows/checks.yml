@@ -2,7 +2,8 @@
 # run locally. On a pull request it also writes the impact report of the change (data/
 # against the data of the branch merged into) to the run's summary page.
 #
-# Written in phase 4 (22 Oct 2026) before the repository was pushed: not yet run on GitHub.
+# Written in phase 4 (22 Oct 2026; the contract job in phase 5) before the repository was
+# pushed: not yet run on GitHub.
 # No secrets; the token can only read; a pull request from a fork runs the same way.
 name: checks
 
@@ -43,3 +44,14 @@ jobs:
           else
             python -I -B tools/check.py
           fi
+
+  # The GUI and MCP server's contract tests (phase 5), in the test image built from the
+  # Dockerfile: the same image the server runs from, with no network.
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the test image
+        run: docker build --target test -t oan-checker:test .
+      - name: Contract tests
+        run: docker run --rm --network none --read-only --tmpfs /tmp oan-checker:test

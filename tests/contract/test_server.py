@@ -91,6 +91,7 @@ class Server(unittest.TestCase):
                                           "animal": {"body_weight_kg": 1,
                                                      "mature_weight_kg": 4}}),
             ("check_diet", "check_diet", REQUEST), ("check_diet#2", "check_diet", FEDIAF),
+            ("get_notes", "get_notes", {"ids": ["n231", "n005"]}),
             ("missing", "check_diet", {"requirement": "nrc-dog-adult",
                                        "entries": {"calcium-mbw": 1}}),
         ]))
@@ -105,12 +106,13 @@ class Server(unittest.TestCase):
 
     def test_tools(self):
         names = sorted(t.name for t in self.mcp["tools"].tools)
-        self.assertEqual(names, ["check_diet", "describe_inputs", "get_limits",
+        self.assertEqual(names, ["check_diet", "describe_inputs", "get_limits", "get_notes",
                                  "list_requirements"])
         for t in self.mcp["tools"].tools:
             for c in caveats.caveats(D.version):
                 self.assertIn(c["text"], t.description, t.name)
-        for name in ("list_requirements", "describe_inputs", "get_limits", "check_diet"):
+        for name in ("list_requirements", "describe_inputs", "get_limits", "check_diet",
+                     "get_notes"):
             r = self.mcp[name]
             self.assertFalse(r.is_error, name)
             text = r.content[0].text
@@ -138,6 +140,7 @@ class Server(unittest.TestCase):
 
     def test_gui_page_has_the_caveats_first(self):
         page = self.http.post("/check", data=dict(form_of(REQUEST))).text
+        self.assertIn("<details><summary>Notes (", page)
         first = page.index("Caveats")
         for c in caveats.caveats(D.version):
             self.assertIn(c["text"].replace("'", "&#x27;"), page)

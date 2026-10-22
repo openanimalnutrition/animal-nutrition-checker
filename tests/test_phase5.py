@@ -259,6 +259,16 @@ class Verdicts(unittest.TestCase):
         e = self.entry(run("nrc-dog-adult", {"energy": 100}), "energy")
         self.assertTrue(e["outcome"].startswith("below-min"))
         self.assertEqual((e["verdict"], e["open_reason"]), (None, "ig-open-point-6"))
+        self.assertEqual(e["status"], caveats.STATUS["energy-below-estimate"])
+        e = self.entry(run("nrc-dog-adult", {"energy": 100}, caloric_restriction_percent=20),
+                       "energy")
+        self.assertEqual(e["status"], caveats.STATUS["energy-below-estimate"] + " " +
+                         caveats.STATUS["energy-restriction"])
+
+    def test_conditional_line(self):
+        e = self.entry(run("fediaf-dog-adult-mer95", {"zinc": 500}), "zinc")
+        self.assertEqual(e["status"], "Above a FEDIAF EU legal maximum, which applies only to "
+                         "amounts added as additives: conditional, not excess.")
 
     def test_aafco_open_minimums(self):
         rid = "aafco-dog-growth-reproduction"
@@ -267,6 +277,8 @@ class Verdicts(unittest.TestCase):
         e = self.entry(run(rid, {"sodium": 0.85, "energy-density": 3.5}), "sodium")
         self.assertEqual((e["verdict"], e["open_reason"]),
                          (None, "ig-open-point-6-aafco-dry-matter"))
+        self.assertEqual(e["comparison_to_min"], "below_min")
+        self.assertEqual(e["status"], caveats.STATUS["below-aafco-open-minimum"])
         e = self.entry(run(rid, {"protein": 60, "energy-density": 3.5}), "protein")
         self.assertEqual(e["verdict"], "deficient")
 
@@ -395,6 +407,24 @@ class Requests(unittest.TestCase):
         b = result.check(D, r)
         self.assertEqual(b["subject"], "requirement range")
         self.assertEqual(a["nutrients"], b["nutrients"])
+
+
+class Notes(unittest.TestCase):
+    def test_get_notes(self):
+        res = result.get_notes(D, {"ids": ["n231", "n005", "n231"]})
+        self.assertEqual(list(res)[:2], ["schema", "caveats"])
+        self.assertEqual([n["id"] for n in res["note_texts"]], ["n231", "n005"])
+        self.assertTrue(res["note_texts"][0]["origin"].endswith("Standards tab B63"))
+        self.assertEqual(schema_check.errors(res, SCHEMA), [])
+        for bad in ({"ids": ["n999"]}, {"ids": []}, {"ids": ["n001"] * 51}, {"id": ["n001"]},
+                    {"ids": "n001"}):
+            with self.assertRaises(result.RequestError, msg=repr(bad)):
+                result.get_notes(D, bad)
+
+    def test_entries_explained(self):
+        res = result.describe_inputs(D)
+        self.assertIn(caveats.ENTRIES_TEXT, res["request"]["entries"])
+        self.assertEqual(res["entries"][0]["description"], caveats.ENERGY_ENTRY_TEXT)
 
 
 class TextChecks(unittest.TestCase):

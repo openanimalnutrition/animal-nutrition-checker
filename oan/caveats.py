@@ -2,7 +2,8 @@
 kinds of maximum, the text checks and the reasons in plain words.
 
 The steward approved this wording on 22 Oct 2026 (ig-build caveat-wording-draft-20261022.md;
-sean-answers, "Code phase 5"). Change it only with the steward's approval: a contract test
+sean-answers, "Code phase 5"), with four fixes after the AI-read test the same day
+(sean-answers, "Code phase 5: wording fixes after the AI-read test"). Change it only with the steward's approval: a contract test
 fails if a caveat is missing from any result. The conditions' texts are data
 (data/conditions.csv, data/limitations.csv).
 """
@@ -49,9 +50,17 @@ STATUS = {
                  "pending ratification).",
     "below-template-minimum": "Below a minimum this template sets itself, not a standard's: "
                               "no verdict (Implementation Guide open point 6).",
+    "below-aafco-open-minimum": "Below the AAFCO minimum as raised for this food's energy "
+                                "density, which for this nutrient is not AAFCO's printed dry "
+                                "matter value: no verdict (Implementation Guide open point 6).",
+    "energy-below-estimate": "Below the estimated daily energy need, which is an estimate, not "
+                             "a minimum requirement: no verdict (Implementation Guide open point "
+                             "6).",
+    "energy-restriction": "The caloric restriction raises the nutrient minimums; it does not "
+                          "lower this energy estimate.",
     "within": "Within the range.",
     "excess": "Above {kind}: excess (proposed, pending ratification).",
-    "above-conditional": "Above {kind}, which is conditional: not excess.",
+    "above-conditional": "Above {kind}: conditional, not excess.",
     "above-template-set": "Above a range high this template sets or computes: not excess.",
     "above-derived-provisional": "Above a range high derived from the minimum (the minimum × "
                                  "{k}), not a safe limit: not excess.",
@@ -95,6 +104,15 @@ CHECKS = {
                                                      "NRC states as DHA.",
 }
 DHA_NOT_COMPARED = "DHA not compared: this requirement's data has no EPA + DHA minimum."
+
+# How the entries are read (check_diet's description, describe_inputs).
+ENTRIES_TEXT = ("low and high are the template's Min and Max entries: for a diet, one value "
+                "(placed by the template's rule) or both ends of a range such as an analysed "
+                "minimum and maximum; for a requirement range, its two ends. Each is described "
+                "separately.")
+ENERGY_ENTRY_TEXT = ("the energy the diet supplies, kcal per day; to replace the requirement's "
+                     "energy with the animal's known intake, use "
+                     "animal.energy_intake_kcal_per_day.")
 
 # Reasons in plain words.
 REASONS = {

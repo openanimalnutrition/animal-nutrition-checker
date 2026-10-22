@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://openanimalnutrition.org/schema/oan-check-result/1",
   "title": "oan-check-result/1",
-  "description": "The result of the Open Animal Nutrition reference checker (every tool: check_diet, get_limits, list_requirements, describe_inputs). Within version 1 a change only adds fields; a breaking change is version 2. The caveats come first and are in every result. Verdicts are proposed, pending ratification.",
+  "description": "The result of the Open Animal Nutrition reference checker (every tool: check_diet, get_limits, list_requirements, describe_inputs, get_notes). Within version 1 a change only adds fields; a breaking change is version 2. The caveats come first and are in every result. Verdicts are proposed, pending ratification.",
   "type": "object",
   "required": ["schema", "caveats", "tool", "code_release", "data_version", "data_sha256", "template_version", "verdict_status"],
   "properties": {
@@ -20,7 +20,7 @@
         }
       }
     },
-    "tool": {"enum": ["check_diet", "get_limits", "list_requirements", "describe_inputs"]},
+    "tool": {"enum": ["check_diet", "get_limits", "list_requirements", "describe_inputs", "get_notes"]},
     "code_release": {"type": "string"},
     "data_version": {"type": "string"},
     "data_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
@@ -57,6 +57,19 @@
       }
     },
     "requirements": {"type": "array", "items": {"type": "object"}},
+    "note_texts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "text", "origin"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "string", "pattern": "^n[0-9]{3,}$"},
+          "text": {"type": "string"},
+          "origin": {"type": "string"}
+        }
+      }
+    },
     "request": {"type": "object"},
     "animal_facts": {"type": "array", "items": {"type": "object"}},
     "entries": {"type": "array", "items": {"type": "object"}}

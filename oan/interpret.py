@@ -46,14 +46,15 @@ def kind(code, provenance):
 
 
 def entry(value, outcome, lim, standard_minimum, provenance, open_minimum, standard, k,
-          reason_text):
+          reason_text, energy_row=False, restricted=False):
     """The interpretation of one entry, as a dict in the Result's order.
 
     value: the entry (a number); outcome: outcomes.Outcome; lim: limits.Limits;
     standard_minimum: limits.Request.standard_minimum; provenance: the range high's
     maxProvenance; open_minimum: the open-minimums.csv row that applies, or None; standard:
     the requirement's standard (NRC, AAFCO, FEDIAF); k: the multiplier of a K range high;
-    reason_text: the plain words of an unavailable outcome's reason."""
+    reason_text: the plain words of an unavailable outcome's reason; energy_row: the energy
+    row, whose minimum is an estimate; restricted: a caloric restriction is entered."""
     out = {"value": value, "outcome": outcome.code, "outcome_reason": outcome.reason,
            "comparison_to_min": None, "comparison_to_max": None, "verdict": None,
            "verdict_status": caveats.VERDICT_STATUS, "open_reason": None, "status": None}
@@ -66,7 +67,8 @@ def entry(value, outcome, lim, standard_minimum, provenance, open_minimum, stand
     minimum = lim.minimum
     below_min = limits.number(minimum) and v < _r(minimum)
     below_standard = limits.number(standard_minimum) and v < _r(standard_minimum)
-    if below_standard and open_minimum is not None:
+    below_open = below_standard and open_minimum is not None
+    if below_open:
         below_standard = False
     # A range high exists where a maximum does, or where it is the minimum times K; a row
     # with neither limit (or "No range") has none to compare with.
@@ -75,7 +77,7 @@ def entry(value, outcome, lim, standard_minimum, provenance, open_minimum, stand
     above = has_range_high and v > _r(lim.range_high)
 
     if limits.number(minimum):
-        out["comparison_to_min"] = BELOW_MIN if below_standard else \
+        out["comparison_to_min"] = BELOW_MIN if below_standard or below_open else \
             BELOW_TEMPLATE_MIN if below_min else AT_OR_ABOVE_MIN
     if has_range_high:
         out["comparison_to_max"] = (ABOVE_MAX if provenance == "authoritative" else
@@ -85,9 +87,17 @@ def entry(value, outcome, lim, standard_minimum, provenance, open_minimum, stand
     if below_standard:
         out["verdict"] = DEFICIENT
         lines.append(caveats.STATUS["deficient"].replace("{standard}", standard))
+    elif below_open:
+        out["open_reason"] = OPEN_POINT_6_AAFCO
+        lines.append(caveats.STATUS["below-aafco-open-minimum"])
     elif below_min:
-        out["open_reason"] = OPEN_POINT_6_AAFCO if open_minimum is not None else OPEN_POINT_6
-        lines.append(caveats.STATUS["below-template-minimum"])
+        out["open_reason"] = OPEN_POINT_6
+        if energy_row:
+            lines.append(caveats.STATUS["energy-below-estimate"])
+            if restricted:
+                lines.append(caveats.STATUS["energy-restriction"])
+        else:
+            lines.append(caveats.STATUS["below-template-minimum"])
     elif minimum is None and outcome.code in bands.BANDS[:4]:
         out["open_reason"] = OPEN_POINT_3
         lines.append(caveats.STATUS["below-zero-no-minimum"])

@@ -1,4 +1,4 @@
-"""The MCP tools: list_requirements, describe_inputs, get_limits and check_diet (MCP Python
+"""The MCP tools: list_requirements, describe_inputs, get_limits, check_diet and get_notes (MCP Python
 SDK 2.x, server/requirements.lock).
 
 Each tool returns the whole Result (oan.result) twice: as structured content, and as a text
@@ -75,12 +75,17 @@ def tools(data):
          {"requirement": requirement, "animal": animal_schema(data)}, ["requirement"]),
         ("check_diet", "Compares nutrient values (per Mcal, or per kg of metabolic body weight "
          "on MBW rows) of a diet or a requirement range with a requirement: band, proposed "
-         "verdict (deficient, excess or none), conditions and notes per nutrient.",
+         "verdict (deficient, excess or none), conditions and notes per nutrient. " +
+         caveats.ENTRIES_TEXT + " The energy entry is " + caveats.ENERGY_ENTRY_TEXT,
          {"requirement": requirement, "animal": animal_schema(data),
           "entries": {"type": "object", "additionalProperties": entry,
                       "description": "{nutrient id: number, or {low, high}} (describe_inputs)"},
           "subject": {"type": "string", "enum": list(result.SUBJECTS)}},
          ["requirement", "entries"]),
+        ("get_notes", "The texts of the template's notes, by the note ids a result gives, with "
+         "the tab and cell each comes from.",
+         {"ids": {"type": "array", "items": {"type": "string"}, "minItems": 1,
+                  "maxItems": result.MAX_NOTE_IDS}}, ["ids"]),
     ]
     return [types.Tool(name=name, description=head + text,
                        input_schema={"type": "object", "properties": props,
@@ -100,6 +105,8 @@ def run_tool(data, name, arguments):
         return result.describe_inputs(data)
     if name == "get_limits":
         return result.get_limits(data, arguments)
+    if name == "get_notes":
+        return result.get_notes(data, arguments)
     if name == "check_diet":
         res = result.check(data, arguments)
         missing = [i for i in res["input_report"] if i["status"] == "missing"]
