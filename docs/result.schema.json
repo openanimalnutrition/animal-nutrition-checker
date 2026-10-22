@@ -125,7 +125,7 @@
     },
     "nutrient": {
       "type": "object",
-      "required": ["id", "name", "unit", "basis", "ig_code", "minimum", "standard_minimum", "maximum", "range_high", "max_type", "max_provenance", "limits_unavailable", "conditions", "notes"],
+      "required": ["id", "name", "unit", "basis", "ig_code", "minimum", "standard_minimum", "maximum", "range_high", "max_type", "max_provenance", "limits_unavailable", "mbw", "conditions", "notes"],
       "additionalProperties": false,
       "properties": {
         "id": {"type": "string"},
@@ -140,11 +140,26 @@
         "max_type": {"type": ["string", "null"]},
         "max_provenance": {"enum": ["authoritative", "conditional", "template-set", "derived-provisional", null]},
         "limits_unavailable": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/reason"}]},
+        "mbw": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/mbw"}]},
         "low": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/entry"}]},
         "high": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/entry"}]},
         "summary": {"type": ["string", "null"]},
         "conditions": {"type": "array", "items": {"$ref": "#/$defs/condition"}},
         "notes": {"$ref": "#/$defs/note_ids"}
+      }
+    },
+    "mbw": {
+      "description": "An MBW row: the requirement per kg BW^0.75 (dogs) or BW^0.67 (cats) a day, and the energy and body weight it is converted to per Mcal with. The row's minimum, maximum, range high and entries are per Mcal (unit).",
+      "type": "object",
+      "required": ["unit", "minimum", "maximum", "energy_kcal_per_day", "body_weight_kg", "text"],
+      "additionalProperties": false,
+      "properties": {
+        "unit": {"type": "string"},
+        "minimum": {"$ref": "#/$defs/number_or_null"},
+        "maximum": {"$ref": "#/$defs/number_or_null"},
+        "energy_kcal_per_day": {"type": "number"},
+        "body_weight_kg": {"type": "number"},
+        "text": {"type": "string"}
       }
     },
     "entry": {

@@ -216,7 +216,12 @@ def _row_info(data, nid):
         return ENERGY_NAME, ENERGY_UNIT, "per-day", None, scoped + row["notes"].split()
     n = next((x for x in data.tables["nutrients"] if x["id"] == nid), None)
     if n is not None:
-        return n["name"], n["unit"], n["basis"], n["ig_code"] or None, n["notes"].split()
+        unit = n["unit"]
+        if n["basis"] == "per-mbw":
+            # Entries and limits are per Mcal (the template's column D names the requirement's
+            # basis instead, which reads as the entry's unit).
+            unit = next(x["unit"] for x in data.tables["nutrients"] if x["id"] == n["mbw_of"])
+        return n["name"], unit, n["basis"], n["ig_code"] or None, n["notes"].split()
     t = data.tables["template"][nid]
     return t["name"], t["unit"], "per-mbw" if nid.endswith("-mbw") else "per-mcal", None, \
         t["notes"].split()
@@ -224,6 +229,33 @@ def _row_info(data, nid):
 
 def _number_or_none(x):
     return x if limits.number(x) else None
+
+
+def _mbw(data, request, nid, lim, unit):
+    """An MBW row's conversion: the requirement per kg BW^n a day, the energy and body weight
+    it was converted with, and a line saying so; None on other rows or when not computed."""
+    if not nid.endswith("-mbw") or request.requirement is None or lim is None:
+        return None
+    factor = request.mbw_factor
+    if not limits.number(factor) or not (limits.number(lim.minimum) or
+                                         limits.number(lim.maximum)):
+        return None
+    n = next((x for x in data.tables["nutrients"] if x["id"] == nid), None)
+    amount = n["amount"] if n is not None else "IU"
+    mbw_unit = "%s/%s" % (amount, table.MBW_BASIS[request.requirement["species"]])
+    per = {}
+    for bound in ("minimum", "maximum"):
+        x = getattr(lim, bound)
+        per[bound] = float(numbers.to_text(x / factor)) if limits.number(x) else None
+    figures = ", ".join("%s %s %s (%s %s)" % (
+        bound, numbers.to_text(per[bound]), mbw_unit, numbers.to_text(getattr(lim, bound)), unit)
+        for bound in ("minimum", "maximum") if per[bound] is not None)
+    kcal, bw = request.energy.kcal, request.facts["body_weight_kg"]
+    text = caveats.MBW_TEXT.format(mbw_unit=mbw_unit.split("/", 1)[1], figures=figures,
+                                   unit=unit, kcal=numbers.to_text(kcal),
+                                   bw=numbers.to_text(bw))
+    return {"unit": mbw_unit, "minimum": per["minimum"], "maximum": per["maximum"],
+            "energy_kcal_per_day": kcal, "body_weight_kg": bw, "text": text}
 
 
 def _nutrient(data, check, nid, entries):
@@ -256,6 +288,7 @@ def _nutrient(data, check, nid, entries):
            "max_provenance": provenance,
            "limits_unavailable": None if unavailable is None else {
                "reason": unavailable.reason, "text": _reason_text(unavailable.reason)},
+           "mbw": _mbw(data, request, nid, None if unavailable else lim, unit),
            "low": None, "high": None, "summary": None}
     if open_row is not None:
         notes = notes + open_row["notes"].split()
@@ -544,6 +577,8 @@ def describe_inputs(data):
     for nid in limits.nutrient_ids(data.tables):
         name, unit, basis, ig_code, _ = _row_info(data, nid)
         item = {"id": nid, "name": name, "unit": unit, "basis": basis}
+        if nid.endswith("-mbw"):
+            item["description"] = caveats.MBW_ENTRY_TEXT
         if nid in inputs.ENTRY_RANGES:
             item["range"] = list(inputs.ENTRY_RANGES[nid])
         entries.append(item)

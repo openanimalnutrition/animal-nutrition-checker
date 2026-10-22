@@ -114,6 +114,15 @@ ENERGY_ENTRY_TEXT = ("the energy the diet supplies, kcal per day; to replace the
                      "energy with the animal's known intake, use "
                      "animal.energy_intake_kcal_per_day.")
 
+# MBW rows: their limits are a requirement per kg of metabolic body weight a day, converted to
+# per Mcal with the animal's energy and body weight; entries are per Mcal (steward, 22 Oct
+# 2026: the template's column D label "g/kg BW^0.75" misread as the entry's unit).
+MBW_TEXT = ("This row's requirement is per {mbw_unit} a day: {figures}, converted to {unit} at "
+            "{kcal} kcal/day and a body weight of {bw} kg. Enter the diet's {unit}.")
+MBW_ENTRY_TEXT = ("the diet's amount per Mcal, as on the per-Mcal row; the limits are the "
+                  "requirement's per kg BW^0.75 (dogs) or BW^0.67 (cats) a day, converted with "
+                  "the animal's energy and body weight.")
+
 # Reasons in plain words.
 REASONS = {
     "requirement-needed": "Choose a requirement.",

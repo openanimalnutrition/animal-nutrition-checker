@@ -409,6 +409,37 @@ class Requests(unittest.TestCase):
         self.assertEqual(a["nutrients"], b["nutrients"])
 
 
+class MBWRows(unittest.TestCase):
+    """MBW rows are per Mcal; the requirement per kg BW^n a day and the conversion are given
+    (steward, 22 Oct 2026, after the GUI review)."""
+
+    def test_unit_and_conversion(self):
+        res = run("nrc-dog-adult", {"calcium-mbw": 8, "fat-mbw": 30},
+                  body_weight_kg=35.0, energy_intake_kcal_per_day=950.0)
+        ca = nutrient(res, "calcium-mbw")
+        self.assertEqual(ca["unit"], "g/Mcal")
+        self.assertEqual(ca["mbw"]["unit"], "g/kg BW^0.75")
+        self.assertEqual(ca["mbw"]["minimum"], 0.13)
+        self.assertIsNone(ca["mbw"]["maximum"])
+        self.assertEqual((ca["mbw"]["energy_kcal_per_day"], ca["mbw"]["body_weight_kg"]),
+                         (950.0, 35.0))
+        self.assertIn("0.13 g/kg BW^0.75 (1.96911363883933 g/Mcal)", ca["mbw"]["text"])
+        fat = nutrient(res, "fat-mbw")
+        self.assertEqual((fat["mbw"]["minimum"], fat["mbw"]["maximum"]), (1.8, 10.8))
+        self.assertIsNone(nutrient(run("nrc-dog-adult", {"calcium": 1}), "calcium")["mbw"])
+
+    def test_cats_and_describe_inputs(self):
+        res = run("nrc-cat-adult", {"taurine-mbw": 0.5})
+        self.assertEqual(nutrient(res, "taurine-mbw")["mbw"]["unit"], "g/kg BW^0.67")
+        items = {i["id"]: i for i in result.describe_inputs(D)["entries"]}
+        self.assertEqual(items["calcium-mbw"]["unit"], "g/Mcal")
+        self.assertEqual(items["calcium-mbw"]["description"], caveats.MBW_ENTRY_TEXT)
+
+    def test_no_conversion_without_energy(self):
+        res = result.check(D, {"requirement": "nrc-dog-adult", "entries": {"calcium-mbw": 1}})
+        self.assertIsNone(nutrient(res, "calcium-mbw")["mbw"])
+
+
 class Notes(unittest.TestCase):
     def test_get_notes(self):
         res = result.get_notes(D, {"ids": ["n231", "n005", "n231"]})

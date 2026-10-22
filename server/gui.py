@@ -226,6 +226,29 @@ def notes_fold(data, ids):
     return "<details><summary>Notes (%d)</summary><ul>%s</ul></details>" % (len(ids), items)
 
 
+FACTOR_LABELS = (
+    ("energy_used_kcal_per_day", "Energy used, kcal/day"),
+    ("energy_used_is", "Energy used is"),
+    ("energy_requirement_kcal_per_day", "The requirement's energy, kcal/day"),
+    ("caloric_restriction_percent", "Caloric restriction, %"),
+    ("aafco_dry_matter_factor", "AAFCO dry matter factor"),
+    ("intake_shortfall", "Intake below the requirement's energy, share"),
+)
+
+
+def animal_section(res):
+    """What the result was computed with: the animal facts as accepted, and the energy."""
+    facts = "".join("<li>%s: %s</li>" % (e(k.replace("_", " ")), _num(v))
+                    for k, v in res["inputs"]["normalized"]["animal"].items())
+    f = res["factors"]
+    factors = "".join("<li>%s: %s</li>" % (e(label), _num(f[key]))
+                      for key, label in FACTOR_LABELS if f[key] is not None)
+    if f["energy_reason"]:
+        factors += "<li>Energy: %s</li>" % e(f["energy_reason"]["text"])
+    return ("<section><h3>Animal and energy</h3><ul>%s</ul><ul>%s</ul></section>" % (
+        facts or "<li>No animal facts entered</li>", factors))
+
+
 def result_page(data, request, res):
     report = "".join("<li>%s: %s</li>" % (e(i["input"]), e(i["text"]))
                      for i in res["input_report"] if i["status"] != "defaulted")
@@ -235,9 +258,10 @@ def result_page(data, request, res):
                         for c in n["conditions"])
         unavailable = n["limits_unavailable"]
         rows_html.append(
-            "<tr><td>%s<br><small>%s</small></td><td>%s</td><td>%s</td><td>%s<br><small>%s, "
+            "<tr><td>%s<br><small>%s</small>%s</td><td>%s</td><td>%s</td><td>%s<br><small>%s, "
             "%s</small></td>%s%s<td><ul>%s</ul>%s</td></tr>" % (
                 e(n["name"]), e(n["unit"]),
+                "<br><small>%s</small>" % e(n["mbw"]["text"]) if n["mbw"] else "",
                 _num(n["minimum"]) or ("none" if not unavailable else e(unavailable["text"])),
                 _num(n["standard_minimum"]), _num(n["range_high"]), e(n["max_type"]),
                 e(n["max_provenance"]), _entry_cells(n["low"]), _entry_cells(n["high"]),
@@ -252,7 +276,7 @@ def result_page(data, request, res):
         '<h2>%s</h2><p>Subject: %s. Verdicts: %s.</p>'
         '<form method="post" action="/check.json">%s<button type="submit">Download JSON'
         '</button> <button type="submit" formaction="/edit">Change the inputs</button></form>'
-        '<section><h3>Input report</h3><ul>%s</ul></section>'
+        '%s<section><h3>Input report</h3><ul>%s</ul></section>'
         '<table class="result"><thead><tr><th>Nutrient</th><th>Minimum</th>'
         '<th>Standard\'s minimum</th><th>Range high (type, kind)</th><th>Low</th>'
         '<th>Band</th><th>Verdict</th><th>High</th><th>Band</th><th>Verdict</th>'
@@ -260,5 +284,5 @@ def result_page(data, request, res):
         '<section><h3>NRC fatty acid checks</h3><ul>%s</ul></section>'
         '<section><h3>Known limitations</h3><ul>%s</ul></section>') % (
         e(req["name"] or "No requirement"), e(res["subject"]), e(res["verdict_status"]),
-        _hidden(request), report, "".join(rows_html), checks, lims)
+        _hidden(request), animal_section(res), report, "".join(rows_html), checks, lims)
     return page(data, body)

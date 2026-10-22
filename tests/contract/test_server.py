@@ -141,6 +141,9 @@ class Server(unittest.TestCase):
     def test_gui_page_has_the_caveats_first(self):
         page = self.http.post("/check", data=dict(form_of(REQUEST))).text
         self.assertIn("<details><summary>Notes (", page)
+        self.assertIn("<h3>Animal and energy</h3>", page)
+        self.assertIn("body weight kg: 20", page)
+        self.assertIn("Energy used, kcal/day:", page)
         first = page.index("Caveats")
         for c in caveats.caveats(D.version):
             self.assertIn(c["text"].replace("'", "&#x27;"), page)
