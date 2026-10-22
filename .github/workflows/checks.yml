@@ -1,0 +1,45 @@
+# The automatic checks of every pull request and of main: tools/check.py, the same command
+# run locally. On a pull request it also writes the impact report of the change (data/
+# against the data of the branch merged into) to the run's summary page.
+#
+# Written in phase 4 (22 Oct 2026) before the repository was pushed: not yet run on GitHub.
+# No secrets; the token can only read; a pull request from a fork runs the same way.
+name: checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.9", "3.x"]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: The data of the branch merged into
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/base"
+          git archive "origin/$BASE_REF" data | tar -x -C "$RUNNER_TEMP/base"
+      - name: All checks
+        env:
+          EVENT: ${{ github.event_name }}
+        run: |
+          if [ "$EVENT" = pull_request ]; then
+            python -I -B tools/check.py --against "$RUNNER_TEMP/base/data" --summary "$GITHUB_STEP_SUMMARY"
+          else
+            python -I -B tools/check.py
+          fi

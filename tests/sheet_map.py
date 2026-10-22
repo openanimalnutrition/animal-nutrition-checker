@@ -284,10 +284,15 @@ NO_RANGE_LABEL = 'No range'
 TEMPLATE_ROWS = {55: 'epa', 66: 'calcium-large-breed-puppy', 98: 'vitamin-d2',
                  99: 'vitamin-d2-mbw'}
 # s01 column B where it differs from the nutrient's name (the lookups ignore case).
-S01_LABELS = {42: 'Glutamic acid', 11: 'Energy (in kcal)'}
-# Descriptor cells with no formula (blank) or a fixed text.
-FIXED_DESCRIPTORS = {'L55': 'See below:', 'N55': None, 'AR55': None, 'L65': None,
-                     'N65': None, 'AR65': None, 'L123': None}
+S01_LABELS = {42: 'Glutamic acid', 11: 'Energy (in kcal)',
+              10: '100% Minus % Caloric Restriction Adjustment For Weight Loss'}
+# Cells whose value never depends on the inputs: no formula (blank, or a fixed text), or a
+# formula that reads only blank cells. Row 55 (EPA alone) is entered only: no limits, bands
+# or join. Row 65 holds the puppy's body weight (G65); its band edge formulas read the blank
+# C65 and E65 and give 0, as do AP6-AP9.
+FIXED_CELLS = {'L55': 'See below:', 'N55': None, 'AR55': None, 'L65': None,
+               'N65': None, 'AR65': None, 'L123': None, 'M123': None,
+               'K10': 'N/A', 'M10': None, 'N10': None}
 # The first rows of the column C/E limits.
 LIMIT_COLUMNS = {'C': 'min', 'E': 'max'}
 # Band edge columns (lower edges) and the range high, as fractions of the minimum (Q-U),
@@ -297,6 +302,15 @@ EDGE_MIN = 'W'
 EDGE_DECILES = [('Y', 0.1), ('AA', 0.2), ('AC', 0.3), ('AE', 0.4), ('AG', 0.5), ('AI', 0.6),
                 ('AK', 0.7), ('AM', 0.8), ('AO', 0.9)]
 RANGE_HIGH = 'AP'
+# The lowest band's lower edge (a typed 0), and the upper edge the template shows just below
+# each lower edge (display only): (column, fraction) of the minimum (P-V) or of the range
+# (X-AN).
+EDGE_BOTTOM = 'O'
+EDGE_SHOWN_BELOW_MIN = [('P', 0.249999999), ('R', 0.499999999), ('T', 0.749999999),
+                        ('V', 0.999999999)]
+EDGE_SHOWN_DECILES = [('X', 0.099999999), ('Z', 0.199999999), ('AB', 0.299999999),
+                      ('AD', 0.399999999), ('AF', 0.499999999), ('AH', 0.599999999),
+                      ('AJ', 0.699999999), ('AL', 0.799999999), ('AN', 0.899999999)]
 DESCRIPTOR_COLUMNS = {'L': 'low', 'N': 'high'}
 SUMMARY_COLUMN = 'AR'
 JOIN_COLUMN = 'M'
@@ -357,3 +371,69 @@ TEXT_CHECK_TEXTS = {
          'dha-below-minimum': 'DHA (EPA + DHA minus EPA) below NRC min'},
 }
 NOT_APPLICABLE = 'Not applicable'
+
+# Phase 4: the rest of the export's computed cells, and the layout the real-Sheets check does
+# not compare.
+
+_EDGE_COLUMNS = ([EDGE_BOTTOM] + [c for c, _ in EDGE_SHOWN_BELOW_MIN + EDGE_BELOW_MIN] +
+                 [EDGE_MIN] + [c for c, _ in EDGE_SHOWN_DECILES + EDGE_DECILES] + [RANGE_HIGH])
+for _c in ['E', JOIN_COLUMN] + _EDGE_COLUMNS:
+    FIXED_CELLS[_c + '55'] = None
+for _c in _EDGE_COLUMNS:
+    FIXED_CELLS[_c + '65'] = 0.0
+for _r in (6, 7, 8, 9):
+    FIXED_CELLS[RANGE_HIGH + str(_r)] = 0.0
+# Cells with an instruction to the user where other rows have a limit.
+INSTRUCTION_CELLS = {'C55'}
+# A multiplier the template types but never uses (row 55 has no bands).
+UNUSED_CELLS = {'K55'}
+
+# Row 10: the caloric restriction entered in G10, described as a band of its range: from C10
+# (0, no restriction) to E10 (the input rule's highest restriction, oan/inputs.py).
+RESTRICTION_ROW = 10
+RESTRICTION_NONE_LABEL = 'No restriction to describe'
+RESTRICTION_SUMMARY = ' Caloric Restriction Based on a Range of 0-55% Restriction'
+
+# The header cells: the species of the selected requirement (M2), its name (N2) and the body
+# weight in pounds (C3: the template's display figure, 2.20462 lb per kg, rounded to 1 place).
+SPECIES_CELL = 'M2'
+SPECIES_LABELS = {'canine': 'Dog', 'feline': 'Cat'}
+SELECTED_CELL = ('N2', "Selected Req't: ")
+POUNDS_CELL = ('C3', 'BW (lb): ', 2.20462)
+
+# The requirement table's energy row (s02 row 4): each requirement's energy at the Standards
+# tab's inputs (MIN columns), none in the MAX columns; its name and unit. Column D joins a
+# row's name and unit.
+TABLE_ENERGY_ROW = 4
+TABLE_ENERGY_NAME = ('Energy (in kcal)', 'kcal')
+NAME_UNIT_COLUMN = 'D'
+
+
+def col_row(ref):
+    i = len(ref.rstrip('0123456789'))
+    return ref[:i], int(ref[i:])
+
+
+def layout_reason(tab, ref):
+    """Why the real-Sheets check does not compare a cell with no formula, or None. Formula
+    cells always have a reason of their own (tests/real_sheets_check.py)."""
+    col, row = col_row(ref)
+    if tab == 's01':
+        if ref in INPUT_CELLS:
+            return 'an input: compared with the export inputs'
+        if ref in INSTRUCTION_CELLS:
+            return 'an instruction to the user'
+        if ref in UNUSED_CELLS:
+            return 'a multiplier the template never uses (row 55 has no bands)'
+        if col == 'A':
+            return 'column A: row IDs, headings and instructions'
+        if row <= 9:
+            return 'headings and labels (rows 1-9)'
+        if col in ('D', 'F', 'H', 'J'):
+            return 'unit labels (the units are compared on the requirement table, s02 column C)'
+        return None
+    if col == 'A':
+        return 'column A: row IDs and the title'
+    if row in (1, 3) or (row == NAME_ROW and col == 'D'):
+        return 'headings, labels and reference IDs (rows 1-3)'
+    return None

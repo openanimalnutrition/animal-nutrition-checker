@@ -172,20 +172,31 @@ def compute_limits(data, requirement_id, mature_weight_kg=None):
             if rule == "folic-acid-to-dfe":
                 result = result / 0.6
         elif rule == "mbw-from-per-mcal":
-            result = value(nutrients[nutrient_id]["mbw_of"], bound, stack) * float(
-                req["mer_kcal_per_mbw"]) / 1000
+            result = needed(nutrients[nutrient_id]["mbw_of"], bound, key, rule, stack) * \
+                float(req["mer_kcal_per_mbw"]) / 1000
         elif rule == "retinol-from-vitamin-a-iu":
-            result = value(RETINOL_VITAMIN_A[nutrient_id], bound, stack) * 0.3
+            result = needed(RETINOL_VITAMIN_A[nutrient_id], bound, key, rule, stack) * 0.3
         elif rule == "vitamin-a-iu-from-retinol":
-            result = value(VITAMIN_A_RETINOL[nutrient_id], bound, stack) / 0.3
+            result = needed(VITAMIN_A_RETINOL[nutrient_id], bound, key, rule, stack) / 0.3
         elif rule == "la-aa-over-epa-dha":
             la, aa, epa_dha = LA_AA_EPA_DHA
-            result = (value(la, "max", stack) + value(aa, "max", stack)) / value(
-                epa_dha, "min", stack)
+            result = (needed(la, "max", key, rule, stack) +
+                      needed(aa, "max", key, rule, stack)) / \
+                needed(epa_dha, "min", key, rule, stack)
         else:
             raise DataError("%s: %s %s has an unknown rule %r" % (
                 requirement_id, nutrient_id, bound, rule))
         done[key] = result
         return result
+
+    def needed(nutrient_id, bound, of, rule, stack):
+        """A value a rule computes from: a number, never none."""
+        v = value(nutrient_id, bound, stack)
+        if v is None:
+            raise DataError("%s: %s %s is computed by the rule %s from %s %s, which is "
+                            "none; give %s %s a figure, or the rule's value its own figure" % (
+                                requirement_id, of[0], of[1], rule, nutrient_id, bound,
+                                nutrient_id, bound))
+        return v
 
     return {nid: (value(nid, "min"), value(nid, "max")) for nid in rows}

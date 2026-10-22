@@ -17,8 +17,8 @@ sys.path.insert(0, os.path.dirname(HERE))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(HERE, "models"))
 import formulas_model  # noqa: E402
+import model_agreement  # noqa: E402
 import run_vectors  # noqa: E402
-import sheet_view  # noqa: E402
 import values_model  # noqa: E402
 from oan import inputs, limits, outcomes, table, validate  # noqa: E402
 
@@ -308,47 +308,13 @@ class ChangedData(unittest.TestCase):
         return data
 
     def formulas_agree(self, data):
-        cases, cells = formulas_model.load(FORMULAS)
-        formulas_model.use(data)
-        changed, models = 0, {}
-        for case in cases:
-            try:
-                sv = sheet_view.StandardsView(data, case["inputs"])
-            except sheet_view.OutsideRule:
-                continue
-            e3 = case["inputs"].get("E3")
-            if e3 not in models:
-                models[e3] = formulas_model.build_model(data, e3)
-            m = models[e3]
-            if m.position(case["inputs"].get("O1")) is None:
-                continue
-            known = {ref: sv.cell(ref) for ref in ("G4", "C11", "C53")}
-            for t in formulas_model.TARGETS:
-                core = sv.cell(t)
-                model = formulas_model._jv(formulas_model.expect(m, case["inputs"], known, t))
-                self.assertTrue(formulas_model.same(core, model), (case["id"], t, core, model))
-                changed += not formulas_model.same(core, dict(zip(cells, case["values"]))[t])
+        checked, bad, changed = model_agreement.formulas_agreement(data)
+        self.assertEqual(bad, [])
         return changed
 
     def values_agree(self, data):
-        values_model.use(data)
-        m = values_model.Model(values_model.table_from_data(data))
-        changed = 0
-        for case in values_model.load_cases(VALUES):
-            if case["group"] == "table":
-                continue
-            try:
-                sv = sheet_view.StandardsView(data, case["inputs"])
-            except sheet_view.OutsideRule:
-                continue
-            want = [r for r in case["outputs"] if values_model.modelled(r)]
-            known = {r: sv.cell(r) for r in values_model.NOT_MODELLED}
-            got = m.compute(case["inputs"], known, want)
-            for ref in want:
-                core = sv.cell(ref)
-                self.assertTrue(values_model.same(core, got[ref]), (case["id"], ref, core,
-                                                                    got[ref]))
-                changed += not values_model.same(core, case["outputs"][ref])
+        checked, bad, changed = model_agreement.values_agreement(data)
+        self.assertEqual(bad, [])
         return changed
 
     def test_formulas_figures(self):

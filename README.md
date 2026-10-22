@@ -22,13 +22,19 @@ the Open Animal Nutrition organisation.
 | `oan/bands.py` | The 14 bands: which band of a row a value is in |
 | `oan/limits.py` | Each nutrient's minimum, maximum, range high and the type of the range high, for one request |
 | `oan/outcomes.py` | What the checker says about each entry (a band or another outcome), and NRC's text checks |
-| `tools/` | The one-time converter from the template, the source finder, the validator runner |
-| `tests/parity/` | The frozen 21OCT26b baseline: a copy of the data, the test vectors, `SHA256SUMS` |
+| `tools/check.py` | Every automatic check in one command (what a pull request must pass) |
+| `tools/impact_report.py` | The impact report of a data change, old data against new: evidence for the steward |
+| `tools/` (other) | The one-time converters from the template (the table, the export's cell values), the source finder, the validator runner |
+| `.github/workflows/checks.yml` | Runs `tools/check.py` on every pull request and on main (not yet run on GitHub) |
+| `docs/parity-21OCT26b.md` | The parity gate: what was compared with the template, and every difference with its reason |
+| `tests/parity/` | The frozen 21OCT26b baseline: a copy of the data, the test vectors, the export's cell values, `SHA256SUMS` |
 | `tests/run_vectors.py` | Runs every test vector against the baseline (both orders) and counts them per file |
+| `tests/real_sheets_check.py` | The one check against Google Sheets' own values: the released template's export |
 | `tests/sheet_map.py`, `tests/sheet_view.py` | Test side only: the template's cells, and those cells computed from the code's results |
 | `tests/models/energy_model.py` | An energy model written separately from the sources, reading the same figures, to check the core on changed data |
 | `tests/models/values_model.py`, `tests/models/formulas_model.py` | The same for the limits and bands: models written separately from the specifications, reading the same data |
-| `tests/vectors-extra/` | Cases written after the freeze for what the frozen vectors do not test (the text checks), not frozen |
+| `tests/model_agreement.py` | Runs each model and the core on the same data and lists where they disagree |
+| `tests/vectors-extra/` | Cases written after the freeze for what the frozen vectors do not test (the text checks; row 10, the header cells, the energy row of the table, the edges shown below band edges), not frozen |
 
 ## The data
 
@@ -90,18 +96,42 @@ The frozen baseline gained the same `energy.csv` once, in phase 2, and the same
 keep running on 21OCT26b's figures after a standard or a template figure changes. Its
 `RELEASE` keeps the label 21OCT26b.1 with the content hash recomputed; each time
 `SHA256SUMS` changed in the RELEASE line and gained the new file's line, nothing else.
+In phase 4 the baseline gained, beside the data, the cell values of the released
+template's export (`tests/parity/export-21OCT26b`, steward, 22 Oct 2026); `SHA256SUMS`
+gained that one line.
 
 ## Checks
+
+Every check, in one command (what a pull request must pass; GitHub runs the same):
+
+```
+nice -n 10 python3 -I -B tools/check.py
+nice -n 10 python3 -I -B tools/check.py --against OLD_DATA     # also the impact report
+```
+
+It runs the validator on `data/` and on the frozen baseline, the tests of each phase, every
+test vector, and the real-Sheets check. Each can also be run alone:
 
 ```
 nice -n 10 python3 -I -B tests/test_phase1a.py          # baseline, round trip, validator
 nice -n 10 python3 -I -B tests/test_phase1b.py          # number handling, input rules, runner
 nice -n 10 python3 -I -B tests/test_phase2.py           # energy figures, energy, bands, row 11
 nice -n 10 python3 -I -B tests/test_phase3.py           # template figures, limits, outcomes, models
+nice -n 10 python3 -I -B tests/test_phase4.py           # real-Sheets check, impact report, parity page
 nice -n 10 python3 -I -B tests/run_vectors.py           # the test vectors, counted per file
+nice -n 10 python3 -I -B tests/real_sheets_check.py     # against the export's own values
 nice -n 10 python3 -I -B tests/roundtrip.py data        # the limits against 21OCT26b
 nice -n 10 python3 -I -B tools/validate_data.py data    # the validator
+nice -n 10 python3 -I -B tools/impact_report.py OLD_DATA NEW_DATA   # a data change's impact
 ```
+
+The impact report (evidence for the steward, not an oracle) lists the validator's findings
+on the new data, every changed field of every data file, every limit and outcome that
+changes over a fixed grid of inputs (every requirement under five sets of inputs, entries at
+the old band edges and between them) and over the test cases' inputs, and the independent
+models run on the new data against the core. No expected value is regenerated from the code
+under review. Changing one figure names exactly the outcomes that use it
+(`tests/test_phase4.py`).
 
 The round trip computes all 4,830 limits from the CSV files and compares them with the
 released 21OCT26b values: 4,829 are bit for bit the same, and one differs in the last
@@ -115,8 +145,12 @@ the frozen baseline. Phase 1b: number handling, the input rules and the vector r
 Phase 2: energy (the figures as data, the energy core, the bands, row 11). Phase 3: the
 minimums, maximums, range highs and bands of rows 12-130, the type of each range high per
 request (the IG's Maximum types), the outcomes other than a band, and NRC's five text
-checks (the template's figures as data). Verdicts (deficient, excess) come with the Result
-in phase 5.
+checks (the template's figures as data). Phase 4: the parity gate (the real-Sheets check,
+the difference list, the impact report, the automatic checks). Verdicts (deficient, excess)
+come with the Result in phase 5.
+
+**Parity with Version 21OCT26b: no case differs; three differences are listed for the
+steward's approval in `docs/parity-21OCT26b.md`** (two approved on 21 Oct 2026, one new).
 
 | Vector file | Cases | Pass | Differ | Outside the rules |
 |---|---|---|---|---|
@@ -126,11 +160,16 @@ in phase 5.
 | `energy-testcases.json` | 2,360 | 2,360 | 0 | 0 |
 | `energy-testcases-row11.json` | 1,092 | 1,088 | 0 | 4 |
 | `vectors-extra/text-checks-21OCT26b.json` (not frozen) | 198 | 198 | 0 | 0 |
+| `vectors-extra/display-21OCT26b.json` (not frozen) | 181 | 181 | 0 | 0 |
 
-Every value is bit for bit the template's except two, within 1e-12: the vitamin D MBW
-minimum of NRC RA Cat Maintenance at an entered intake, and the vitamin D2 MBW minimum
-computed from it (formulas case k4-0766). Both come from the 6.8 against
-6.800000000000001 difference the steward approved as the same value.
+The real-Sheets check: at the export's own inputs, every formula cell of the Standards tab
+(3,796) and of the requirement table (396), and 5,578 typed cells, equal the values Google
+Sheets stored, as Sheets writes them (10 significant digits for a formula's number);
+872 typed cells of the layout are not compared, each with its reason.
+
+Every value is bit for bit the template's except ten, within 1e-12, all from the 6.8
+against 6.800000000000001 vitamin D difference the steward approved as the same value:
+two in formulas case k4-0766 (C97, C99) and eight band edges of row 97 in the display cases.
 
 Cases with an input outside its rule, which the code rejects instead of computing with
 (one approved category of difference): formulas 338, values 18, row 11 4, and the energy
@@ -139,7 +178,8 @@ weight, which the code reports as missing where the template shows 0 kcal).
 
 The independent models, reading the same data folder, agree with every case they model:
 values 8,595 values, formulas 51,229 (53 cases skipped, as in the original: a wildcard or
-unmatched requirement name), energy every case. With a template figure changed, the core
-and the models still agree (tests/test_phase3.py).
+unmatched requirement name), energy every case. With a figure changed, the core and the
+models still agree (tests/test_phase3.py, tests/test_phase4.py).
 
-Next: the parity gate (4).
+Next: the steward's approval of the parity page; then phase 5 (the Result, the GUI and the
+MCP server).

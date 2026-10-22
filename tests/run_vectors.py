@@ -42,7 +42,7 @@ FILES = (
 # Cases written after the freeze for what the frozen vectors do not test, run against the
 # same baseline data and reported apart (tests/vectors-extra; not frozen).
 EXTRA = os.path.join(HERE, "vectors-extra")
-EXTRA_FILES = ("text-checks-21OCT26b.json",)
+EXTRA_FILES = ("text-checks-21OCT26b.json", "display-21OCT26b.json")
 PENDING = {}
 
 
@@ -113,11 +113,14 @@ def run_values_case(case, data, view):
 def standards_kind(ref):
     """The kind of a Standards tab cell, for the report."""
     if ref.startswith("s02!"):
-        return "limit"
+        row = sheet_map.col_row(ref[len("s02!"):])[1]
+        return "energy" if row == sheet_map.TABLE_ENERGY_ROW else "limit"
     col = ref.rstrip("0123456789")
     row = int(ref[len(col):])
     if ref in ENERGY_KINDS:
         return ENERGY_KINDS[ref]
+    if ref in HEADER_CELLS:
+        return "header"
     if row in sheet_map.TEXT_CHECK_ROWS.values() and col in sheet_map.DESCRIPTOR_COLUMNS:
         return "text check"
     return {"C": "minimum", "E": "maximum", "AP": "range high", "L": "description",
@@ -138,6 +141,7 @@ def run_formulas_case(case, data, view):
     return run_standards_case(case, data, view)
 
 
+HEADER_CELLS = {sheet_map.SPECIES_CELL, sheet_map.SELECTED_CELL[0], sheet_map.POUNDS_CELL[0]}
 ENERGY_KINDS = {"G4": "energy", "C11": "energy", "C11_highlighted": "highlight",
                 "E11": "maximum", "L11": "description", "N11": "description",
                 "M11": "description"}
@@ -169,6 +173,7 @@ def run_extra_case(case, data, view):
 
 RUNNERS = {
     "text-checks-21OCT26b.json": run_extra_case,
+    "display-21OCT26b.json": run_extra_case,
     "inputs.json": run_input_case,
     "values.json": run_values_case,
     "formulas-testcases.json": run_formulas_case,
@@ -291,7 +296,7 @@ def main(argv):
     total_diff = 0
     orders_agree = True
     for name in FILES + EXTRA_FILES:
-        if name in EXTRA_FILES:
+        if name == EXTRA_FILES[0]:
             print("extra (tests/vectors-extra, not frozen):")
         cases, outside = load_cases(name)
         forward = run_file(name, cases, data, "forward")

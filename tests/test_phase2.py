@@ -41,13 +41,15 @@ def facts(**kw):
 
 class Baseline(unittest.TestCase):
     def test_every_baseline_file_is_checksummed(self):
-        # energy.csv was added once, in phase 2 (steward, 21 Oct 2026); its RELEASE hash was
-        # recomputed. Any other file added or changed fails here or in test_phase1a.
+        # energy.csv was added once, in phase 2, and template.csv once, in phase 3 (steward,
+        # 21 Oct 2026); the RELEASE hash was recomputed each time. The export's cell values
+        # were added once, in phase 4 (steward, 22 Oct 2026). Any other file added or changed
+        # fails here or in test_phase1a.
         listed = set()
         for line in open(os.path.join(run_vectors.PARITY, "SHA256SUMS"), encoding="utf-8"):
             listed.add(line.split(None, 1)[1].strip())
         found = set()
-        for folder in ("data-21OCT26b", "vectors-21OCT26b"):
+        for folder in ("data-21OCT26b", "vectors-21OCT26b", "export-21OCT26b"):
             for dirpath, _, files in os.walk(os.path.join(run_vectors.PARITY, folder)):
                 for f in files:
                     found.add(os.path.relpath(os.path.join(dirpath, f), run_vectors.PARITY))

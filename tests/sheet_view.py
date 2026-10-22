@@ -6,8 +6,11 @@ requirement names and the fixed labels) and the Standards tab's multipliers (s01
 Phase 2 adds the energy cells (EnergyView): s01 G4, C11 and its highlight, and row 11.
 Phase 3 adds the Standards tab's rows 12-130 (StandardsView): the minimums and maximums
 (columns C and E), the band edges and range highs, the descriptions (L, N) and summary
-sentences (AR), the text checks (rows 49-58) and the helper cells. Other cells raise
-NotModelled.
+sentences (AR), the text checks (rows 49-58) and the helper cells. Phase 4 adds the rest of
+the computed cells the real-Sheets check compares: the edges shown below each band edge, the
+row names and multipliers, row 10 (the caloric restriction), the header cells (M2, N2, C3),
+the cells that never change (rows 55 and 65, AP6-AP9), and the requirement table's energy
+row (s02 row 4) and name-and-unit column (D). Other cells raise NotModelled.
 """
 
 import re
@@ -59,6 +62,9 @@ class TableView:
             return self.nutrients[nid]["name"], "name"
         if nid is not None and col == sheet_map.UNIT_COLUMN:
             return self.nutrients[nid]["unit"], "unit"
+        if nid is not None and col == sheet_map.NAME_UNIT_COLUMN:
+            n = self.nutrients[nid]
+            return n["name"] + " " + n["unit"], "name and unit"
         rid, role = self.columns.get(col, (None, None))
         if rid is None:
             raise NotModelled(ref)
@@ -244,16 +250,33 @@ class StandardsView:
     # Cells.
 
     def cell(self, ref):
-        if ref.startswith("s02!") or ref.startswith("s01!"):
+        if ref.startswith("s02!"):
+            return self._table_cell(ref)
+        if ref.startswith("s01!"):
             return self.table.cell(ref)[0]
         m = re.match(r"([A-Z]+)([0-9]+)$", ref)
         if not m:
             raise NotModelled(ref)
         col, row = m.group(1), int(m.group(2))
+        if ref in sheet_map.INSTRUCTION_CELLS or ref in sheet_map.UNUSED_CELLS:
+            raise NotModelled(ref)
+        if ref in sheet_map.FIXED_CELLS:
+            return sheet_map.FIXED_CELLS[ref]
+        if row >= sheet_map.RESTRICTION_ROW:
+            if col == sheet_map.NAME_COLUMN and (row in sheet_map.S01_LABELS or
+                                                 row in self.ENTRY_ROWS):
+                return self._label(self.ENTRY_ROWS.get(row), row)
+            if col == sheet_map.EDGE_BOTTOM and (row in self.ENTRY_ROWS or row in (
+                    sheet_map.RESTRICTION_ROW, sheet_map.ENERGY_ROW)):
+                return 0.0
+            if col == sheet_map.MULTIPLIER_COLUMN and row in sheet_map.TEMPLATE_ROWS:
+                return float(self.data["template"][sheet_map.TEMPLATE_ROWS[row]]["k"])
+            if col == sheet_map.MULTIPLIER_COLUMN and row == sheet_map.ENERGY_ROW:
+                return float(self.data["energy"]["energy-range-high"]["figure"])
         if row <= 4 or row == sheet_map.ENERGY_ROW:
             return self._top(ref)
-        if ref in sheet_map.FIXED_DESCRIPTORS:
-            return sheet_map.FIXED_DESCRIPTORS[ref]
+        if row == sheet_map.RESTRICTION_ROW:
+            return self._restriction(col, ref)
         if col == sheet_map.MULTIPLIER_COLUMN:
             return self.table.cell("s01!" + ref)[0]
         for (cid, fid), check_row in sheet_map.TEXT_CHECK_ROWS.items():
@@ -278,6 +301,15 @@ class StandardsView:
         raise NotModelled(ref)
 
     def _top(self, ref):
+        if ref == sheet_map.SPECIES_CELL:
+            r = self.request.requirement
+            return "" if r is None else sheet_map.SPECIES_LABELS[r["species"]]
+        if ref == sheet_map.SELECTED_CELL[0]:
+            return sheet_map.SELECTED_CELL[1] + (self.name or "")
+        if ref == sheet_map.POUNDS_CELL[0]:
+            text, per_kg = sheet_map.POUNDS_CELL[1:]
+            bw = self.facts.get("body_weight_kg") or 0.0
+            return text + numbers.to_text(numbers.sheet_round(bw * per_kg, 1))
         if ref == sheet_map.POSITION_CELL:
             if self.request.requirement is None:
                 return {"error": sheet_map.REQUIREMENT_ERROR}
@@ -300,12 +332,56 @@ class StandardsView:
             return self._energy_cells[ref]
         raise NotModelled(ref)
 
+    def _table_cell(self, ref):
+        """A requirement table cell; its energy row (row 4) needs the Standards tab's
+        inputs."""
+        col, row = sheet_map.col_row(ref[len("s02!"):])
+        if row != sheet_map.TABLE_ENERGY_ROW:
+            return self.table.cell(ref)[0]
+        name, unit = sheet_map.TABLE_ENERGY_NAME
+        if col == sheet_map.NAME_COLUMN:
+            return name
+        if col == sheet_map.UNIT_COLUMN:
+            return unit
+        if col == sheet_map.NAME_UNIT_COLUMN:
+            return name + " " + unit
+        rid, role = self.table.columns.get(col, (None, None))
+        if role == "min":
+            return self.energy._shown(energy.requirement_energy(self.data, rid, self.facts))
+        if role == "max":
+            return table.NONE
+        raise NotModelled(ref)
+
+    def _restriction(self, col, ref):
+        """Row 10: the restriction's range is C10 (0: no restriction) to E10, the input
+        rule's highest restriction; L10 gives the band of the restriction entered in G10."""
+        low = 0.0
+        high = float(inputs.FACTS["caloric_restriction_percent"][1][1])
+        if col == "C":
+            return low
+        if col == "E":
+            return high
+        edges = self._edge_cells(low, high, None)
+        if col in edges:
+            return edges[col]
+        r = self.facts.get("caloric_restriction_percent")
+        label = (sheet_map.RESTRICTION_NONE_LABEL if r is None or r == 0
+                 else sheet_map.BAND_LABELS[bands.band(r, low, high, has_max=True)])
+        if col == "L":
+            return label
+        if col == sheet_map.SUMMARY_COLUMN:
+            return inputs.trim(label + sheet_map.RESTRICTION_SUMMARY)
+        raise NotModelled(ref)
+
     def _edges(self, nid):
-        """The band edges and range high as the template computes them from its C and E
-        cells (an error in C gives errors; AP is 0 when C is an error and E none)."""
-        c = _cell_value(self.request.minimum(nid))
-        e = _cell_value(self.request.maximum(nid))
-        k = self.request.multiplier(nid)
+        return self._edge_cells(_cell_value(self.request.minimum(nid)),
+                                _cell_value(self.request.maximum(nid)),
+                                self.request.multiplier(nid))
+
+    def _edge_cells(self, c, e, k):
+        """The band edges, the edges shown below them and the range high as the template
+        computes them from a row's C, E and K cells (an error in C gives errors; AP is 0
+        when C is an error and E none)."""
         if _is_error(e):
             ap = e
         elif e == table.NONE:
@@ -316,19 +392,27 @@ class StandardsView:
             ap = e
         out = {sheet_map.RANGE_HIGH: ap}
         if _is_error(c):
-            for col, _ in sheet_map.EDGE_BELOW_MIN + sheet_map.EDGE_DECILES:
+            for col, _ in (sheet_map.EDGE_BELOW_MIN + sheet_map.EDGE_DECILES +
+                           sheet_map.EDGE_SHOWN_BELOW_MIN + sheet_map.EDGE_SHOWN_DECILES):
                 out[col] = c
             out[sheet_map.EDGE_MIN] = c
             return out
         minimum = None if c == table.NONE else c
+        base = minimum or 0.0
         if _is_error(ap):
-            edges = [(minimum or 0.0) * f for _, f in sheet_map.EDGE_BELOW_MIN] + \
-                [minimum or 0.0] + [ap] * len(sheet_map.EDGE_DECILES)
+            edges = [base * f for _, f in sheet_map.EDGE_BELOW_MIN] + \
+                [base] + [ap] * len(sheet_map.EDGE_DECILES)
         else:
             edges = bands.lower_edges(minimum, ap)
         cols = [col for col, _ in sheet_map.EDGE_BELOW_MIN] + [sheet_map.EDGE_MIN] + \
             [col for col, _ in sheet_map.EDGE_DECILES]
         out.update(zip(cols, edges))
+        # Shown below each edge: C x fraction (0 when C is none), and ((AP - C) x fraction)
+        # + C, with W (0) for C when C is none.
+        for col, f in sheet_map.EDGE_SHOWN_BELOW_MIN:
+            out[col] = base * f
+        for col, f in sheet_map.EDGE_SHOWN_DECILES:
+            out[col] = ap if _is_error(ap) else ((ap - base) * f) + base
         return out
 
     def _describe(self, nid, row, side):
@@ -355,8 +439,15 @@ class StandardsView:
             raise NotModelled("no template text for the outcome %s" % o.code)
         return sheet_map.BAND_LABELS[o.code]
 
+    def _shown(self, nid, row, side):
+        """L or N as the template shows it: a fixed cell, or the description."""
+        ref = ("L" if side == "low" else "N") + str(row)
+        if ref in sheet_map.FIXED_CELLS:
+            return sheet_map.FIXED_CELLS[ref]
+        return self._describe(nid, row, side)
+
     def _join(self, nid, row):
-        low, high = self._describe(nid, row, "low"), self._describe(nid, row, "high")
+        low, high = self._shown(nid, row, "low"), self._shown(nid, row, "high")
         for x in (low, high):
             if _is_error(x):
                 return x
@@ -373,10 +464,10 @@ class StandardsView:
         """AR: TRIM of the descriptions joined by "to", the row's name, "Based on" the
         requirement, and the row's phrases."""
         ref = sheet_map.SUMMARY_COLUMN + str(row)
-        if ref in sheet_map.FIXED_DESCRIPTORS:
-            return sheet_map.FIXED_DESCRIPTORS[ref]
-        low = self._describe(nid, row, "low")
-        high = self._describe(nid, row, "high")
+        if ref in sheet_map.FIXED_CELLS:
+            return sheet_map.FIXED_CELLS[ref]
+        low = self._shown(nid, row, "low")
+        high = self._shown(nid, row, "high")
         for x in (low, high):
             if _is_error(x):
                 return x
