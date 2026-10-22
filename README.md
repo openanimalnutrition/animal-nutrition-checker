@@ -58,7 +58,8 @@ nice -n 10 python3 -I -B tools/validate_data.py data    # the validator
 
 The round trip computes all 4,830 limits from the CSV files and compares them with the
 released 21OCT26b values: 4,829 are bit for bit the same, and one differs in the last
-binary digit (the template's `=0.17*40` gives 6.800000000000001; the code gives 6.8).
+binary digit (the template's `=0.17*40` gives 6.800000000000001; the code gives 6.8). The
+steward approved the two as the same value (21 Oct 2026).
 
 ## Status
 
