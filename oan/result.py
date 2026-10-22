@@ -231,6 +231,36 @@ def _number_or_none(x):
     return x if limits.number(x) else None
 
 
+# Maximum types that are a standard's own figure (not the template's estimate or calculation).
+STANDARD_MAXIMUM_TYPES = {code for code, kind in limits.PROVENANCE.items()
+                          if kind in ("authoritative", "conditional")}
+
+
+def _requirement_maximum(data, request, nid):
+    """Whether the requirement sets a maximum of its own for this nutrient, per Mcal or per kg
+    BW^n (its per-Mcal row and its MBW row together), and if not a line saying so; None for the
+    energy row, the template's rows, or with no requirement."""
+    nutrients = {n["id"]: n for n in data.tables["nutrients"]}
+    if request.requirement is None or nid not in nutrients:
+        return None
+    first = nutrients[nid]["mbw_of"] or nid
+    family = [first] + [m for m, n in nutrients.items() if n["mbw_of"] == first]
+    rows = data.tables["limits"][request.requirement["id"]]
+    if any(rows[m]["max_type"] in STANDARD_MAXIMUM_TYPES for m in family if m in rows):
+        return {"set": True, "text": None}
+    basis = ""
+    if nutrients[first]["basis"] == "per-mcal":
+        has_mbw = any(rows[m]["min"] not in ("none", "") or rows[m]["max"] not in ("none", "")
+                      for m in family[1:] if m in rows)
+        basis = ", per Mcal" + (" or per kg %s" % table.MBW_BASIS[
+            request.requirement["species"]].split(" ", 1)[1] if has_mbw else "")
+    name = nutrients[first]["name"].split(" |")[0].split(",")[0].strip()
+    if len(name) > 1 and name[1].islower():
+        name = name[0].lower() + name[1:]
+    return {"set": False, "text": caveats.NO_MAXIMUM_TEXT.format(
+        requirement=request.requirement["name"], nutrient=name, basis=basis)}
+
+
 def _mbw(data, request, nid, lim, unit):
     """An MBW row's conversion: the requirement per kg BW^n a day, the energy and body weight
     it was converted with, and a line saying so; None on other rows or when not computed."""
@@ -289,6 +319,7 @@ def _nutrient(data, check, nid, entries):
            "limits_unavailable": None if unavailable is None else {
                "reason": unavailable.reason, "text": _reason_text(unavailable.reason)},
            "mbw": _mbw(data, request, nid, None if unavailable else lim, unit),
+           "requirement_maximum": _requirement_maximum(data, request, nid),
            "low": None, "high": None, "summary": None}
     if open_row is not None:
         notes = notes + open_row["notes"].split()
@@ -306,6 +337,10 @@ def _nutrient(data, check, nid, entries):
                                     standard, k, reason_text,
                                     energy_row=nid == inputs.ENERGY_ENTRY,
                                     restricted=request.restricted)
+        no_max = out["requirement_maximum"]
+        if no_max and not no_max["set"] and \
+                out[side]["comparison_to_max"] == interpret.ABOVE_NON_AUTHORITATIVE_MAX:
+            out[side]["status"] += " " + no_max["text"]
     if out["low"] and out["high"]:
         out["summary"] = "%s to %s" % (out["low"]["outcome"], out["high"]["outcome"])
     out["conditions"] = conditions.for_nutrient(data.tables, request, nid,

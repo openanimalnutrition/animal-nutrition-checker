@@ -261,7 +261,10 @@ def result_page(data, request, res):
             "<tr><td>%s<br><small>%s</small>%s</td><td>%s</td><td>%s</td><td>%s<br><small>%s, "
             "%s</small></td>%s%s<td><ul>%s</ul>%s</td></tr>" % (
                 e(n["name"]), e(n["unit"]),
-                "<br><small>%s</small>" % e(n["mbw"]["text"]) if n["mbw"] else "",
+                ("<br><small>%s</small>" % e(n["mbw"]["text"]) if n["mbw"] else "") + (
+                    "<br><small>%s</small>" % e(n["requirement_maximum"]["text"])
+                    if n["requirement_maximum"] and not n["requirement_maximum"]["set"]
+                    else ""),
                 _num(n["minimum"]) or ("none" if not unavailable else e(unavailable["text"])),
                 _num(n["standard_minimum"]), _num(n["range_high"]), e(n["max_type"]),
                 e(n["max_provenance"]), _entry_cells(n["low"]), _entry_cells(n["high"]),

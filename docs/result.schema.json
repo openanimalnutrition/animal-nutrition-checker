@@ -125,7 +125,7 @@
     },
     "nutrient": {
       "type": "object",
-      "required": ["id", "name", "unit", "basis", "ig_code", "minimum", "standard_minimum", "maximum", "range_high", "max_type", "max_provenance", "limits_unavailable", "mbw", "conditions", "notes"],
+      "required": ["id", "name", "unit", "basis", "ig_code", "minimum", "standard_minimum", "maximum", "range_high", "max_type", "max_provenance", "limits_unavailable", "mbw", "requirement_maximum", "conditions", "notes"],
       "additionalProperties": false,
       "properties": {
         "id": {"type": "string"},
@@ -141,6 +141,13 @@
         "max_provenance": {"enum": ["authoritative", "conditional", "template-set", "derived-provisional", null]},
         "limits_unavailable": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/reason"}]},
         "mbw": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/mbw"}]},
+        "requirement_maximum": {"oneOf": [{"type": "null"}, {
+          "description": "Whether the requirement sets a maximum of its own for this nutrient, per Mcal or per kg BW^n; if not, a line saying that other standards' or life stages' limits do not apply.",
+          "type": "object",
+          "required": ["set", "text"],
+          "additionalProperties": false,
+          "properties": {"set": {"type": "boolean"}, "text": {"type": ["string", "null"]}}
+        }]},
         "low": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/entry"}]},
         "high": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/entry"}]},
         "summary": {"type": ["string", "null"]},

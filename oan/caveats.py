@@ -123,6 +123,11 @@ MBW_ENTRY_TEXT = ("the diet's amount per Mcal, as on the per-Mcal row; the limit
                   "requirement's per kg BW^0.75 (dogs) or BW^0.67 (cats) a day, converted with "
                   "the animal's energy and body weight.")
 
+# A requirement that sets no maximum for a nutrient, on either basis (steward, 22 Oct 2026: AI
+# readers brought in other standards' or life stages' limits from memory).
+NO_MAXIMUM_TEXT = ("{requirement} sets no {nutrient} maximum{basis}; limits from other "
+                   "standards or life stages do not apply to this check.")
+
 # Reasons in plain words.
 REASONS = {
     "requirement-needed": "Choose a requirement.",

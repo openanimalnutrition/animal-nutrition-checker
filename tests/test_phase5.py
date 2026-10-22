@@ -440,6 +440,36 @@ class MBWRows(unittest.TestCase):
         self.assertIsNone(nutrient(res, "calcium-mbw")["mbw"])
 
 
+class NoMaximum(unittest.TestCase):
+    """When the requirement sets no maximum of its own, the result says so (steward, 22 Oct
+    2026: AI readers brought in other standards' or life stages' limits from memory)."""
+
+    def test_line(self):
+        res = run("nrc-dog-adult", {"calcium-mbw": 8, "calcium": 2},
+                  body_weight_kg=35.0, energy_intake_kcal_per_day=950.0)
+        text = ("NRC RA Dog Maintenance sets no calcium maximum, per Mcal or per kg BW^0.75; "
+                "limits from other standards or life stages do not apply to this check.")
+        for nid in ("calcium", "calcium-mbw"):
+            self.assertEqual(nutrient(res, nid)["requirement_maximum"],
+                             {"set": False, "text": text})
+        self.assertTrue(nutrient(res, "calcium-mbw")["low"]["status"].endswith(text))
+        self.assertNotIn(text, nutrient(res, "calcium")["low"]["status"])  # within the range
+
+    def test_standards_own_maximum(self):
+        for rid in ("aafco-dog-adult", "fediaf-dog-adult-mer95"):
+            n = nutrient(run(rid, {"calcium": 8}), "calcium")
+            self.assertEqual(n["requirement_maximum"], {"set": True, "text": None}, rid)
+        # A template estimate (EST) is not the standard's own maximum.
+        n = nutrient(run("nrc-dog-adult", {"iodine": 1}), "iodine")
+        self.assertTrue(n["requirement_maximum"]["set"])  # NRC's own iodine SUL
+        n = nutrient(run("aafco-dog-adult", {"sodium": 1}), "sodium")
+        self.assertEqual(n["requirement_maximum"]["text"],
+                         "AAFCO Dog Maintenance sets no sodium maximum, per Mcal; limits from "
+                         "other standards or life stages do not apply to this check.")
+        self.assertIsNone(nutrient(run("nrc-dog-adult", {"energy": 900}), "energy")[
+            "requirement_maximum"])
+
+
 class Notes(unittest.TestCase):
     def test_get_notes(self):
         res = result.get_notes(D, {"ids": ["n231", "n005", "n231"]})

@@ -144,6 +144,7 @@ class Server(unittest.TestCase):
         self.assertIn("<h3>Animal and energy</h3>", page)
         self.assertIn("body weight kg: 20", page)
         self.assertIn("Energy used, kcal/day:", page)
+        self.assertIn("NRC RA Dog Maintenance sets no calcium maximum", page)
         first = page.index("Caveats")
         for c in caveats.caveats(D.version):
             self.assertIn(c["text"].replace("'", "&#x27;"), page)
