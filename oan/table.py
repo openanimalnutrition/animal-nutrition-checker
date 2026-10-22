@@ -30,6 +30,9 @@ GREATER_THAN_STEP = Decimal("0.000000001")
 RULES = {
     "printed": ("figure", "the figure as printed, converted from its printed unit"),
     "template": ("figure", "a figure the template sets itself; its note says how"),
+    "standard-derived": ("figure", "a minimum the template takes from the standard's own figure "
+                                   "by the standard's own stated rule (a footnote's calculation, "
+                                   "or its dry matter basis); it counts as the standard's"),
     "folic-acid-to-dfe": ("figure", "printed as folic acid: the figure / 0.6 gives DFE"),
     "mbw-from-per-mcal": ("derived", "the per-Mcal value x the requirement's MER / 1000"),
     "retinol-from-vitamin-a-iu": ("derived", "the vitamin A (IU) value of the same basis x 0.3"),
@@ -76,9 +79,16 @@ def read_csv(path):
         return list(csv.DictReader(f))
 
 
+# Files a data folder may lack: the frozen 21OCT26b baseline (tests/parity) predates them.
+# They change no limit: the Result's conditions, the template's known limitations, and the
+# minimums whose verdict stays open.
+OPTIONAL_FILES = ("conditions.csv", "limitations.csv", "open-minimums.csv")
+
+
 def load(data_dir):
     """Load the data folder: nutrients, requirements, limits, energy figures, the template's
-    own figures and rows, and notes."""
+    own figures and rows, notes, and (when present) conditions, known limitations and open
+    minimums."""
     nutrients = read_csv(os.path.join(data_dir, "nutrients.csv"))
     requirements = read_csv(os.path.join(data_dir, "requirements.csv"))
     notes = read_csv(os.path.join(data_dir, "notes.csv"))
@@ -88,8 +98,12 @@ def load(data_dir):
         limits[req["id"]] = {row["nutrient"]: row for row in read_csv(path)}
     energy = {row["id"]: row for row in read_csv(os.path.join(data_dir, "energy.csv"))}
     template = {row["id"]: row for row in read_csv(os.path.join(data_dir, "template.csv"))}
-    return {"nutrients": nutrients, "requirements": requirements, "limits": limits,
-            "energy": energy, "template": template, "notes": notes}
+    optional = {}
+    for name in OPTIONAL_FILES:
+        path = os.path.join(data_dir, name)
+        optional[name[:-4].replace("-", "_")] = read_csv(path) if os.path.exists(path) else []
+    return dict({"nutrients": nutrients, "requirements": requirements, "limits": limits,
+                 "energy": energy, "template": template, "notes": notes}, **optional)
 
 
 def parse_figure(text):

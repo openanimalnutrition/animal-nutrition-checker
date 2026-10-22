@@ -106,6 +106,10 @@ DEFAULT_MINIMUMS = {
 # fixed and default ones above); fat takes the AAFCO factor only.
 NOT_RAISED = ("ca-p-ratio",)
 AAFCO_FACTOR_ONLY = ("fat",)
+# Minimums the template computes that never count as a standard's (Request.standard_minimum),
+# and those computed by a standard's own rule that always do.
+TEMPLATE_MINIMUMS = ("vitamin-d2", "vitamin-d2-mbw", "epa")
+STANDARD_RULE_MINIMUMS = ("arginine", "arginine-mbw", "calcium-large-breed-puppy")
 TAURINE = "taurine"
 TAURINE_ROWS = ("taurine", "taurine-wet", "taurine-mbw", "taurine-wet-mbw")
 LA_ALA_HIGH = ("la-ala-ratio-high-growth-reproduction", "la-ala-ratio-high-adult")
@@ -322,6 +326,46 @@ class Request:
         if nid in NOT_RAISED or nutrient["basis"] != "per-mcal":
             return v
         return self.raised(v, by_restriction=nid not in AAFCO_FACTOR_ONLY)
+
+    def standard_minimum(self, nid):
+        """The part of a minimum that the applied standard sets: a number, None where the
+        whole minimum is the template's own, or Unavailable as the minimum is.
+
+        Counted as the standard's (IG, "Bands and the adequacy interpretation"; open point 6
+        as the steward settled it on 22 Oct 2026): a standard's minimum, raised for a caloric
+        restriction or by the AAFCO dry matter factor; arginine and large-breed puppy calcium
+        (a standard's own rule); a minimum the template takes from the standard's own figure
+        by the standard's own rule (rule standard-derived); the standard's part of a "larger
+        of" rule (ALA). Not counted: the template's fixed and default minimums, its rule
+        "template" figures, vitamin D2, and the ratio rows' computed minimums."""
+        m = self.minimum(nid)
+        if m is None or unavailable(m):
+            return m
+        if nid in FIXED_MINIMUMS or nid in TEMPLATE_MINIMUMS:
+            return None
+        if nid in STANDARD_RULE_MINIMUMS:
+            return m
+        if nid == "alpha-linolenic-acid":
+            return self.raised(self.std(nid, "min"))
+        if nid == "alpha-linolenic-acid-mbw":
+            return self.mbw(self.std(nid, "min"))
+        v = self.std(nid, "min")
+        if v is None:
+            return None  # a default, or a ratio the template computes
+        if self.data["limits"][self.requirement["id"]][nid]["min_rule"] == "template":
+            return None
+        return m
+
+    def aafco_raises(self, nid):
+        """Whether the AAFCO dry matter factor raises this nutrient's minimum under this
+        requirement (when it is above 1): AAFCO requirements, standards' per-Mcal minimums
+        that a restriction raises, and fat (IG, "The AAFCO dry matter factor")."""
+        if self.requirement is None or not self.applies("aafco-energy-density"):
+            return False
+        if nid in FIXED_MINIMUMS or nid in DEFAULT_MINIMUMS or nid in NOT_RAISED or \
+                nid in MINIMUM_RULES or nid not in self.nutrients:
+            return False
+        return self.nutrients[nid]["basis"] == "per-mcal" and number(self.std(nid, "min"))
 
     def arginine_base(self, nid):
         """The arginine minimum before the protein increase (the template's AS1 and AS2)."""

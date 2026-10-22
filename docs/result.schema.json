@@ -1,0 +1,189 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openanimalnutrition.org/schema/oan-check-result/1",
+  "title": "oan-check-result/1",
+  "description": "The result of the Open Animal Nutrition reference checker (every tool: check_diet, get_limits, list_requirements, describe_inputs). Within version 1 a change only adds fields; a breaking change is version 2. The caveats come first and are in every result. Verdicts are proposed, pending ratification.",
+  "type": "object",
+  "required": ["schema", "caveats", "tool", "code_release", "data_version", "data_sha256", "template_version", "verdict_status"],
+  "properties": {
+    "schema": {"const": "oan-check-result/1"},
+    "caveats": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "type": "object",
+        "required": ["id", "text"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {"enum": ["non_normative_reference", "steward_disclosed_interest", "not_a_safety_or_compliance_assessment", "conditions_and_open_points"]},
+          "text": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "tool": {"enum": ["check_diet", "get_limits", "list_requirements", "describe_inputs"]},
+    "code_release": {"type": "string"},
+    "data_version": {"type": "string"},
+    "data_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "template_version": {"type": "string"},
+    "verdict_status": {"const": "proposed, pending ratification"},
+    "requirement": {"$ref": "#/$defs/requirement"},
+    "subject": {"enum": ["diet", "requirement range"]},
+    "inputs": {"type": "object", "required": ["submitted", "normalized"]},
+    "input_report": {"type": "array", "items": {"$ref": "#/$defs/report_item"}},
+    "factors": {"$ref": "#/$defs/factors"},
+    "nutrients": {"type": "array", "items": {"$ref": "#/$defs/nutrient"}},
+    "checks": {"type": "array", "items": {"$ref": "#/$defs/check"}},
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["item", "text", "notes"],
+        "additionalProperties": false,
+        "properties": {
+          "item": {"type": "integer", "minimum": 1},
+          "text": {"type": "string"},
+          "notes": {"$ref": "#/$defs/note_ids"}
+        }
+      }
+    },
+    "notes": {
+      "type": "object",
+      "required": ["file", "general", "requirement"],
+      "additionalProperties": false,
+      "properties": {
+        "file": {"type": "string"},
+        "general": {"$ref": "#/$defs/note_ids"},
+        "requirement": {"$ref": "#/$defs/note_ids"}
+      }
+    },
+    "requirements": {"type": "array", "items": {"type": "object"}},
+    "request": {"type": "object"},
+    "animal_facts": {"type": "array", "items": {"type": "object"}},
+    "entries": {"type": "array", "items": {"type": "object"}}
+  },
+  "$defs": {
+    "number_or_null": {"type": ["number", "null"]},
+    "note_ids": {"type": "array", "items": {"type": "string", "pattern": "^n[0-9]{3,}$"}},
+    "requirement": {
+      "type": "object",
+      "required": ["requested", "id", "name", "standard", "edition", "species", "life_stage"],
+      "additionalProperties": false,
+      "properties": {
+        "requested": {},
+        "id": {"type": ["string", "null"]},
+        "name": {"type": ["string", "null"]},
+        "standard": {"enum": ["NRC", "AAFCO", "FEDIAF", null]},
+        "edition": {"type": ["string", "null"]},
+        "species": {"enum": ["canine", "feline", null]},
+        "life_stage": {"type": ["string", "null"]}
+      }
+    },
+    "report_item": {
+      "type": "object",
+      "required": ["input", "status", "reason", "text"],
+      "additionalProperties": false,
+      "properties": {
+        "input": {"type": "string"},
+        "status": {"enum": ["rejected", "missing", "defaulted", "warning"]},
+        "reason": {"type": "string"},
+        "text": {"type": "string"}
+      }
+    },
+    "factors": {
+      "type": "object",
+      "required": ["caloric_restriction_percent", "restriction_factor", "aafco_dry_matter_factor", "energy_requirement_kcal_per_day", "energy_used_kcal_per_day", "energy_used_is", "energy_reason", "intake_shortfall"],
+      "additionalProperties": false,
+      "properties": {
+        "caloric_restriction_percent": {"$ref": "#/$defs/number_or_null"},
+        "restriction_factor": {"type": "number"},
+        "aafco_dry_matter_factor": {"$ref": "#/$defs/number_or_null"},
+        "energy_requirement_kcal_per_day": {"$ref": "#/$defs/number_or_null"},
+        "energy_used_kcal_per_day": {"$ref": "#/$defs/number_or_null"},
+        "energy_used_is": {"enum": ["the intake entered", "the requirement's energy", null]},
+        "energy_reason": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/reason"}]},
+        "intake_shortfall": {"$ref": "#/$defs/number_or_null"}
+      }
+    },
+    "reason": {
+      "type": "object",
+      "required": ["reason", "text"],
+      "additionalProperties": false,
+      "properties": {"reason": {"type": "string"}, "text": {"type": "string"}}
+    },
+    "nutrient": {
+      "type": "object",
+      "required": ["id", "name", "unit", "basis", "ig_code", "minimum", "standard_minimum", "maximum", "range_high", "max_type", "max_provenance", "limits_unavailable", "conditions", "notes"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string"},
+        "name": {"type": "string"},
+        "unit": {"type": "string"},
+        "basis": {"type": "string"},
+        "ig_code": {"type": ["string", "null"]},
+        "minimum": {"$ref": "#/$defs/number_or_null"},
+        "standard_minimum": {"$ref": "#/$defs/number_or_null"},
+        "maximum": {"$ref": "#/$defs/number_or_null"},
+        "range_high": {"$ref": "#/$defs/number_or_null"},
+        "max_type": {"type": ["string", "null"]},
+        "max_provenance": {"enum": ["authoritative", "conditional", "template-set", "derived-provisional", null]},
+        "limits_unavailable": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/reason"}]},
+        "low": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/entry"}]},
+        "high": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/entry"}]},
+        "summary": {"type": ["string", "null"]},
+        "conditions": {"type": "array", "items": {"$ref": "#/$defs/condition"}},
+        "notes": {"$ref": "#/$defs/note_ids"}
+      }
+    },
+    "entry": {
+      "type": "object",
+      "required": ["value", "outcome", "outcome_reason", "comparison_to_min", "comparison_to_max", "verdict", "verdict_status", "open_reason", "status"],
+      "additionalProperties": false,
+      "properties": {
+        "value": {"type": "number"},
+        "outcome": {"enum": ["below-min-lt25", "below-min-25-50", "below-min-50-75", "below-min-75-100", "range-d1", "range-d2", "range-d3", "range-d4", "range-d5", "range-d6", "range-d7", "range-d8", "range-d9", "range-d10", "no-range", "no-minimum", "not-entered", "unavailable", "not-banded"]},
+        "outcome_reason": {"type": ["string", "null"]},
+        "comparison_to_min": {"enum": ["below_min", "below_template_min", "at_or_above_min", null]},
+        "comparison_to_max": {"enum": ["above_max", "above_non_authoritative_max", "not_above_max", null]},
+        "verdict": {"enum": ["deficient", "excess", null]},
+        "verdict_status": {"const": "proposed, pending ratification"},
+        "open_reason": {"enum": ["ig-open-point-3", "ig-open-point-6", "ig-open-point-6-aafco-dry-matter", null]},
+        "status": {"type": ["string", "null"]}
+      }
+    },
+    "condition": {
+      "type": "object",
+      "required": ["id", "limitation", "depends_on", "notes"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string"},
+        "limitation": {"type": "integer", "minimum": 1},
+        "depends_on": {"type": "string"},
+        "notes": {"$ref": "#/$defs/note_ids"}
+      }
+    },
+    "check": {
+      "type": "object",
+      "required": ["id", "status", "reads", "figures", "low", "high", "caveat", "notes"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"enum": ["la-ala-ratio", "epa-share-max", "epa-share-range", "epa-share-max-dha-only"]},
+        "status": {"type": "string"},
+        "reads": {"type": "array", "items": {"type": "string"}},
+        "figures": {"type": "object", "additionalProperties": {"type": "number"}},
+        "low": {"$ref": "#/$defs/check_side"},
+        "high": {"$ref": "#/$defs/check_side"},
+        "caveat": {"type": ["string", "null"]},
+        "notes": {"$ref": "#/$defs/note_ids"}
+      }
+    },
+    "check_side": {
+      "type": "object",
+      "required": ["result", "text"],
+      "additionalProperties": false,
+      "properties": {
+        "result": {"enum": ["ok", "outside", "above-maximum", "dha-below-minimum", "not-entered"]},
+        "text": {"type": ["string", "null"]}
+      }
+    }
+  }
+}
