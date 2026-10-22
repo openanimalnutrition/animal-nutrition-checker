@@ -1,0 +1,76 @@
+id,figure,unit,label,source,notes
+nrc-dog-exponent,0.75,,,"NRC 2006 Table 15-4, p. 359 (kcal x kg BW^0.75); Tables 15-2, p. 356, 15-6 and 15-7, p. 361",
+nrc-dog-maintenance-inactive,95,kcal/kg BW^0.75,Inactive (95 * kg BW^0.75),"NRC 2006 Table 15-4, p. 359",n028
+nrc-dog-maintenance-older,105,kcal/kg BW^0.75,Older laboratory/active OR Laboratory Newfoundlands (105 * kg BW^0.75),"NRC 2006 Table 15-4, p. 359",n028
+nrc-dog-maintenance-average,130,kcal/kg BW^0.75,Average laboratory or active (130 * kg BW^0.75),"NRC 2006 Table 15-4, p. 359",n028
+nrc-dog-maintenance-young,140,kcal/kg BW^0.75,Young laboratory/active (140 * kg BW^0.75),"NRC 2006 Table 15-4, p. 359",n028
+nrc-dog-maintenance-terriers,180,kcal/kg BW^0.75,Laboratory/active terriers (180 * kg BW^0.75),"NRC 2006 Table 15-4, p. 359",n028
+nrc-dog-maintenance-great-danes,200,kcal/kg BW^0.75,Laboratory/active Great Danes (200 * kg BW^0.75),"NRC 2006 Table 15-4, p. 359",n028
+nrc-puppy-maintenance,130,kcal/kg BW^0.75,,"NRC 2006 Table 15-2, p. 356",n036 n038
+nrc-puppy-multiplier,3.2,,,"NRC 2006 Table 15-2, p. 356",n036 n038
+nrc-puppy-rate,0.87,,,"NRC 2006 Table 15-2, p. 356",n036 n038
+nrc-puppy-offset,0.1,,,"NRC 2006 Table 15-2, p. 356",n036 n038
+nrc-gestation-maintenance,130,kcal/kg BW^0.75,,"NRC 2006 Table 15-6, p. 361 (average maintenance, used when no adult dog type is selected)",n047
+nrc-gestation-per-kg,26,kcal/kg BW,,"NRC 2006 Table 15-6, p. 361",n047
+nrc-lactation-maintenance,145,kcal/kg BW^0.75,,"NRC 2006 Table 15-7, p. 361",n048
+nrc-lactation-per-puppy-1-to-4,24,kcal/kg BW,,"NRC 2006 Table 15-7, p. 361",n048
+nrc-lactation-per-puppy-5-to-8,12,kcal/kg BW,,"NRC 2006 Table 15-7, p. 361",n048
+nrc-lactation-puppies-first-group,4,puppies,,"NRC 2006 Table 15-7, p. 361 (n = puppies 1 to 4)",n048
+nrc-lactation-puppies-counted,8,puppies,,"NRC 2006 Table 15-7, p. 361 (m = puppies 5 to 8); p. 38 (no notable increase above 8 puppies)",n048
+nrc-lactation-week-1,0.75,,,"NRC 2006 Table 15-7, p. 361",n048
+nrc-lactation-week-2,0.95,,,"NRC 2006 Table 15-7, p. 361",n048
+nrc-lactation-week-3,1.1,,,"NRC 2006 Table 15-7, p. 361",n048
+nrc-lactation-week-4,1.2,,,"NRC 2006 Table 15-7, p. 361",n048
+nrc-cat-exponent,0.67,,,"NRC 2006 Tables 15-9, p. 364, 15-11, p. 366, 15-13, p. 368; Table 15-14 footnotes c and d, p. 369",
+nrc-cat-maintenance-overweight,130,kcal/kg BW^0.4,Overweight domestic (130 * BW^0.4),"NRC 2006 Table 15-11, p. 366",n032
+nrc-cat-maintenance-overweight-exponent,0.4,,,"NRC 2006 Table 15-11, p. 366",n032
+nrc-cat-maintenance-lean,100,kcal/kg BW^0.67,Lean domestic (100 * kgBW^0.67),"NRC 2006 Table 15-11, p. 366",n032
+nrc-kitten-maintenance,100,kcal/kg BW^0.67,,"NRC 2006 Table 15-9, p. 364",n044 n046
+nrc-kitten-multiplier,6.7,,,"NRC 2006 Table 15-9, p. 364 (the equation; the worked example prints 6.732)",n044 n046
+nrc-kitten-rate,0.189,,,"NRC 2006 Table 15-9, p. 364",n044 n046
+nrc-kitten-offset,0.66,,,"NRC 2006 Table 15-9, p. 364",n044 n046
+nrc-queen-gestation,140,kcal/kg BW^0.67,,"NRC 2006 Table 15-14 footnotes c and d, p. 369",n049
+nrc-queen-lactation-maintenance,100,kcal/kg BW^0.67,,"NRC 2006 Table 15-13, p. 368",n050
+nrc-queen-lactation-kittens-under-3,18,kcal/kg BW,,"NRC 2006 Table 15-13, p. 368",n050
+nrc-queen-lactation-kittens-3-to-4,60,kcal/kg BW,,"NRC 2006 Table 15-13, p. 368",n050
+nrc-queen-lactation-kittens-over-4,70,kcal/kg BW,,"NRC 2006 Table 15-13, p. 368",n050
+nrc-queen-lactation-week-1,0.9,,,"NRC 2006 Table 15-13, p. 368",n050
+nrc-queen-lactation-week-2,0.9,,,"NRC 2006 Table 15-13, p. 368",n050
+nrc-queen-lactation-week-3,1.2,,,"NRC 2006 Table 15-13, p. 368",n050
+nrc-queen-lactation-week-4,1.2,,,"NRC 2006 Table 15-13, p. 368",n050
+nrc-queen-lactation-week-5,1.1,,,"NRC 2006 Table 15-13, p. 368",n050
+nrc-queen-lactation-week-6,1.0,,,"NRC 2006 Table 15-13, p. 368",n050
+nrc-queen-lactation-week-7,0.8,,,"NRC 2006 Table 15-13, p. 368",n050
+fediaf-dog-exponent,0.75,,,"FEDIAF 2025 section 3.2.1, p. 13; Table VII-7, p. 55; Table VII-8b, p. 56",
+fediaf-cat-exponent,0.67,,,"FEDIAF 2025 section 3.2.1, p. 13; Tables VII-9 and VII-10, p. 57",
+fediaf-puppy-constant,254.1,kcal/kg BW^0.75,,"FEDIAF 2025 Table VII-8b, p. 56",n041 n043
+fediaf-puppy-slope,135.0,kcal/kg BW^0.75,,"FEDIAF 2025 Table VII-8b, p. 56",n041 n043
+fediaf-gestation-maintenance,132,kcal/kg BW^0.75,,"FEDIAF 2025 Table VII-8b, p. 56",n041
+fediaf-gestation-per-kg,26,kcal/kg BW,,"FEDIAF 2025 Table VII-8b, p. 56 (last 5 weeks of gestation)",n041
+fediaf-lactation-maintenance,145,kcal/kg BW^0.75,,"FEDIAF 2025 Table VII-8b, p. 56",n041
+fediaf-lactation-per-puppy-1-to-4,24,kcal/kg BW,,"FEDIAF 2025 Table VII-8b, p. 56",n041
+fediaf-lactation-per-puppy-5-to-8,12,kcal/kg BW,,"FEDIAF 2025 Table VII-8b, p. 56 (printed as 96 + 12 (n-4) for 5 to 8 puppies; 96 = 24 x 4)",n041
+fediaf-lactation-puppies-first-group,4,puppies,,"FEDIAF 2025 Table VII-8b, p. 56 (1 to 4 puppies)",n041
+fediaf-lactation-puppies-counted,8,puppies,,"FEDIAF 2025 Table VII-8b, p. 56 (5 to 8 puppies); the template counts at most 8, following NRC 2006 p. 38",n041
+fediaf-lactation-week-1,0.75,,,"FEDIAF 2025 Table VII-8b, p. 56",n041
+fediaf-lactation-week-2,0.95,,,"FEDIAF 2025 Table VII-8b, p. 56",n041
+fediaf-lactation-week-3,1.1,,,"FEDIAF 2025 Table VII-8b, p. 56",n041
+fediaf-lactation-week-4,1.2,,,"FEDIAF 2025 Table VII-8b, p. 56",n041
+fediaf-queen-gestation,140,kcal/kg BW^0.67,,"FEDIAF 2025 Table VII-10, p. 57",n051
+fediaf-queen-lactation-maintenance,100,kcal/kg BW^0.67,,"FEDIAF 2025 Table VII-10, p. 57",n051
+fediaf-queen-lactation-kittens-under-3,18,kcal/kg BW,,"FEDIAF 2025 Table VII-10, p. 57",n051
+fediaf-queen-lactation-kittens-3-to-4,60,kcal/kg BW,,"FEDIAF 2025 Table VII-10, p. 57",n051
+fediaf-queen-lactation-kittens-over-4,70,kcal/kg BW,,"FEDIAF 2025 Table VII-10, p. 57",n051
+fediaf-queen-lactation-week-1,0.9,,,"FEDIAF 2025 Table VII-10, p. 57 (weeks 1-2)",n051
+fediaf-queen-lactation-week-2,0.9,,,"FEDIAF 2025 Table VII-10, p. 57 (weeks 1-2)",n051
+fediaf-queen-lactation-week-3,1.2,,,"FEDIAF 2025 Table VII-10, p. 57 (weeks 3-4)",n051
+fediaf-queen-lactation-week-4,1.2,,,"FEDIAF 2025 Table VII-10, p. 57 (weeks 3-4)",n051
+fediaf-queen-lactation-week-5,1.1,,,"FEDIAF 2025 Table VII-10, p. 57",n051
+fediaf-queen-lactation-week-6,1,,,"FEDIAF 2025 Table VII-10, p. 57",n051
+fediaf-queen-lactation-week-7,0.8,,,"FEDIAF 2025 Table VII-10, p. 57",n051
+avcn-rer,70,kcal/kg BW^0.75,,"AVCN 2nd ed. p. 46 (Kleiber's equation, with Box 3.1)",n039 n040 n045
+avcn-rer-exponent,0.75,,,"AVCN 2nd ed. p. 46",n039 n040 n045
+avcn-puppy-to-4-months,3,x RER,,"AVCN 2nd ed. Box 3.1, p. 47 (weaning until 4 months of age)",n039 n040
+avcn-puppy-to-adult-size,2,x RER,,"AVCN 2nd ed. Box 3.1, p. 47 (until the puppy reaches adult size)",n039 n040
+avcn-kitten-growth,2.5,x RER,,"AVCN 2nd ed. Box 3.1, p. 46 (growing kittens)",n045
+energy-range-high,1.55,x energy minimum,,"template: the energy row's range high (Standards tab K11)",n037 n042

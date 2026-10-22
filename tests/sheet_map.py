@@ -209,3 +209,71 @@ S01_ROWS = {
     123: 'water', 124: 'carbohydrate', 125: 'fiber-total', 126: 'fiber-insoluble',
     127: 'fiber-soluble', 128: 'oxalate', 129: 'purine', 130: 'energy-density',
 }
+
+# The energy row (s01 row 11): its entries G11 and I11 are the diet's energy (kcal/day).
+ENERGY_ROW = 11
+# The energy cells: s01 G4 is the selected requirement's energy (s02 row 4), C11 the energy
+# the checker uses, E11 the energy row's maximum (none).
+ENERGY_REQUIREMENT_CELL = 'G4'
+ENERGY_USED_CELL = 'C11'
+ENERGY_MAX_CELL = 'E11'
+# The template's messages for the core's reasons (oan/energy.py REASONS), and for a missing
+# or unknown requirement.
+ENERGY_MESSAGES = {
+    'life-stage-not-covered': 'Standards Sheet Needs A Life Stage This Selection Covers',
+    'lactation-week-and-puppies-needed': 'Standards Sheet Needs Lactation Wk & Puppy #',
+    'no-estimate-after-lactation-week-4': 'No NRC/FEDIAF Estimate After Lactation Wk 4: Use K4',
+    'mature-weight-below-body-weight': 'Expected Mature BW Must Be At Least Current BW',
+    'lactation-week-and-kittens-needed': 'Standards Sheet Needs Lactation Wk & Kitten #',
+    'mature-weight-needed': 'Expected Mature BW in Standards Sheet Needed',
+    'adult-dog-type-needed': 'No Dog Type Selection on Standards Sheet',
+    'adult-cat-type-needed': 'No Cat Type Selection on Standards Sheet',
+}
+SELECT_REQUIREMENT = 'Select A Requirement In O1'
+# The export's inputs (energy spec section 6); the row 11 cases keep them for the inputs they
+# do not list.
+EXPORT_INPUTS = {
+    'O1': 'NRC RA Dog Maintenance',
+    'B3': 15.0,
+    'E3': None,
+    'G3': 0,
+    'K3': 0,
+    'M3': 'None',
+    'B4': 'Average laboratory or active (130 * kg BW^0.75)',
+    'D4': 'Not selected or a cat',
+    'K4': None,
+}
+# Row 11's band edge cells: the lower edges the bands use (oan/bands.py), and the upper edge
+# the template shows just below each (display only), as fractions of the minimum (P-W) or of
+# the range (X-AO); AP is the range high.
+ROW11_BELOW_MIN = [('P', 0.249999999), ('Q', 0.25), ('R', 0.499999999), ('S', 0.5),
+                   ('T', 0.749999999), ('U', 0.75), ('V', 0.999999999)]
+ROW11_MIN = 'W'
+ROW11_DECILES = [('X', 0.099999999), ('Y', 0.1), ('Z', 0.199999999), ('AA', 0.2),
+                 ('AB', 0.299999999), ('AC', 0.3), ('AD', 0.399999999), ('AE', 0.4),
+                 ('AF', 0.499999999), ('AG', 0.5), ('AH', 0.599999999), ('AI', 0.6),
+                 ('AJ', 0.699999999), ('AK', 0.7), ('AL', 0.799999999), ('AM', 0.8),
+                 ('AN', 0.899999999), ('AO', 0.9)]
+ROW11_RANGE_HIGH = 'AP'
+# Row 11's descriptions: L of the Min entry (G), N of the Max entry (I), M joins them.
+ROW11_DESCRIPTIONS = {'G': 'L', 'I': 'N'}
+ROW11_JOIN = ('M', 'to')
+
+# s01 row 2: the band names (layout, not data), by the IG's band code.
+BAND_LABELS = {
+    'below-min-lt25': 'Very Severely Restricted (<25% of Min)',  # s01!O2
+    'below-min-25-50': 'Severely Restricted (25 to <50% of Min)',  # s01!Q2
+    'below-min-50-75': 'Moderately Restricted (50 to <75% of Min)',  # s01!S2
+    'below-min-75-100': 'Slightly Restricted (75 to <100% of Min)',  # s01!U2
+    'range-d1': 'Lowest/Just Above Min (Min to <10% of Range)',  # s01!W2
+    'range-d2': 'Lower (10 to <20% of Range)',  # s01!Y2
+    'range-d3': 'Low (20 to <30% of Range)',  # s01!AA2
+    'range-d4': 'Low Moderate (30 to <40% of Range)',  # s01!AC2
+    'range-d5': 'Mid Moderate (40 to <50% of Range)',  # s01!AE2
+    'range-d6': 'High Moderate (50 to <60% of Range)',  # s01!AG2
+    'range-d7': 'High (60 to <70% of Range)',  # s01!AI2
+    'range-d8': 'Higher (70 to <80% of Range)',  # s01!AK2
+    'range-d9': 'Near Highest (80 to <90% of Range)',  # s01!AM2
+    'range-d10': 'Highest (90% of Range or Greater)',  # s01!AO2
+}
+NO_RANGE_LABEL = 'No range'

@@ -3,14 +3,16 @@
 Usage: nice -n 10 python3 -I -B tests/run_vectors.py [--show N]
 
 Every case of every vector file is run against the frozen baseline data, in file order and
-in reverse order, and counted per file: pass, difference, or pending (a part not built yet:
-energy is phase 2; minimums, maximums and bands are phase 3). Numbers compare within a
-relative 1e-12 (the report also counts those that are not bit-exact); every other value must
-be identical: texts exactly, a blank as null, true/false only as true/false.
+in reverse order, and counted per file: pass, difference, outside-rule, or pending (a part
+not built yet: minimums, maximums and bands are phase 3). Numbers compare within a relative
+1e-12 (the report also counts those that are not bit-exact); every other value must be
+identical: texts exactly, a blank as null, true/false only as true/false.
 
-Each file's report also counts the cases with an input outside its rule (oan/inputs.py).
-The core rejects those inputs, so the cases are one approved category of difference
-(decision 1 A); the counts are fixed in tests/test_phase1b.py.
+A case with an input outside its rule (oan/inputs.py) is not computed: the core rejects the
+input, so the case is in one approved category of difference (decision 1 A). Each file's
+report counts them; the counts are fixed in tests/test_phase1b.py and tests/test_phase2.py.
+The energy file's own outside-rule cases are run too: each must be rejected by the input
+rules or reported as a missing input, never computed.
 
 Exit status 0 when no case differs and both orders give the same results.
 """
@@ -38,8 +40,6 @@ FILES = (
 )
 PENDING = {
     "formulas-testcases.json": "phase 3 (minimums, maximums and bands)",
-    "energy-testcases.json": "phase 2 (energy)",
-    "energy-testcases-row11.json": "phase 2 (energy, row 11)",
 }
 VALUES_PENDING = "phase 3 (minimums, maximums and bands)"
 
@@ -65,6 +65,8 @@ def check_cell(cell, value, data):
     if cell in sheet_map.INPUT_CELLS:
         return inputs.check_fact(sheet_map.INPUT_CELLS[cell], value, data)
     col, row = cell[:1], cell[1:]
+    if row == str(sheet_map.ENERGY_ROW) and col in sheet_map.ENTRY_COLUMNS:
+        return inputs.check_entry(inputs.ENERGY_ENTRY, value, data)
     nid = sheet_map.S01_ROWS.get(int(row)) if row.isdigit() else None
     if nid is None or col not in sheet_map.ENTRY_COLUMNS:
         return None
@@ -104,7 +106,34 @@ def run_values_case(case, data, view):
     return out
 
 
-RUNNERS = {"inputs.json": run_input_case, "values.json": run_values_case}
+ENERGY_KINDS = {"G4": "energy", "C11": "energy", "C11_highlighted": "highlight",
+                "E11": "maximum", "L11": "description", "N11": "description",
+                "M11": "description"}
+
+
+def run_energy_rows(case, view):
+    cells = view.cells()
+    return [(name, expected, cells[name], ENERGY_KINDS.get(name, "band edge"))
+            for name, expected in case["expected"].items()]
+
+
+def run_energy_case(case, data, view):
+    """The energy minimum: s01 G4, C11 and C11's highlight."""
+    return run_energy_rows(case, sheet_view.EnergyView(data, case["inputs"]))
+
+
+def run_row11_case(case, data, view):
+    """Row 11 (energy): C11, E11, the descriptions and the band edges. Inputs a case does not
+    list keep the export's."""
+    return run_energy_rows(case, sheet_view.EnergyView(data, case["inputs"], defaults=True))
+
+
+RUNNERS = {
+    "inputs.json": run_input_case,
+    "values.json": run_values_case,
+    "energy-testcases.json": run_energy_case,
+    "energy-testcases-row11.json": run_row11_case,
+}
 
 
 def run_file(name, cases, data, order):
@@ -122,6 +151,9 @@ def run_file(name, cases, data, order):
         except (Pending, sheet_view.NotModelled) as e:
             results[case["id"]] = ("pending", [], str(e))
             continue
+        except sheet_view.OutsideRule as e:
+            results[case["id"]] = ("outside-rule", [], str(e))
+            continue
         checked = [(cell, exp, got, kind, compare(exp, got)) for cell, exp, got, kind in rows]
         status = "pass" if all(r[4] for r in checked) else "difference"
         results[case["id"]] = (status, checked, None)
@@ -132,6 +164,22 @@ def load_cases(name):
     with open(os.path.join(VECTORS, name), encoding="utf-8") as f:
         doc = json.load(f)
     return doc["cases"], doc.get("outside_rule_cases", [])
+
+
+def run_outside(outside, data):
+    """{'rejected': n, 'missing': n, 'computed': [ids]} for a file's own outside-rule cases."""
+    out = {"rejected": 0, "missing": 0, "computed": []}
+    for case in outside:
+        try:
+            sheet_view.EnergyView(data, case["inputs"]).cells()
+        except sheet_view.OutsideRule:
+            out["rejected"] += 1
+            continue
+        except sheet_view.Missing:
+            out["missing"] += 1
+            continue
+        out["computed"].append(case["id"])
+    return out
 
 
 def outside_counts(cases, data):
@@ -149,33 +197,36 @@ def outside_counts(cases, data):
 
 
 def summarise(name, cases, outside, results, data):
-    counts = {"pass": 0, "difference": 0, "pending": 0}
+    counts = {"pass": 0, "difference": 0, "outside-rule": 0, "pending": 0}
     close = exact = 0
     kinds = {}
     pending = {}
     for case in cases:
         status, checked, reason = results[case["id"]]
         counts[status] += 1
-        if reason:
+        if reason and status == "pending":
             pending[reason] = pending.get(reason, 0) + 1
         for _, _, _, kind, result in checked:
             kinds[kind] = kinds.get(kind, 0) + 1
             exact += result == "exact"
             close += result == "close"
-    line = "%s: %d cases: %d pass, %d differ, %d pending" % (
-        name, len(cases), counts["pass"], counts["difference"], counts["pending"])
+    line = "%s: %d cases: %d pass, %d differ, %d outside-rule, %d pending" % (
+        name, len(cases), counts["pass"], counts["difference"], counts["outside-rule"],
+        counts["pending"])
     if outside:
-        line += " (+ %d outside-rule cases, pending)" % len(outside)
+        line += " (+ the file's %d outside-rule cases)" % len(outside)
     lines = [line]
     n, by_inputs, unmapped = outside_counts(cases, data)
     if n:
         lines.append("    outside the input rules: %d (%s)" % (
             n, ", ".join("%s %d" % kv for kv in sorted(by_inputs.items()))))
     if outside:
-        not_rejected = [c["id"] for c in outside if not outside_rules(c["inputs"], data)[0]]
-        lines.append("    outside-rule cases the input rules reject: %d of %d%s" % (
-            len(outside) - len(not_rejected), len(outside),
-            " (not: %s)" % ", ".join(not_rejected) if not_rejected else ""))
+        ran = run_outside(outside, data)
+        counts["outside computed"] = len(ran["computed"])
+        lines.append("    the file's outside-rule cases: %d rejected by the input rules, %d "
+                     "reported as a missing input, %d computed%s" % (
+                         ran["rejected"], ran["missing"], len(ran["computed"]),
+                         " (%s)" % ", ".join(ran["computed"]) if ran["computed"] else ""))
     if unmapped:
         lines.append("    input cells not mapped yet: %s" % (
             ", ".join("%s in %d" % kv for kv in sorted(unmapped.items()))))
@@ -201,7 +252,7 @@ def main(argv):
             print("%s: the two orders give different results" % name)
         counts, lines = summarise(name, cases, outside, forward, data)
         print("\n".join(lines))
-        total_diff += counts["difference"]
+        total_diff += counts["difference"] + counts.get("outside computed", 0)
         shown = 0
         for case in cases:
             status, checked, _ = forward[case["id"]]

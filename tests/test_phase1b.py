@@ -221,8 +221,10 @@ class Runner(unittest.TestCase):
             status = run_vectors.main(["run_vectors.py"])
         text = out.getvalue()
         self.assertEqual(status, 0, text)
-        self.assertIn("inputs.json: 132 cases: 132 pass, 0 differ, 0 pending", text)
-        self.assertIn("values.json: 945 cases: 781 pass, 0 differ, 164 pending", text)
+        self.assertIn("inputs.json: 132 cases: 132 pass, 0 differ, 0 outside-rule, 0 pending",
+                      text)
+        self.assertIn("values.json: 945 cases: 781 pass, 0 differ, 0 outside-rule, "
+                      "164 pending", text)
 
     def run_changed(self, name, change):
         cases, _ = run_vectors.load_cases(name)

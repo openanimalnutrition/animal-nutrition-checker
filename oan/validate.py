@@ -12,7 +12,7 @@ import os
 import re
 import sys
 
-from oan import release, table
+from oan import energy, release, table
 
 NUTRIENTS_HEADER = ["id", "name", "unit", "amount", "basis", "k", "mbw_of", "enterable",
                     "ig_code", "notes"]
@@ -22,6 +22,9 @@ LIMITS_HEADER = ["nutrient", "min", "min_unit", "min_rule", "min_source", "max",
                  "max_rule", "max_type", "max_source", "min_notes", "max_notes"]
 AMOUNTS = ["g", "mg", "mcg", "IU", ""]
 NOTES_HEADER = ["id", "scope", "text", "origin"]
+ENERGY_HEADER = ["id", "figure", "unit", "label", "source", "notes"]
+# A type's label ends with the figure and exponent it prints: "(95 * kg BW^0.75)".
+TYPE_LABEL = re.compile(r".*\((\S+) \* [^()]*\^(\S+)\)")
 
 STANDARDS = {"NRC": ["NRC-2006"], "AAFCO": ["AAFCO-2026"], "FEDIAF": ["FEDIAF-2025"]}
 SPECIES = ["canine", "feline"]
@@ -191,6 +194,8 @@ def validate(data_dir, against=None):
         check_note_refs(r["notes"], where + " notes", note_ids, report)
         check_note_refs(r["energy_notes"], where + " energy_notes", note_ids, report)
 
+    check_energy(data_dir, note_ids, requirements, report)
+
     # Every requirement has exactly one limits file, and there are no others.
     expected_files = {os.path.join(r["edition"], r["id"] + ".csv") for _, r in requirements}
     standards_dir = os.path.join(data_dir, "standards")
@@ -286,6 +291,14 @@ def validate(data_dir, against=None):
     if against:
         try:
             old = table.load(against)
+            for fid, row in data["energy"].items():
+                prev = old["energy"].get(fid)
+                if prev is None:
+                    continue
+                new, before = float(row["figure"]), float(prev["figure"])
+                if new and before and max(new / before, before / new) > CHANGE_FACTOR:
+                    report.warn("energy.csv %s" % fid, "changed more than %dx (%g to %g)" % (
+                        CHANGE_FACTOR, before, new))
             for rid, now in computed.items():
                 if rid not in old["limits"]:
                     continue
@@ -301,6 +314,67 @@ def validate(data_dir, against=None):
         except (OSError, KeyError, table.DataError) as e:
             report.warn(against, "could not compare with the old data: %s" % e)
     return report
+
+
+def check_energy(data_dir, note_ids, requirements, report):
+    """energy.csv: exactly the code's figures, each a plain number in the unit the code reads
+    it in, with its source; the adult types' labels print their figures."""
+    rows = read(os.path.join(data_dir, "energy.csv"), ENERGY_HEADER, report)
+    by_id = {}
+    for line, r in rows:
+        where = "energy.csv line %d" % line
+        fid = r["id"]
+        if fid not in energy.FIGURES:
+            report.error(where + " id", "unknown figure %r (the code reads only the figures "
+                         "listed in oan/energy.py)" % fid)
+            continue
+        if fid in by_id:
+            report.error(where + " id", "%r appears twice (also line %d)" % (fid, by_id[fid][0]))
+            continue
+        by_id[fid] = (line, r)
+        problem = number_problem(r["figure"])
+        if problem:
+            report.error(where + " figure", "%r: %s" % (r["figure"], problem))
+        if r["unit"] != energy.FIGURES[fid]:
+            report.error(where + " unit", "the code reads %s in %s; a figure in another unit "
+                         "needs a code change, not a new unit here" % (
+                             fid, energy.FIGURES[fid] or "no unit (a plain number)"))
+        if not r["source"].strip():
+            report.error(where + " source", "every figure needs its source (table and page)")
+        check_note_refs(r["notes"], where + " notes", note_ids, report)
+        if fid not in energy.TYPE_EXPONENTS:
+            if r["label"]:
+                report.error(where + " label", "only the adult dog and cat types have a label")
+    for fid in energy.FIGURES:
+        if fid not in by_id:
+            report.error("energy.csv", "no row for %r (the code needs every figure)" % fid)
+    labels = {}
+    for fid, exponent_id in energy.TYPE_EXPONENTS.items():
+        if fid not in by_id or exponent_id not in by_id:
+            continue
+        line, r = by_id[fid]
+        where = "energy.csv line %d label" % line
+        m = TYPE_LABEL.fullmatch(r["label"])
+        if not m:
+            report.error(where, "a type's label ends with its equation in brackets, for "
+                         'example "(95 * kg BW^0.75)"')
+            continue
+        exponent = by_id[exponent_id][1]["figure"]
+        if number_problem(m.group(1)) or number_problem(r["figure"]) or \
+                float(m.group(1)) != float(r["figure"]):
+            report.error(where, "the label prints %s but the figure is %s: change both "
+                         "together" % (m.group(1), r["figure"]))
+        if number_problem(m.group(2)) or number_problem(exponent) or \
+                float(m.group(2)) != float(exponent):
+            report.error(where, "the label prints the exponent %s but %s is %s: change both "
+                         "together" % (m.group(2), exponent_id, exponent))
+        if r["label"] in labels:
+            report.error(where, "the same label as line %d" % labels[r["label"]])
+        labels[r["label"]] = line
+    for line, r in requirements:
+        if r["id"] not in energy.RULES:
+            report.error("requirements.csv line %d id" % line, "no energy rule for %r: a new "
+                         "requirement needs one in oan/energy.py" % r["id"])
 
 
 def check_limit(r, bound, where, req, nutrient, report):

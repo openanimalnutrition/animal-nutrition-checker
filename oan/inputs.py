@@ -13,7 +13,7 @@ listed text (the requirement, the adult dog and cat types) must match its item e
 import string
 from collections import namedtuple
 
-from . import numbers
+from . import energy, numbers
 
 LIFE_STAGES = (
     "None",
@@ -26,23 +26,8 @@ LIFE_STAGES = (
     "3-4 Kittens",
     ">4 Kittens",
 )
-ADULT_DOG_TYPES = (
-    "Not selected or a dog",
-    "Inactive (95 * kg BW^0.75)",
-    "Older laboratory/active OR Laboratory Newfoundlands (105 * kg BW^0.75)",
-    "Average laboratory or active (130 * kg BW^0.75)",
-    "Young laboratory/active (140 * kg BW^0.75)",
-    "Laboratory/active terriers (180 * kg BW^0.75)",
-    "Laboratory/active Great Danes (200 * kg BW^0.75)",
-)
-ADULT_CAT_TYPES = (
-    "Not selected or a cat",
-    "Overweight domestic (130 * BW^0.4)",
-    "Lean domestic (100 * kgBW^0.67)",
-)
-
 # field -> (kind, rule). kinds: "number" (low, high), "whole" (low, high), "restriction",
-# "list" (items), "life-stage", "requirement".
+# "list" (a function giving the items from the data), "life-stage", "requirement".
 FACTS = {
     "requirement": ("requirement", None),
     "body_weight_kg": ("number", (0.05, 150)),
@@ -50,8 +35,8 @@ FACTS = {
     "puppies_nursing": ("whole", (0, 20)),
     "lactation_week": ("whole", (0, 7)),
     "life_stage": ("life-stage", LIFE_STAGES),
-    "adult_dog_type": ("list", ADULT_DOG_TYPES),
-    "adult_cat_type": ("list", ADULT_CAT_TYPES),
+    "adult_dog_type": ("list", energy.dog_type_labels),
+    "adult_cat_type": ("list", energy.cat_type_labels),
     "energy_intake_kcal_per_day": ("number", (10, 30000)),
     "caloric_restriction_percent": ("restriction", (1, 55)),
     # Used only for the calcium maximum of NRC puppies 4-14 weeks of a large expected size.
@@ -59,6 +44,9 @@ FACTS = {
 }
 # Entries (low or high) with a range of their own; any other entry is any number.
 ENTRY_RANGES = {"energy-density": (2, 9)}
+# The energy row's entries: the diet's energy, kcal per day. Not a row of nutrients.csv: its
+# minimum is the energy the checker uses (oan/energy.py).
+ENERGY_ENTRY = "energy"
 
 Verdict = namedtuple("Verdict", "status value reason")  # status: accept, reject or empty
 
@@ -103,9 +91,10 @@ def check_fact(field, value, data):
             return _accept(value)
         return _reject("not one of the %d requirement names" % len(names))
     if kind == "list":
-        if isinstance(value, str) and value in rule:
+        items = rule(data)
+        if isinstance(value, str) and value in items:
             return _accept(value)
-        return _reject("not one of the %d listed items" % len(rule))
+        return _reject("not one of the %d listed items" % len(items))
     if kind == "life-stage":
         if isinstance(value, str):
             wanted = fold(trim(value))
@@ -128,6 +117,11 @@ def check_fact(field, value, data):
 
 def check_entry(nutrient_id, value, data):
     """The Verdict for one entry (low or high) of a nutrient."""
+    if nutrient_id == ENERGY_ENTRY:
+        if value is None:
+            return Verdict("empty", None, None)
+        x, reason = numbers.as_input_number(value)
+        return _reject(reason) if reason else _accept(x)
     nutrient = next((n for n in data["nutrients"] if n["id"] == nutrient_id), None)
     if nutrient is None:
         return _reject("unknown nutrient %r" % nutrient_id)
