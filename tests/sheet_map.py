@@ -1,4 +1,5 @@
-"""Test-side map from the data ids to template cells (s02 rows and columns).
+"""Test-side map from the data ids and input names to template cells (s02, the requirement
+table; s01, the Standards tab).
 
 Volunteers never edit this; it exists only to compare with the sheet."""
 
@@ -143,4 +144,68 @@ REQUIREMENT_COLUMNS = {
     'nrc-cat-late-gestation': ('AO', 'AP', 'BM'),
     'nrc-cat-peak-lactation': ('AQ', 'AR', 'BN'),
     'fediaf-cat-reproduction': ('AS', 'AT', 'BO'),
+}
+
+# The requirement table's other cells: the name (B) and unit (C) of each nutrient row, the
+# requirement names in row 2 (repeated over the code columns by =E2, =G2, ...), and the
+# table's fixed labels (layout, not data).
+NAME_COLUMN = 'B'
+UNIT_COLUMN = 'C'
+NAME_ROW = 2
+TABLE_LABELS = {
+    'AU1': 'Max type of the MAX cells in columns F to AT (see the AU3 note)',
+}
+CODE_LABEL_ROW = 3
+CODE_LABEL = 'MAX TYPE'
+
+# Standards tab (s01) input cells -> the checker's input names (oan/inputs.py).
+INPUT_CELLS = {
+    'O1': 'requirement',
+    'B3': 'body_weight_kg',
+    'E3': 'mature_weight_kg',
+    'G3': 'puppies_nursing',
+    'K3': 'lactation_week',
+    'M3': 'life_stage',
+    'B4': 'adult_dog_type',
+    'D4': 'adult_cat_type',
+    'K4': 'energy_intake_kcal_per_day',
+    'G10': 'caloric_restriction_percent',
+    'G65': 'puppy_body_weight_kg',
+}
+# Cells that are no longer inputs: some older test scenarios still set them.
+RETIRED_CELLS = {
+    'I3': 'cleared by the energy changes of 21OCT26; no formula reads it',
+}
+# s01 entry columns: the Min entry is the low entry, the Max entry the high one.
+ENTRY_COLUMNS = {'G': 'low', 'I': 'high'}
+MULTIPLIER_COLUMN = 'K'
+
+# s01 rows 12-130 -> nutrient id, for the rows that have a requirement table row. Not
+# listed: the s01 rows with no table row (49, 50, 55-58, 65, 66, 98, 99), for phase 3.
+S01_ROWS = {
+    12: 'protein', 13: 'protein-mbw', 14: 'arginine', 15: 'arginine-mbw', 16: 'histidine',
+    17: 'histidine-mbw', 18: 'isoleucine', 19: 'isoleucine-mbw', 20: 'leucine', 21: 'leucine-mbw',
+    22: 'lysine', 23: 'lysine-mbw', 24: 'methionine', 25: 'methionine-mbw',
+    26: 'methionine-cystine', 27: 'methionine-cystine-mbw', 28: 'phenylalanine',
+    29: 'phenylalanine-mbw', 30: 'phenylalanine-tyrosine', 31: 'phenylalanine-tyrosine-mbw',
+    32: 'threonine', 33: 'threonine-mbw', 34: 'tryptophan', 35: 'tryptophan-mbw', 36: 'valine',
+    37: 'valine-mbw', 38: 'taurine', 39: 'taurine-mbw', 40: 'taurine-wet', 41: 'taurine-wet-mbw',
+    42: 'glutamic-acid', 43: 'fat', 44: 'fat-mbw', 45: 'linoleic-acid', 46: 'linoleic-acid-mbw',
+    47: 'alpha-linolenic-acid', 48: 'alpha-linolenic-acid-mbw', 51: 'arachidonic-acid',
+    52: 'arachidonic-acid-mbw', 53: 'epa-dha', 54: 'epa-dha-mbw',
+    59: 'la-aa-to-ala-epa-dha-ratio', 60: 'la-aa-to-epa-dha-ratio', 61: 'mct', 62: 'mct-mbw',
+    63: 'calcium', 64: 'calcium-mbw', 67: 'phosphorus', 68: 'phosphorus-mbw', 69: 'ca-p-ratio',
+    70: 'potassium', 71: 'potassium-mbw', 72: 'sodium', 73: 'sodium-mbw', 74: 'chloride',
+    75: 'chloride-mbw', 76: 'magnesium', 77: 'magnesium-mbw', 78: 'iron', 79: 'iron-mbw',
+    80: 'copper', 81: 'copper-mbw', 82: 'copper-wet', 83: 'manganese', 84: 'manganese-mbw',
+    85: 'zinc', 86: 'zinc-mbw', 87: 'iodine', 88: 'iodine-mbw', 89: 'selenium',
+    90: 'selenium-mbw', 91: 'selenium-wet', 92: 'retinol', 93: 'retinol-mbw', 94: 'vitamin-a',
+    95: 'vitamin-a-mbw', 96: 'vitamin-d', 97: 'vitamin-d-mbw', 100: 'vitamin-e',
+    101: 'vitamin-e-mbw', 102: 'vitamin-k1', 103: 'vitamin-k1-mbw', 104: 'thiamine',
+    105: 'thiamine-mbw', 106: 'riboflavin', 107: 'riboflavin-mbw', 108: 'pantothenic-acid',
+    109: 'pantothenic-acid-mbw', 110: 'niacin', 111: 'niacin-mbw', 112: 'pyridoxine',
+    113: 'pyridoxine-mbw', 114: 'folate', 115: 'folate-mbw', 116: 'biotin', 117: 'biotin-mbw',
+    118: 'cobalamin', 119: 'cobalamin-mbw', 120: 'choline', 121: 'choline-mbw', 122: 'vitamin-c',
+    123: 'water', 124: 'carbohydrate', 125: 'fiber-total', 126: 'fiber-insoluble',
+    127: 'fiber-soluble', 128: 'oxalate', 129: 'purine', 130: 'energy-density',
 }

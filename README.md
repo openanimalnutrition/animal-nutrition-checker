@@ -16,8 +16,12 @@ the Open Animal Nutrition organisation.
 | `oan/table.py` | Loads `data/` and computes every limit from the printed figures and the rules |
 | `oan/validate.py` | Checks a data folder; run `tools/validate_data.py` |
 | `oan/release.py` | The data version and content hash in `data/RELEASE` |
+| `oan/numbers.py` | Number handling in one place: the template's ROUND, number-to-text, input numbers |
+| `oan/inputs.py` | The input rules: what the checker accepts, with a reason for each rejection |
 | `tools/` | The one-time converter from the template, the source finder, the validator runner |
 | `tests/parity/` | The frozen 21OCT26b baseline: a copy of the data, the test vectors, `SHA256SUMS` |
+| `tests/run_vectors.py` | Runs every test vector against the baseline (both orders) and counts them per file |
+| `tests/sheet_map.py`, `tests/sheet_view.py` | Test side only: the template's cells, and those cells computed from the code's results |
 
 ## The data
 
@@ -46,6 +50,8 @@ maximum) has an empty figure, so it cannot go stale when its source changes.
 
 ```
 nice -n 10 python3 -I -B tests/test_phase1a.py          # baseline, round trip, validator
+nice -n 10 python3 -I -B tests/test_phase1b.py          # number handling, input rules, runner
+nice -n 10 python3 -I -B tests/run_vectors.py           # the test vectors, counted per file
 nice -n 10 python3 -I -B tests/roundtrip.py data        # the limits against 21OCT26b
 nice -n 10 python3 -I -B tools/validate_data.py data    # the validator
 ```
@@ -57,5 +63,19 @@ binary digit (the template's `=0.17*40` gives 6.800000000000001; the code gives 
 ## Status
 
 Phase 1a of the plan: the data format, the converter, per-value sources, the validator,
-the frozen baseline. Next: number handling and the vector runner (1b), energy (2),
-minimums, maximums and bands (3), the parity gate (4).
+the frozen baseline. Phase 1b: number handling, the input rules and the vector runner.
+
+| Vector file | Cases | Pass | Differ | Pending |
+|---|---|---|---|---|
+| `inputs.json` (input rules) | 132 | 132 | 0 | 0 |
+| `values.json` | 945 | 781 (the table) | 0 | 164 (phase 3) |
+| `formulas-testcases.json` | 983 | 0 | 0 | 983 (phase 3) |
+| `energy-testcases.json` | 2,360 | 0 | 0 | 2,360 (phase 2) |
+| `energy-testcases-row11.json` | 1,092 | 0 | 0 | 1,092 (phase 2) |
+
+Cases with an input outside its rule, which the code rejects instead of computing with
+(one approved category of difference): formulas 338, values 18, row 11 4, and the energy
+file's own 30 outside-rule cases (29 rejected by the rules; one has a blank body weight,
+which phase 2 will report as missing).
+
+Next: energy (2), minimums, maximums and bands (3), the parity gate (4).
