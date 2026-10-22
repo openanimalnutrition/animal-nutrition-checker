@@ -1,8 +1,9 @@
 # Open Animal Nutrition: reference implementation (work in progress)
 
 The code version of the Dynamic Decile System template (DDS, frozen at Version 21OCT26b).
-It becomes the reference once it reproduces the template's published test cases, and only
-after the steward approves every difference. Until then it is a non-normative reference
+It reproduces the template's published test cases, and the steward approved every
+difference on 22 Oct 2026 (`docs/parity-21OCT26b.md`). It becomes the reference when the
+Implementation Guide declares it so; until then it is a non-normative reference
 implementation of the proposed computation.
 
 Python 3.9 or later, standard library only. Not yet published; the repository will move to
@@ -149,8 +150,8 @@ checks (the template's figures as data). Phase 4: the parity gate (the real-Shee
 the difference list, the impact report, the automatic checks). Verdicts (deficient, excess)
 come with the Result in phase 5.
 
-**Parity with Version 21OCT26b: no case differs; three differences are listed for the
-steward's approval in `docs/parity-21OCT26b.md`** (two approved on 21 Oct 2026, one new).
+**Parity with Version 21OCT26b: no case differs; the three differences in
+`docs/parity-21OCT26b.md` were approved by the steward** (21 and 22 Oct 2026).
 
 | Vector file | Cases | Pass | Differ | Outside the rules |
 |---|---|---|---|---|
@@ -181,5 +182,5 @@ values 8,595 values, formulas 51,229 (53 cases skipped, as in the original: a wi
 unmatched requirement name), energy every case. With a figure changed, the core and the
 models still agree (tests/test_phase3.py, tests/test_phase4.py).
 
-Next: the steward's approval of the parity page; then phase 5 (the Result, the GUI and the
-MCP server).
+Next: phase 5 (the Result, the GUI and the MCP server), then the IG pull request that
+declares the code the reference.

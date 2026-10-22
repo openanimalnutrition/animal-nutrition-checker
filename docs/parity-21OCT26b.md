@@ -1,7 +1,7 @@
 # Parity with the template, Version 21OCT26b
 
-**Status: for the steward's approval** (the parity gate, phase 4 of the plan). Until it is
-approved, the code is a non-normative reference implementation.
+**Status: approved by the steward on 22 Oct 2026** (the parity gate, phase 4 of the plan):
+the three differences below, and parity with Version 21OCT26b.
 
 The code becomes the reference for the Dynamic Decile System once it reproduces the
 released template, Version 21OCT26b, and the steward approves every difference. This page
@@ -64,7 +64,7 @@ Not compared, with their reasons (typed cells only; a formula cell is never left
 ## The result
 
 **No case differs.** Every difference from the template is in one of the three items below.
-Items 1 and 2 were approved on 21 Oct 2026; item 3 is new.
+Items 1 and 2 were approved on 21 Oct 2026, item 3 on 22 Oct 2026.
 
 ## The differences
 
@@ -89,7 +89,7 @@ two in `formulas-testcases.json` (case k4-0766, C97 and C99); eight in
 `display-21OCT26b.json` (the edges shown below row 97's band edges). It does not show in the
 real-Sheets check: the export writes the number with 10 significant digits.
 
-### 3. NRC RA Cat Maintenance, the DHA check of row 58, on changed data only (new)
+### 3. NRC RA Cat Maintenance, the DHA check of row 58, on changed data only (approved 22 Oct 2026)
 
 Row 58 checks that EPA is included but at most 20% of EPA + DHA, and then that DHA (EPA +
 DHA minus EPA) is at least the EPA + DHA minimum. If the EPA + DHA minimum of NRC RA Cat
@@ -99,8 +99,9 @@ result alone (OK when the share is within 20%); the template would show an error
 No case reaches this: the 21OCT26b data has that minimum (0.025 g/Mcal). Only a data change
 could: the validator rejects removing the minimum alone, because the LA + AA : EPA + DHA
 maximum of NRC RA Cat Maintenance is computed from it, so the change would also have to give
-that maximum a figure of its own. `tests/test_phase4.py` tests both. The alternative is to
-report the check as unavailable.
+that maximum a figure of its own. `tests/test_phase4.py` tests both. The steward kept the
+EPA share result over reporting the check as unavailable; the Result (phase 5) is to add a
+caveat that DHA was not compared.
 
 ## Corrections to the test side (not differences)
 
