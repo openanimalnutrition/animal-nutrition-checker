@@ -20,11 +20,15 @@ the Open Animal Nutrition organisation.
 | `oan/inputs.py` | The input rules: what the checker accepts, with a reason for each rejection |
 | `oan/energy.py` | Each requirement's daily energy minimum, and the energy the checker uses |
 | `oan/bands.py` | The 14 bands: which band of a row a value is in |
+| `oan/limits.py` | Each nutrient's minimum, maximum, range high and the type of the range high, for one request |
+| `oan/outcomes.py` | What the checker says about each entry (a band or another outcome), and NRC's text checks |
 | `tools/` | The one-time converter from the template, the source finder, the validator runner |
 | `tests/parity/` | The frozen 21OCT26b baseline: a copy of the data, the test vectors, `SHA256SUMS` |
 | `tests/run_vectors.py` | Runs every test vector against the baseline (both orders) and counts them per file |
 | `tests/sheet_map.py`, `tests/sheet_view.py` | Test side only: the template's cells, and those cells computed from the code's results |
 | `tests/models/energy_model.py` | An energy model written separately from the sources, reading the same figures, to check the core on changed data |
+| `tests/models/values_model.py`, `tests/models/formulas_model.py` | The same for the limits and bands: models written separately from the specifications, reading the same data |
+| `tests/vectors-extra/` | Cases written after the freeze for what the frozen vectors do not test (the text checks), not frozen |
 
 ## The data
 
@@ -50,6 +54,19 @@ the Open Animal Nutrition organisation.
   next to the figure each one prints; the validator rejects a name whose figure or exponent
   differs from the row's. The shape of each equation, and which requirement uses which,
   is in `oan/energy.py`.
+- `template.csv`: what the template sets itself, each with its source and the requirements
+  it applies to:
+  - its four extra rows: EPA alone (entered only for NRC's EPA checks), vitamin D2 for
+    cats (per Mcal and MBW) and the calcium of NRC puppies 4-14 weeks old of a large
+    expected size;
+  - its own figures: the defaults when a standard sets no minimum (vitamin C,
+    carbohydrate, fibres), its fixed limits (water, energy density, oxalate, purine, MCTs,
+    the taurine maximum when there is no taurine minimum), and the figures inside its rules
+    (vitamin D2 / 0.7, the arginine increase for protein, NRC's LA:ALA ratios and EPA
+    shares, the large-breed puppy calcium figures, AAFCO's 4 kcal/g DM, the energy factors
+    of the calculated carbohydrate maximum, the n-6:n-3 ratio maximums' defaults). A figure
+    that is a maximum carries its type (TPL when the template sets it; the puppy calcium
+    maximum of 4.5 is NRC's calcium SUL). The shape of each rule is in `oan/limits.py`.
 - `notes.csv`: the template's notes as records.
 - `RELEASE`: the data version and the content hash.
 
@@ -66,11 +83,13 @@ Version 21OCT26b. The frozen baseline in `tests/parity/` is never edited.
 | 21OCT26b.1 | The 21OCT26b requirement table as CSV, with a source for every figure |
 | 21OCT26b.2 | Source text only: the five NRC dog choline minimums (340 mg/Mcal, 45 mg/kg BW^0.75) now say "AI column; see NRC p. 233" (steward, 21 Oct 2026). No value changed |
 | 21OCT26b.3 | `energy.csv`: the energy figures of 21OCT26b, moved from the template's formulas into data with a source for each (steward, 21 Oct 2026). No value changed |
+| 21OCT26b.4 | `template.csv`: the template's own figures and its four extra rows, moved from the Standards tab's formulas into data with a source for each (steward, 21 Oct 2026). No value changed |
 
-The frozen baseline gained the same `energy.csv` once, in phase 2 (steward, 21 Oct 2026),
-so the 21OCT26b energy cases keep running on 21OCT26b's figures after a standard changes.
-Its `RELEASE` keeps the label 21OCT26b.1 with the content hash recomputed; `SHA256SUMS`
-changed in those two lines only.
+The frozen baseline gained the same `energy.csv` once, in phase 2, and the same
+`template.csv` once, in phase 3 (steward, 21 Oct 2026 both times), so the 21OCT26b cases
+keep running on 21OCT26b's figures after a standard or a template figure changes. Its
+`RELEASE` keeps the label 21OCT26b.1 with the content hash recomputed; each time
+`SHA256SUMS` changed in the RELEASE line and gained the new file's line, nothing else.
 
 ## Checks
 
@@ -78,6 +97,7 @@ changed in those two lines only.
 nice -n 10 python3 -I -B tests/test_phase1a.py          # baseline, round trip, validator
 nice -n 10 python3 -I -B tests/test_phase1b.py          # number handling, input rules, runner
 nice -n 10 python3 -I -B tests/test_phase2.py           # energy figures, energy, bands, row 11
+nice -n 10 python3 -I -B tests/test_phase3.py           # template figures, limits, outcomes, models
 nice -n 10 python3 -I -B tests/run_vectors.py           # the test vectors, counted per file
 nice -n 10 python3 -I -B tests/roundtrip.py data        # the limits against 21OCT26b
 nice -n 10 python3 -I -B tools/validate_data.py data    # the validator
@@ -92,21 +112,34 @@ steward approved the two as the same value (21 Oct 2026).
 
 Phase 1a of the plan: the data format, the converter, per-value sources, the validator,
 the frozen baseline. Phase 1b: number handling, the input rules and the vector runner.
-Phase 2: energy (the figures as data, the energy core, the bands, row 11).
+Phase 2: energy (the figures as data, the energy core, the bands, row 11). Phase 3: the
+minimums, maximums, range highs and bands of rows 12-130, the type of each range high per
+request (the IG's Maximum types), the outcomes other than a band, and NRC's five text
+checks (the template's figures as data). Verdicts (deficient, excess) come with the Result
+in phase 5.
 
-| Vector file | Cases | Pass | Differ | Pending |
+| Vector file | Cases | Pass | Differ | Outside the rules |
 |---|---|---|---|---|
 | `inputs.json` (input rules) | 132 | 132 | 0 | 0 |
-| `values.json` | 945 | 781 (the table) | 0 | 164 (phase 3) |
-| `formulas-testcases.json` | 983 | 0 | 0 | 983 (phase 3) |
+| `values.json` | 945 | 927 | 0 | 18 |
+| `formulas-testcases.json` | 983 | 645 | 0 | 338 |
 | `energy-testcases.json` | 2,360 | 2,360 | 0 | 0 |
-| `energy-testcases-row11.json` | 1,092 | 1,088 | 0 | 0 (4 outside the rules, below) |
+| `energy-testcases-row11.json` | 1,092 | 1,088 | 0 | 4 |
+| `vectors-extra/text-checks-21OCT26b.json` (not frozen) | 198 | 198 | 0 | 0 |
 
-Every energy and row 11 value is bit for bit the template's (none only within 1e-12).
+Every value is bit for bit the template's except two, within 1e-12: the vitamin D MBW
+minimum of NRC RA Cat Maintenance at an entered intake, and the vitamin D2 MBW minimum
+computed from it (formulas case k4-0766). Both come from the 6.8 against
+6.800000000000001 difference the steward approved as the same value.
 
 Cases with an input outside its rule, which the code rejects instead of computing with
 (one approved category of difference): formulas 338, values 18, row 11 4, and the energy
 file's own 30 outside-rule cases (29 rejected by the rules; the 30th has a blank body
 weight, which the code reports as missing where the template shows 0 kcal).
 
-Next: minimums, maximums and bands (3), the parity gate (4).
+The independent models, reading the same data folder, agree with every case they model:
+values 8,595 values, formulas 51,229 (53 cases skipped, as in the original: a wildcard or
+unmatched requirement name), energy every case. With a template figure changed, the core
+and the models still agree (tests/test_phase3.py).
+
+Next: the parity gate (4).

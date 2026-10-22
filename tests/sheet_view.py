@@ -4,13 +4,16 @@ with the test vectors.
 Phase 1b covers the requirement table (s02: limits, maximum types, names, units, the
 requirement names and the fixed labels) and the Standards tab's multipliers (s01 column K).
 Phase 2 adds the energy cells (EnergyView): s01 G4, C11 and its highlight, and row 11.
-Cells of later phases raise NotModelled.
+Phase 3 adds the Standards tab's rows 12-130 (StandardsView): the minimums and maximums
+(columns C and E), the band edges and range highs, the descriptions (L, N) and summary
+sentences (AR), the text checks (rows 49-58) and the helper cells. Other cells raise
+NotModelled.
 """
 
 import re
 
 import sheet_map
-from oan import bands, energy, inputs, numbers, table
+from oan import bands, energy, inputs, limits, numbers, outcomes, table
 
 CELL = re.compile(r"(s0[12])!([A-Z]+)([0-9]+)$")
 
@@ -175,3 +178,267 @@ class EnergyView:
         both = all(out[c + row] != "" for c in sheet_map.ROW11_DESCRIPTIONS.values())
         out[sheet_map.ROW11_JOIN[0] + row] = sheet_map.ROW11_JOIN[1] if both else ""
         return out
+
+
+def _is_error(v):
+    return isinstance(v, dict)
+
+
+def _error(x):
+    """The template's error code for the core's Unavailable."""
+    code = sheet_map.REQUIREMENT_ERROR if x.reason == limits.REQUIREMENT_NEEDED \
+        else sheet_map.OTHER_ERROR
+    return {"error": code}
+
+
+def _cell_value(x):
+    """A limit as the template shows it: a number, "none" or an error code."""
+    if x is None:
+        return table.NONE
+    if limits.unavailable(x):
+        return _error(x)
+    return x
+
+
+class StandardsView:
+    """The Standards tab's cells for one case's inputs ({cell: value}). Inputs a case does
+    not list keep the export's (sheet_map.EXPORT_INPUTS)."""
+
+    ENTRY_ROWS = {**sheet_map.S01_ROWS, **sheet_map.TEMPLATE_ROWS}
+
+    def __init__(self, data, cells):
+        self.data = data
+        given = dict(sheet_map.EXPORT_INPUTS)
+        given.update(cells)
+        energy_cells, self.facts, self.entries = {}, {}, {}
+        for cell, value in sorted(given.items()):
+            if cell in sheet_map.RETIRED_CELLS:
+                continue
+            col, row = cell[:1], cell[1:]
+            if cell in sheet_map.INPUT_CELLS:
+                field = sheet_map.INPUT_CELLS[cell]
+                verdict = inputs.check_fact(field, value, data)
+                self.facts[field] = verdict.value
+                energy_cells[cell] = value
+            elif col in sheet_map.ENTRY_COLUMNS and row == str(sheet_map.ENERGY_ROW):
+                verdict = inputs.check_entry(inputs.ENERGY_ENTRY, value, data)
+                energy_cells[cell] = value
+            elif col in sheet_map.ENTRY_COLUMNS and row.isdigit() and \
+                    int(row) in self.ENTRY_ROWS:
+                nid = self.ENTRY_ROWS[int(row)]
+                verdict = inputs.check_entry(nid, value, data)
+                self.entries.setdefault(nid, {})[sheet_map.ENTRY_COLUMNS[col]] = verdict.value
+            else:
+                raise NotModelled(cell)
+            if verdict.status == "reject":
+                raise OutsideRule("%s: %s" % (cell, verdict.reason))
+        self.energy = EnergyView(data, energy_cells)
+        self.name = self.facts.get("requirement")
+        self.request = limits.Request(data, self.energy.requirement_id, self.facts,
+                                      self.entries)
+        self.table = TableView(data, self.facts.get("mature_weight_kg"))
+        self.nutrients = {n["id"]: n for n in data["nutrients"]}
+        self._energy_cells = None
+        self._checks = None
+
+    # Cells.
+
+    def cell(self, ref):
+        if ref.startswith("s02!") or ref.startswith("s01!"):
+            return self.table.cell(ref)[0]
+        m = re.match(r"([A-Z]+)([0-9]+)$", ref)
+        if not m:
+            raise NotModelled(ref)
+        col, row = m.group(1), int(m.group(2))
+        if row <= 4 or row == sheet_map.ENERGY_ROW:
+            return self._top(ref)
+        if ref in sheet_map.FIXED_DESCRIPTORS:
+            return sheet_map.FIXED_DESCRIPTORS[ref]
+        if col == sheet_map.MULTIPLIER_COLUMN:
+            return self.table.cell("s01!" + ref)[0]
+        for (cid, fid), check_row in sheet_map.TEXT_CHECK_ROWS.items():
+            if row == check_row and col in sheet_map.DESCRIPTOR_COLUMNS:
+                return self._text_check(row, sheet_map.DESCRIPTOR_COLUMNS[col])
+        nid = self.ENTRY_ROWS.get(row)
+        if nid is None:
+            raise NotModelled(ref)
+        if col in sheet_map.LIMIT_COLUMNS:
+            if sheet_map.LIMIT_COLUMNS[col] == "min":
+                return _cell_value(self.request.minimum(nid))
+            return _cell_value(self.request.maximum(nid))
+        if col in sheet_map.DESCRIPTOR_COLUMNS:
+            return self._describe(nid, row, sheet_map.DESCRIPTOR_COLUMNS[col])
+        if col == sheet_map.SUMMARY_COLUMN:
+            return self._summary(nid, row)
+        if col == sheet_map.JOIN_COLUMN:
+            return self._join(nid, row)
+        edges = self._edges(nid)
+        if col in edges:
+            return edges[col]
+        raise NotModelled(ref)
+
+    def _top(self, ref):
+        if ref == sheet_map.POSITION_CELL:
+            if self.request.requirement is None:
+                return {"error": sheet_map.REQUIREMENT_ERROR}
+            column = sheet_map.REQUIREMENT_COLUMNS[self.request.requirement["id"]][0]
+            return float(_column_number(column) - 1)
+        if ref == sheet_map.AAFCO_FACTOR_CELL:
+            return _cell_value(self.request.aafco_factor)
+        if ref in sheet_map.ARGININE_BASE_CELLS:
+            return _cell_value(self.request.arginine_base(sheet_map.ARGININE_BASE_CELLS[ref]))
+        if ref == sheet_map.INTAKE_LABEL[0]:
+            return sheet_map.INTAKE_LABEL[1]
+        if ref == sheet_map.INTAKE_SHORTFALL_CELL:
+            shortfall = self.request.intake_shortfall
+            return "" if shortfall is None else shortfall
+        if ref == sheet_map.SUMMARY_COLUMN + str(sheet_map.ENERGY_ROW):
+            return self._summary("energy", sheet_map.ENERGY_ROW)
+        if self._energy_cells is None:
+            self._energy_cells = self.energy.cells()
+        if ref in self._energy_cells:
+            return self._energy_cells[ref]
+        raise NotModelled(ref)
+
+    def _edges(self, nid):
+        """The band edges and range high as the template computes them from its C and E
+        cells (an error in C gives errors; AP is 0 when C is an error and E none)."""
+        c = _cell_value(self.request.minimum(nid))
+        e = _cell_value(self.request.maximum(nid))
+        k = self.request.multiplier(nid)
+        if _is_error(e):
+            ap = e
+        elif e == table.NONE:
+            ap = (c if numbers.is_number(c) else 0.0) * (k or 0.0)
+        elif e == 0:
+            ap = 0.0
+        else:
+            ap = e
+        out = {sheet_map.RANGE_HIGH: ap}
+        if _is_error(c):
+            for col, _ in sheet_map.EDGE_BELOW_MIN + sheet_map.EDGE_DECILES:
+                out[col] = c
+            out[sheet_map.EDGE_MIN] = c
+            return out
+        minimum = None if c == table.NONE else c
+        if _is_error(ap):
+            edges = [(minimum or 0.0) * f for _, f in sheet_map.EDGE_BELOW_MIN] + \
+                [minimum or 0.0] + [ap] * len(sheet_map.EDGE_DECILES)
+        else:
+            edges = bands.lower_edges(minimum, ap)
+        cols = [col for col, _ in sheet_map.EDGE_BELOW_MIN] + [sheet_map.EDGE_MIN] + \
+            [col for col, _ in sheet_map.EDGE_DECILES]
+        out.update(zip(cols, edges))
+        return out
+
+    def _describe(self, nid, row, side):
+        """L (low) or N (high): the template's text for the core's outcome."""
+        if nid == "energy":
+            return self._top(("L" if side == "low" else "N") + str(row))
+        lim = self.request.limits(nid)
+        value = self.entries.get(nid, {}).get(side)
+        o = outcomes.describe(value, side, lim)
+        if o.code == outcomes.NOT_ENTERED:
+            # The template counts nothing entered as 0 under Min.
+            if side == "low" and limits.unavailable(lim.minimum):
+                return _error(lim.minimum)
+            if side == "low" and lim.minimum is None:
+                return sheet_map.NO_MIN_LABEL
+            return ""
+        if o.code == outcomes.NO_MINIMUM:
+            return sheet_map.NO_MIN_LABEL
+        if o.code == outcomes.UNAVAILABLE:
+            return _error(limits.Unavailable(o.reason))
+        if o.code == outcomes.NO_RANGE:
+            return sheet_map.NO_RANGE_LABEL
+        if o.code not in sheet_map.BAND_LABELS:
+            raise NotModelled("no template text for the outcome %s" % o.code)
+        return sheet_map.BAND_LABELS[o.code]
+
+    def _join(self, nid, row):
+        low, high = self._describe(nid, row, "low"), self._describe(nid, row, "high")
+        for x in (low, high):
+            if _is_error(x):
+                return x
+        return "" if not low or not high else "to"
+
+    def _label(self, nid, row):
+        if row in sheet_map.S01_LABELS:
+            return sheet_map.S01_LABELS[row]
+        if nid in self.nutrients:
+            return self.nutrients[nid]["name"]
+        return self.data["template"][nid]["name"]
+
+    def _summary(self, nid, row):
+        """AR: TRIM of the descriptions joined by "to", the row's name, "Based on" the
+        requirement, and the row's phrases."""
+        ref = sheet_map.SUMMARY_COLUMN + str(row)
+        if ref in sheet_map.FIXED_DESCRIPTORS:
+            return sheet_map.FIXED_DESCRIPTORS[ref]
+        low = self._describe(nid, row, "low")
+        high = self._describe(nid, row, "high")
+        for x in (low, high):
+            if _is_error(x):
+                return x
+        low, high = low or "", high or ""
+        join = "" if low == "" or high == "" else "to"
+        phrase = self._phrase(nid, row)
+        if _is_error(phrase):
+            return phrase
+        text = low + (" " + join if join else "") + (" " + high if high else "") + \
+            " " + self._label(nid, row) + phrase
+        return inputs.trim(text)
+
+    def _phrase(self, nid, row):
+        t = sheet_map.AR_TEXTS
+        shape = sheet_map.AR_SHAPES[row]
+        based_on = t["based-on"] + (self.name or "")
+        if shape in ("default-min", "water"):
+            fid = sheet_map.AR_FIGURES[row]
+            figure = float(self.data["template"][fid]["figure"])
+            unit = self.nutrients[nid]["unit"]
+            if shape == "water":
+                return t["based-on"] + "%s %s%s" % (numbers.to_text(figure), unit, t["water"])
+            c = _cell_value(self.request.minimum(nid))
+            if _is_error(c):
+                return c
+            if numbers.is_number(c) and (c == figure or
+                                         numbers.to_text(c) == numbers.to_text(figure)):
+                return t["based-on"] + "%s %s%s" % (numbers.to_text(figure), unit,
+                                                    t["default-min"])
+            return based_on
+        out = based_on
+        if shape in ("restriction+aafco", "restriction"):
+            r = self.facts.get("caloric_restriction_percent")
+            if r is not None and r > 0:
+                out += t["restriction"][0] + numbers.format_fixed(r / 100, 2, percent=True) + \
+                    t["restriction"][1]
+        if shape in ("restriction+aafco", "aafco"):
+            a = self.request.aafco_factor
+            c = self.request.minimum(nid)
+            if limits.number(a) and limits.number(c) and a != 1:
+                out += t["aafco"] + numbers.format_fixed(a, 3)
+        if shape in ("intake", "intake-mbw"):
+            n4 = self.request.intake_shortfall
+            if n4 is not None and n4 > 0:
+                shown = n4 / 100 if shape == "intake-mbw" and n4 > 1 else n4
+                out += t["intake"][0] + numbers.format_fixed(shown, 2, percent=True) + \
+                    t["intake"][1]
+        return out
+
+    def _text_check(self, row, side):
+        if self._checks is None:
+            self._checks = outcomes.checks(self.request)
+        for cid, sides in self._checks.items():
+            check = sides[side]
+            high = next((f for f in check.figures if f in limits.LA_ALA_HIGH), None)
+            if sheet_map.TEXT_CHECK_ROWS.get((cid, high)) == row:
+                return sheet_map.TEXT_CHECK_TEXTS[row][check.result]
+        return sheet_map.NOT_APPLICABLE
+
+
+def _column_number(col):
+    n = 0
+    for ch in col:
+        n = n * 26 + ord(ch) - 64
+    return n

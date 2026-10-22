@@ -1,0 +1,5185 @@
+{
+ "format": "oan text-check cases 1",
+ "about": "Standards tab rows 49, 50, 56, 57 and 58 (NRC's LA:ALA and EPA share checks, and NRC adult cats' DHA minimum) of the DDS template Version 21OCT26b, computed by the project's evaluator (nextbuild/eval/sheval_next.py 2026-10-20.1) from the 21OCT26b export's formulas (dump sha256 below), at the inputs listed; every other input is the export's. Written in phase 3 because the frozen 21OCT26b vectors test only row 58. Values: text, or null (blank). Not part of the frozen baseline.",
+ "export_dump_sha256": "a3b4ae2a10c18a41161ee0d3b940ddc2dc0cd28ae432d5646a54b64d1c0ca96d",
+ "cells": [
+  "L49",
+  "N49",
+  "L50",
+  "N50",
+  "L56",
+  "N56",
+  "L57",
+  "N57",
+  "L58",
+  "N58"
+ ],
+ "cases": [
+  {
+   "id": "TC-0000",
+   "inputs": {
+    "O1": "NRC RA Dog Maintenance",
+    "G45": null,
+    "G47": null,
+    "I45": 16.0,
+    "I47": 1.0,
+    "G53": null,
+    "G55": null,
+    "I53": 1.0,
+    "I55": 0.6
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "OK",
+    "N50": "OK",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "OK",
+    "N57": "OK",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0001",
+   "inputs": {
+    "O1": "NRC RA Dog Maintenance",
+    "G45": 0.0,
+    "G47": 0.0,
+    "I45": 16.01,
+    "I47": 1.0,
+    "G53": 0.0,
+    "G55": 0.0,
+    "I53": 1.0,
+    "I55": 0.61
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "OK",
+    "N50": "OK",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "OK",
+    "N57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0002",
+   "inputs": {
+    "O1": "NRC RA Dog Maintenance",
+    "G45": 10.0,
+    "G47": null,
+    "I45": 26.0,
+    "I47": 1.0,
+    "G53": 1.0,
+    "G55": null,
+    "I53": 1.0,
+    "I55": 0.5
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Outside NRC LA:ALA of 2.6 to 26",
+    "N50": "OK",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "N57": "OK",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0003",
+   "inputs": {
+    "O1": "NRC RA Dog Maintenance",
+    "G45": null,
+    "G47": 1.0,
+    "I45": 26.5,
+    "I47": 1.0,
+    "G53": 1.0,
+    "G55": 0.0,
+    "I53": 1.0,
+    "I55": 0.49
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Outside NRC LA:ALA of 2.6 to 26",
+    "N50": "Outside NRC LA:ALA of 2.6 to 26",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "N57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0004",
+   "inputs": {
+    "O1": "NRC RA Dog Maintenance",
+    "G45": 10.0,
+    "G47": 1.0,
+    "I45": -1.0,
+    "I47": 1.0,
+    "G53": null,
+    "G55": 0.1,
+    "I53": 1.0,
+    "I55": 0.2
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "OK",
+    "N50": "Outside NRC LA:ALA of 2.6 to 26",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "N57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0005",
+   "inputs": {
+    "O1": "NRC RA Dog Maintenance",
+    "G45": 2.6,
+    "G47": 1.0,
+    "I45": 1.0,
+    "I47": -1.0,
+    "G53": 1.0,
+    "G55": 0.6,
+    "I53": 1.0,
+    "I55": 0.21
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "OK",
+    "N50": "Outside NRC LA:ALA of 2.6 to 26",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "OK",
+    "N57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0006",
+   "inputs": {
+    "O1": "NRC RA Dog Maintenance",
+    "G45": 2.59,
+    "G47": 1.0,
+    "I45": 0.0,
+    "I47": 1.0,
+    "G53": 1.0,
+    "G55": 0.61,
+    "I53": 1.0,
+    "I55": 0.1
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Outside NRC LA:ALA of 2.6 to 26",
+    "N50": "Outside NRC LA:ALA of 2.6 to 26",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "N57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0007",
+   "inputs": {
+    "O1": "NRC RA Dog Maintenance",
+    "G45": 16.0,
+    "G47": 1.0,
+    "I45": 5.0,
+    "I47": 0.0,
+    "G53": 1.0,
+    "G55": 0.5,
+    "I53": 0.03,
+    "I55": 0.004
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "OK",
+    "N50": "Outside NRC LA:ALA of 2.6 to 26",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "OK",
+    "N57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0008",
+   "inputs": {
+    "O1": "NRC RA Dog Maintenance",
+    "G45": 16.01,
+    "G47": 1.0,
+    "I45": 3.3,
+    "I47": 0.2,
+    "G53": 1.0,
+    "G55": 0.49,
+    "I53": 0.028,
+    "I55": 0.004
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "OK",
+    "N50": "OK",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "N57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0009",
+   "inputs": {
+    "O1": "NRC RA Dog Maintenance",
+    "G45": 26.0,
+    "G47": 1.0,
+    "I45": null,
+    "I47": null,
+    "G53": 1.0,
+    "G55": 0.2,
+    "I53": 0.0375,
+    "I55": 0.004
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "OK",
+    "N50": "OK",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "N57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0010",
+   "inputs": {
+    "O1": "NRC RA Dog Maintenance",
+    "G45": 26.5,
+    "G47": 1.0,
+    "I45": 0.0,
+    "I47": 0.0,
+    "G53": 1.0,
+    "G55": 0.21,
+    "I53": -1.0,
+    "I55": 0.1
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Outside NRC LA:ALA of 2.6 to 26",
+    "N50": "OK",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "N57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0011",
+   "inputs": {
+    "O1": "NRC RA Dog Maintenance",
+    "G45": -1.0,
+    "G47": 1.0,
+    "I45": 10.0,
+    "I47": null,
+    "G53": 1.0,
+    "G55": 0.1,
+    "I53": 0.1,
+    "I55": -0.1
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Outside NRC LA:ALA of 2.6 to 26",
+    "N50": "Outside NRC LA:ALA of 2.6 to 26",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "N57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0012",
+   "inputs": {
+    "O1": "NRC RA Dog Maintenance",
+    "G45": 1.0,
+    "G47": -1.0,
+    "I45": null,
+    "I47": 1.0,
+    "G53": 0.03,
+    "G55": 0.004,
+    "I53": 0.0333333,
+    "I55": 0.0
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Outside NRC LA:ALA of 2.6 to 26",
+    "N50": "Outside NRC LA:ALA of 2.6 to 26",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "N57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0013",
+   "inputs": {
+    "O1": "NRC RA Dog Maintenance",
+    "G45": 0.0,
+    "G47": 1.0,
+    "I45": 10.0,
+    "I47": 1.0,
+    "G53": 0.028,
+    "G55": 0.004,
+    "I53": null,
+    "I55": null
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Outside NRC LA:ALA of 2.6 to 26",
+    "N50": "OK",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "N57": "OK",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0014",
+   "inputs": {
+    "O1": "NRC RA Dog Maintenance",
+    "G45": 5.0,
+    "G47": 0.0,
+    "I45": 2.6,
+    "I47": 1.0,
+    "G53": 0.0375,
+    "G55": 0.004,
+    "I53": 0.0,
+    "I55": 0.0
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Outside NRC LA:ALA of 2.6 to 26",
+    "N50": "OK",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "N57": "OK",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0015",
+   "inputs": {
+    "O1": "NRC RA Dog Maintenance",
+    "G45": 3.3,
+    "G47": 0.2,
+    "I45": 2.59,
+    "I47": 1.0,
+    "G53": -1.0,
+    "G55": 0.1,
+    "I53": 1.0,
+    "I55": null
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "OK",
+    "N50": "Outside NRC LA:ALA of 2.6 to 26",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "N57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0016",
+   "inputs": {
+    "O1": "NRC RA Dog Maintenance",
+    "G45": null,
+    "G47": null,
+    "I45": 16.0,
+    "I47": 1.0,
+    "G53": 0.1,
+    "G55": -0.1,
+    "I53": 1.0,
+    "I55": 0.0
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "OK",
+    "N50": "OK",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "N57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0017",
+   "inputs": {
+    "O1": "NRC RA Dog Maintenance",
+    "G45": 0.0,
+    "G47": 0.0,
+    "I45": 16.01,
+    "I47": 1.0,
+    "G53": 0.0333333,
+    "G55": 0.0,
+    "I53": null,
+    "I55": 0.1
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "OK",
+    "N50": "OK",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "N57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0018",
+   "inputs": {
+    "O1": "NRC RA Puppy 4-14 Wk Growth",
+    "G45": null,
+    "G47": null,
+    "I45": 16.0,
+    "I47": 1.0,
+    "G53": null,
+    "G55": null,
+    "I53": 1.0,
+    "I55": 0.6
+   },
+   "expected": {
+    "L49": "OK",
+    "N49": "OK",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0019",
+   "inputs": {
+    "O1": "NRC RA Puppy 4-14 Wk Growth",
+    "G45": 0.0,
+    "G47": 0.0,
+    "I45": 16.01,
+    "I47": 1.0,
+    "G53": 0.0,
+    "G55": 0.0,
+    "I53": 1.0,
+    "I55": 0.61
+   },
+   "expected": {
+    "L49": "OK",
+    "N49": "Outside NRC LA:ALA of 2.6 to 16",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "EPA Exceeds NRC 60% of EPA+DHA",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0020",
+   "inputs": {
+    "O1": "NRC RA Puppy 4-14 Wk Growth",
+    "G45": 10.0,
+    "G47": null,
+    "I45": 26.0,
+    "I47": 1.0,
+    "G53": 1.0,
+    "G55": null,
+    "I53": 1.0,
+    "I55": 0.5
+   },
+   "expected": {
+    "L49": "Outside NRC LA:ALA of 2.6 to 16",
+    "N49": "Outside NRC LA:ALA of 2.6 to 16",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0021",
+   "inputs": {
+    "O1": "NRC RA Puppy 4-14 Wk Growth",
+    "G45": null,
+    "G47": 1.0,
+    "I45": 26.5,
+    "I47": 1.0,
+    "G53": 1.0,
+    "G55": 0.0,
+    "I53": 1.0,
+    "I55": 0.49
+   },
+   "expected": {
+    "L49": "Outside NRC LA:ALA of 2.6 to 16",
+    "N49": "Outside NRC LA:ALA of 2.6 to 16",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0022",
+   "inputs": {
+    "O1": "NRC RA Puppy 4-14 Wk Growth",
+    "G45": 10.0,
+    "G47": 1.0,
+    "I45": -1.0,
+    "I47": 1.0,
+    "G53": null,
+    "G55": 0.1,
+    "I53": 1.0,
+    "I55": 0.2
+   },
+   "expected": {
+    "L49": "OK",
+    "N49": "Outside NRC LA:ALA of 2.6 to 16",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "EPA Exceeds NRC 60% of EPA+DHA",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0023",
+   "inputs": {
+    "O1": "NRC RA Puppy 4-14 Wk Growth",
+    "G45": 2.6,
+    "G47": 1.0,
+    "I45": 1.0,
+    "I47": -1.0,
+    "G53": 1.0,
+    "G55": 0.6,
+    "I53": 1.0,
+    "I55": 0.21
+   },
+   "expected": {
+    "L49": "OK",
+    "N49": "Outside NRC LA:ALA of 2.6 to 16",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0024",
+   "inputs": {
+    "O1": "NRC RA Puppy 4-14 Wk Growth",
+    "G45": 2.59,
+    "G47": 1.0,
+    "I45": 0.0,
+    "I47": 1.0,
+    "G53": 1.0,
+    "G55": 0.61,
+    "I53": 1.0,
+    "I55": 0.1
+   },
+   "expected": {
+    "L49": "Outside NRC LA:ALA of 2.6 to 16",
+    "N49": "Outside NRC LA:ALA of 2.6 to 16",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "EPA Exceeds NRC 60% of EPA+DHA",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0025",
+   "inputs": {
+    "O1": "NRC RA Puppy 4-14 Wk Growth",
+    "G45": 16.0,
+    "G47": 1.0,
+    "I45": 5.0,
+    "I47": 0.0,
+    "G53": 1.0,
+    "G55": 0.5,
+    "I53": 0.03,
+    "I55": 0.004
+   },
+   "expected": {
+    "L49": "OK",
+    "N49": "Outside NRC LA:ALA of 2.6 to 16",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0026",
+   "inputs": {
+    "O1": "NRC RA Puppy 4-14 Wk Growth",
+    "G45": 16.01,
+    "G47": 1.0,
+    "I45": 3.3,
+    "I47": 0.2,
+    "G53": 1.0,
+    "G55": 0.49,
+    "I53": 0.028,
+    "I55": 0.004
+   },
+   "expected": {
+    "L49": "Outside NRC LA:ALA of 2.6 to 16",
+    "N49": "Outside NRC LA:ALA of 2.6 to 16",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0027",
+   "inputs": {
+    "O1": "NRC RA Puppy 4-14 Wk Growth",
+    "G45": 26.0,
+    "G47": 1.0,
+    "I45": null,
+    "I47": null,
+    "G53": 1.0,
+    "G55": 0.2,
+    "I53": 0.0375,
+    "I55": 0.004
+   },
+   "expected": {
+    "L49": "Outside NRC LA:ALA of 2.6 to 16",
+    "N49": "OK",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0028",
+   "inputs": {
+    "O1": "NRC RA Puppy 4-14 Wk Growth",
+    "G45": 26.5,
+    "G47": 1.0,
+    "I45": 0.0,
+    "I47": 0.0,
+    "G53": 1.0,
+    "G55": 0.21,
+    "I53": -1.0,
+    "I55": 0.1
+   },
+   "expected": {
+    "L49": "Outside NRC LA:ALA of 2.6 to 16",
+    "N49": "OK",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "EPA Exceeds NRC 60% of EPA+DHA",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0029",
+   "inputs": {
+    "O1": "NRC RA Puppy 4-14 Wk Growth",
+    "G45": -1.0,
+    "G47": 1.0,
+    "I45": 10.0,
+    "I47": null,
+    "G53": 1.0,
+    "G55": 0.1,
+    "I53": 0.1,
+    "I55": -0.1
+   },
+   "expected": {
+    "L49": "Outside NRC LA:ALA of 2.6 to 16",
+    "N49": "Outside NRC LA:ALA of 2.6 to 16",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0030",
+   "inputs": {
+    "O1": "NRC RA Puppy 4-14 Wk Growth",
+    "G45": 1.0,
+    "G47": -1.0,
+    "I45": null,
+    "I47": 1.0,
+    "G53": 0.03,
+    "G55": 0.004,
+    "I53": 0.0333333,
+    "I55": 0.0
+   },
+   "expected": {
+    "L49": "Outside NRC LA:ALA of 2.6 to 16",
+    "N49": "Outside NRC LA:ALA of 2.6 to 16",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0031",
+   "inputs": {
+    "O1": "NRC RA Puppy 4-14 Wk Growth",
+    "G45": 0.0,
+    "G47": 1.0,
+    "I45": 10.0,
+    "I47": 1.0,
+    "G53": 0.028,
+    "G55": 0.004,
+    "I53": null,
+    "I55": null
+   },
+   "expected": {
+    "L49": "Outside NRC LA:ALA of 2.6 to 16",
+    "N49": "OK",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0032",
+   "inputs": {
+    "O1": "NRC RA Puppy 4-14 Wk Growth",
+    "G45": 5.0,
+    "G47": 0.0,
+    "I45": 2.6,
+    "I47": 1.0,
+    "G53": 0.0375,
+    "G55": 0.004,
+    "I53": 0.0,
+    "I55": 0.0
+   },
+   "expected": {
+    "L49": "Outside NRC LA:ALA of 2.6 to 16",
+    "N49": "OK",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0033",
+   "inputs": {
+    "O1": "NRC RA Puppy 4-14 Wk Growth",
+    "G45": 3.3,
+    "G47": 0.2,
+    "I45": 2.59,
+    "I47": 1.0,
+    "G53": -1.0,
+    "G55": 0.1,
+    "I53": 1.0,
+    "I55": null
+   },
+   "expected": {
+    "L49": "Outside NRC LA:ALA of 2.6 to 16",
+    "N49": "Outside NRC LA:ALA of 2.6 to 16",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "EPA Exceeds NRC 60% of EPA+DHA",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0034",
+   "inputs": {
+    "O1": "NRC RA Puppy 4-14 Wk Growth",
+    "G45": null,
+    "G47": null,
+    "I45": 16.0,
+    "I47": 1.0,
+    "G53": 0.1,
+    "G55": -0.1,
+    "I53": 1.0,
+    "I55": 0.0
+   },
+   "expected": {
+    "L49": "OK",
+    "N49": "OK",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0035",
+   "inputs": {
+    "O1": "NRC RA Puppy 4-14 Wk Growth",
+    "G45": 0.0,
+    "G47": 0.0,
+    "I45": 16.01,
+    "I47": 1.0,
+    "G53": 0.0333333,
+    "G55": 0.0,
+    "I53": null,
+    "I55": 0.1
+   },
+   "expected": {
+    "L49": "OK",
+    "N49": "Outside NRC LA:ALA of 2.6 to 16",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "EPA Exceeds NRC 60% of EPA+DHA",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0036",
+   "inputs": {
+    "O1": "NRC RA Puppy 14 Wk+ Growth",
+    "G45": null,
+    "G47": null,
+    "I45": 16.0,
+    "I47": 1.0,
+    "G53": null,
+    "G55": null,
+    "I53": 1.0,
+    "I55": 0.6
+   },
+   "expected": {
+    "L49": "OK",
+    "N49": "OK",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0037",
+   "inputs": {
+    "O1": "NRC RA Puppy 14 Wk+ Growth",
+    "G45": 0.0,
+    "G47": 0.0,
+    "I45": 16.01,
+    "I47": 1.0,
+    "G53": 0.0,
+    "G55": 0.0,
+    "I53": 1.0,
+    "I55": 0.61
+   },
+   "expected": {
+    "L49": "OK",
+    "N49": "Outside NRC LA:ALA of 2.6 to 16",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "EPA Exceeds NRC 60% of EPA+DHA",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0038",
+   "inputs": {
+    "O1": "NRC RA Puppy 14 Wk+ Growth",
+    "G45": 10.0,
+    "G47": null,
+    "I45": 26.0,
+    "I47": 1.0,
+    "G53": 1.0,
+    "G55": null,
+    "I53": 1.0,
+    "I55": 0.5
+   },
+   "expected": {
+    "L49": "Outside NRC LA:ALA of 2.6 to 16",
+    "N49": "Outside NRC LA:ALA of 2.6 to 16",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0039",
+   "inputs": {
+    "O1": "NRC RA Puppy 14 Wk+ Growth",
+    "G45": null,
+    "G47": 1.0,
+    "I45": 26.5,
+    "I47": 1.0,
+    "G53": 1.0,
+    "G55": 0.0,
+    "I53": 1.0,
+    "I55": 0.49
+   },
+   "expected": {
+    "L49": "Outside NRC LA:ALA of 2.6 to 16",
+    "N49": "Outside NRC LA:ALA of 2.6 to 16",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0040",
+   "inputs": {
+    "O1": "NRC RA Puppy 14 Wk+ Growth",
+    "G45": 10.0,
+    "G47": 1.0,
+    "I45": -1.0,
+    "I47": 1.0,
+    "G53": null,
+    "G55": 0.1,
+    "I53": 1.0,
+    "I55": 0.2
+   },
+   "expected": {
+    "L49": "OK",
+    "N49": "Outside NRC LA:ALA of 2.6 to 16",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "EPA Exceeds NRC 60% of EPA+DHA",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0041",
+   "inputs": {
+    "O1": "NRC RA Puppy 14 Wk+ Growth",
+    "G45": 2.6,
+    "G47": 1.0,
+    "I45": 1.0,
+    "I47": -1.0,
+    "G53": 1.0,
+    "G55": 0.6,
+    "I53": 1.0,
+    "I55": 0.21
+   },
+   "expected": {
+    "L49": "OK",
+    "N49": "Outside NRC LA:ALA of 2.6 to 16",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0042",
+   "inputs": {
+    "O1": "NRC RA Puppy 14 Wk+ Growth",
+    "G45": 2.59,
+    "G47": 1.0,
+    "I45": 0.0,
+    "I47": 1.0,
+    "G53": 1.0,
+    "G55": 0.61,
+    "I53": 1.0,
+    "I55": 0.1
+   },
+   "expected": {
+    "L49": "Outside NRC LA:ALA of 2.6 to 16",
+    "N49": "Outside NRC LA:ALA of 2.6 to 16",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "EPA Exceeds NRC 60% of EPA+DHA",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0043",
+   "inputs": {
+    "O1": "NRC RA Puppy 14 Wk+ Growth",
+    "G45": 16.0,
+    "G47": 1.0,
+    "I45": 5.0,
+    "I47": 0.0,
+    "G53": 1.0,
+    "G55": 0.5,
+    "I53": 0.03,
+    "I55": 0.004
+   },
+   "expected": {
+    "L49": "OK",
+    "N49": "Outside NRC LA:ALA of 2.6 to 16",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0044",
+   "inputs": {
+    "O1": "NRC RA Puppy 14 Wk+ Growth",
+    "G45": 16.01,
+    "G47": 1.0,
+    "I45": 3.3,
+    "I47": 0.2,
+    "G53": 1.0,
+    "G55": 0.49,
+    "I53": 0.028,
+    "I55": 0.004
+   },
+   "expected": {
+    "L49": "Outside NRC LA:ALA of 2.6 to 16",
+    "N49": "Outside NRC LA:ALA of 2.6 to 16",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0045",
+   "inputs": {
+    "O1": "NRC RA Puppy 14 Wk+ Growth",
+    "G45": 26.0,
+    "G47": 1.0,
+    "I45": null,
+    "I47": null,
+    "G53": 1.0,
+    "G55": 0.2,
+    "I53": 0.0375,
+    "I55": 0.004
+   },
+   "expected": {
+    "L49": "Outside NRC LA:ALA of 2.6 to 16",
+    "N49": "OK",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0046",
+   "inputs": {
+    "O1": "NRC RA Puppy 14 Wk+ Growth",
+    "G45": 26.5,
+    "G47": 1.0,
+    "I45": 0.0,
+    "I47": 0.0,
+    "G53": 1.0,
+    "G55": 0.21,
+    "I53": -1.0,
+    "I55": 0.1
+   },
+   "expected": {
+    "L49": "Outside NRC LA:ALA of 2.6 to 16",
+    "N49": "OK",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "EPA Exceeds NRC 60% of EPA+DHA",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0047",
+   "inputs": {
+    "O1": "NRC RA Puppy 14 Wk+ Growth",
+    "G45": -1.0,
+    "G47": 1.0,
+    "I45": 10.0,
+    "I47": null,
+    "G53": 1.0,
+    "G55": 0.1,
+    "I53": 0.1,
+    "I55": -0.1
+   },
+   "expected": {
+    "L49": "Outside NRC LA:ALA of 2.6 to 16",
+    "N49": "Outside NRC LA:ALA of 2.6 to 16",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0048",
+   "inputs": {
+    "O1": "NRC RA Puppy 14 Wk+ Growth",
+    "G45": 1.0,
+    "G47": -1.0,
+    "I45": null,
+    "I47": 1.0,
+    "G53": 0.03,
+    "G55": 0.004,
+    "I53": 0.0333333,
+    "I55": 0.0
+   },
+   "expected": {
+    "L49": "Outside NRC LA:ALA of 2.6 to 16",
+    "N49": "Outside NRC LA:ALA of 2.6 to 16",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0049",
+   "inputs": {
+    "O1": "NRC RA Puppy 14 Wk+ Growth",
+    "G45": 0.0,
+    "G47": 1.0,
+    "I45": 10.0,
+    "I47": 1.0,
+    "G53": 0.028,
+    "G55": 0.004,
+    "I53": null,
+    "I55": null
+   },
+   "expected": {
+    "L49": "Outside NRC LA:ALA of 2.6 to 16",
+    "N49": "OK",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0050",
+   "inputs": {
+    "O1": "NRC RA Puppy 14 Wk+ Growth",
+    "G45": 5.0,
+    "G47": 0.0,
+    "I45": 2.6,
+    "I47": 1.0,
+    "G53": 0.0375,
+    "G55": 0.004,
+    "I53": 0.0,
+    "I55": 0.0
+   },
+   "expected": {
+    "L49": "Outside NRC LA:ALA of 2.6 to 16",
+    "N49": "OK",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0051",
+   "inputs": {
+    "O1": "NRC RA Puppy 14 Wk+ Growth",
+    "G45": 3.3,
+    "G47": 0.2,
+    "I45": 2.59,
+    "I47": 1.0,
+    "G53": -1.0,
+    "G55": 0.1,
+    "I53": 1.0,
+    "I55": null
+   },
+   "expected": {
+    "L49": "Outside NRC LA:ALA of 2.6 to 16",
+    "N49": "Outside NRC LA:ALA of 2.6 to 16",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "EPA Exceeds NRC 60% of EPA+DHA",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0052",
+   "inputs": {
+    "O1": "NRC RA Puppy 14 Wk+ Growth",
+    "G45": null,
+    "G47": null,
+    "I45": 16.0,
+    "I47": 1.0,
+    "G53": 0.1,
+    "G55": -0.1,
+    "I53": 1.0,
+    "I55": 0.0
+   },
+   "expected": {
+    "L49": "OK",
+    "N49": "OK",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0053",
+   "inputs": {
+    "O1": "NRC RA Puppy 14 Wk+ Growth",
+    "G45": 0.0,
+    "G47": 0.0,
+    "I45": 16.01,
+    "I47": 1.0,
+    "G53": 0.0333333,
+    "G55": 0.0,
+    "I53": null,
+    "I55": 0.1
+   },
+   "expected": {
+    "L49": "OK",
+    "N49": "Outside NRC LA:ALA of 2.6 to 16",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "EPA Exceeds NRC 60% of EPA+DHA",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0054",
+   "inputs": {
+    "O1": "NRC RA Dog Late Gestation & Peak Lactation",
+    "G45": null,
+    "G47": null,
+    "I45": 16.0,
+    "I47": 1.0,
+    "G53": null,
+    "G55": null,
+    "I53": 1.0,
+    "I55": 0.6
+   },
+   "expected": {
+    "L49": "OK",
+    "N49": "OK",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "OK",
+    "N57": "OK",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0055",
+   "inputs": {
+    "O1": "NRC RA Dog Late Gestation & Peak Lactation",
+    "G45": 0.0,
+    "G47": 0.0,
+    "I45": 16.01,
+    "I47": 1.0,
+    "G53": 0.0,
+    "G55": 0.0,
+    "I53": 1.0,
+    "I55": 0.61
+   },
+   "expected": {
+    "L49": "OK",
+    "N49": "Outside NRC LA:ALA of 2.6 to 16",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "OK",
+    "N57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0056",
+   "inputs": {
+    "O1": "NRC RA Dog Late Gestation & Peak Lactation",
+    "G45": 10.0,
+    "G47": null,
+    "I45": 26.0,
+    "I47": 1.0,
+    "G53": 1.0,
+    "G55": null,
+    "I53": 1.0,
+    "I55": 0.5
+   },
+   "expected": {
+    "L49": "Outside NRC LA:ALA of 2.6 to 16",
+    "N49": "Outside NRC LA:ALA of 2.6 to 16",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "N57": "OK",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0057",
+   "inputs": {
+    "O1": "NRC RA Dog Late Gestation & Peak Lactation",
+    "G45": null,
+    "G47": 1.0,
+    "I45": 26.5,
+    "I47": 1.0,
+    "G53": 1.0,
+    "G55": 0.0,
+    "I53": 1.0,
+    "I55": 0.49
+   },
+   "expected": {
+    "L49": "Outside NRC LA:ALA of 2.6 to 16",
+    "N49": "Outside NRC LA:ALA of 2.6 to 16",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "N57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0058",
+   "inputs": {
+    "O1": "NRC RA Dog Late Gestation & Peak Lactation",
+    "G45": 10.0,
+    "G47": 1.0,
+    "I45": -1.0,
+    "I47": 1.0,
+    "G53": null,
+    "G55": 0.1,
+    "I53": 1.0,
+    "I55": 0.2
+   },
+   "expected": {
+    "L49": "OK",
+    "N49": "Outside NRC LA:ALA of 2.6 to 16",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "N57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0059",
+   "inputs": {
+    "O1": "NRC RA Dog Late Gestation & Peak Lactation",
+    "G45": 2.6,
+    "G47": 1.0,
+    "I45": 1.0,
+    "I47": -1.0,
+    "G53": 1.0,
+    "G55": 0.6,
+    "I53": 1.0,
+    "I55": 0.21
+   },
+   "expected": {
+    "L49": "OK",
+    "N49": "Outside NRC LA:ALA of 2.6 to 16",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "OK",
+    "N57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0060",
+   "inputs": {
+    "O1": "NRC RA Dog Late Gestation & Peak Lactation",
+    "G45": 2.59,
+    "G47": 1.0,
+    "I45": 0.0,
+    "I47": 1.0,
+    "G53": 1.0,
+    "G55": 0.61,
+    "I53": 1.0,
+    "I55": 0.1
+   },
+   "expected": {
+    "L49": "Outside NRC LA:ALA of 2.6 to 16",
+    "N49": "Outside NRC LA:ALA of 2.6 to 16",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "N57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0061",
+   "inputs": {
+    "O1": "NRC RA Dog Late Gestation & Peak Lactation",
+    "G45": 16.0,
+    "G47": 1.0,
+    "I45": 5.0,
+    "I47": 0.0,
+    "G53": 1.0,
+    "G55": 0.5,
+    "I53": 0.03,
+    "I55": 0.004
+   },
+   "expected": {
+    "L49": "OK",
+    "N49": "Outside NRC LA:ALA of 2.6 to 16",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "OK",
+    "N57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0062",
+   "inputs": {
+    "O1": "NRC RA Dog Late Gestation & Peak Lactation",
+    "G45": 16.01,
+    "G47": 1.0,
+    "I45": 3.3,
+    "I47": 0.2,
+    "G53": 1.0,
+    "G55": 0.49,
+    "I53": 0.028,
+    "I55": 0.004
+   },
+   "expected": {
+    "L49": "Outside NRC LA:ALA of 2.6 to 16",
+    "N49": "Outside NRC LA:ALA of 2.6 to 16",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "N57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0063",
+   "inputs": {
+    "O1": "NRC RA Dog Late Gestation & Peak Lactation",
+    "G45": 26.0,
+    "G47": 1.0,
+    "I45": null,
+    "I47": null,
+    "G53": 1.0,
+    "G55": 0.2,
+    "I53": 0.0375,
+    "I55": 0.004
+   },
+   "expected": {
+    "L49": "Outside NRC LA:ALA of 2.6 to 16",
+    "N49": "OK",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "N57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0064",
+   "inputs": {
+    "O1": "NRC RA Dog Late Gestation & Peak Lactation",
+    "G45": 26.5,
+    "G47": 1.0,
+    "I45": 0.0,
+    "I47": 0.0,
+    "G53": 1.0,
+    "G55": 0.21,
+    "I53": -1.0,
+    "I55": 0.1
+   },
+   "expected": {
+    "L49": "Outside NRC LA:ALA of 2.6 to 16",
+    "N49": "OK",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "N57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0065",
+   "inputs": {
+    "O1": "NRC RA Dog Late Gestation & Peak Lactation",
+    "G45": -1.0,
+    "G47": 1.0,
+    "I45": 10.0,
+    "I47": null,
+    "G53": 1.0,
+    "G55": 0.1,
+    "I53": 0.1,
+    "I55": -0.1
+   },
+   "expected": {
+    "L49": "Outside NRC LA:ALA of 2.6 to 16",
+    "N49": "Outside NRC LA:ALA of 2.6 to 16",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "N57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0066",
+   "inputs": {
+    "O1": "NRC RA Dog Late Gestation & Peak Lactation",
+    "G45": 1.0,
+    "G47": -1.0,
+    "I45": null,
+    "I47": 1.0,
+    "G53": 0.03,
+    "G55": 0.004,
+    "I53": 0.0333333,
+    "I55": 0.0
+   },
+   "expected": {
+    "L49": "Outside NRC LA:ALA of 2.6 to 16",
+    "N49": "Outside NRC LA:ALA of 2.6 to 16",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "N57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0067",
+   "inputs": {
+    "O1": "NRC RA Dog Late Gestation & Peak Lactation",
+    "G45": 0.0,
+    "G47": 1.0,
+    "I45": 10.0,
+    "I47": 1.0,
+    "G53": 0.028,
+    "G55": 0.004,
+    "I53": null,
+    "I55": null
+   },
+   "expected": {
+    "L49": "Outside NRC LA:ALA of 2.6 to 16",
+    "N49": "OK",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "N57": "OK",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0068",
+   "inputs": {
+    "O1": "NRC RA Dog Late Gestation & Peak Lactation",
+    "G45": 5.0,
+    "G47": 0.0,
+    "I45": 2.6,
+    "I47": 1.0,
+    "G53": 0.0375,
+    "G55": 0.004,
+    "I53": 0.0,
+    "I55": 0.0
+   },
+   "expected": {
+    "L49": "Outside NRC LA:ALA of 2.6 to 16",
+    "N49": "OK",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "N57": "OK",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0069",
+   "inputs": {
+    "O1": "NRC RA Dog Late Gestation & Peak Lactation",
+    "G45": 3.3,
+    "G47": 0.2,
+    "I45": 2.59,
+    "I47": 1.0,
+    "G53": -1.0,
+    "G55": 0.1,
+    "I53": 1.0,
+    "I55": null
+   },
+   "expected": {
+    "L49": "Outside NRC LA:ALA of 2.6 to 16",
+    "N49": "Outside NRC LA:ALA of 2.6 to 16",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "N57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0070",
+   "inputs": {
+    "O1": "NRC RA Dog Late Gestation & Peak Lactation",
+    "G45": null,
+    "G47": null,
+    "I45": 16.0,
+    "I47": 1.0,
+    "G53": 0.1,
+    "G55": -0.1,
+    "I53": 1.0,
+    "I55": 0.0
+   },
+   "expected": {
+    "L49": "OK",
+    "N49": "OK",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "N57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0071",
+   "inputs": {
+    "O1": "NRC RA Dog Late Gestation & Peak Lactation",
+    "G45": 0.0,
+    "G47": 0.0,
+    "I45": 16.01,
+    "I47": 1.0,
+    "G53": 0.0333333,
+    "G55": 0.0,
+    "I53": null,
+    "I55": 0.1
+   },
+   "expected": {
+    "L49": "OK",
+    "N49": "Outside NRC LA:ALA of 2.6 to 16",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "N57": "Outside NRC 50-60% of EPA + DHA = EPA",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0072",
+   "inputs": {
+    "O1": "NRC RA Kitten Growth",
+    "G45": null,
+    "G47": null,
+    "I45": 16.0,
+    "I47": 1.0,
+    "G53": null,
+    "G55": null,
+    "I53": 1.0,
+    "I55": 0.6
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0073",
+   "inputs": {
+    "O1": "NRC RA Kitten Growth",
+    "G45": 0.0,
+    "G47": 0.0,
+    "I45": 16.01,
+    "I47": 1.0,
+    "G53": 0.0,
+    "G55": 0.0,
+    "I53": 1.0,
+    "I55": 0.61
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "EPA Exceeds NRC 60% of EPA+DHA",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0074",
+   "inputs": {
+    "O1": "NRC RA Kitten Growth",
+    "G45": 10.0,
+    "G47": null,
+    "I45": 26.0,
+    "I47": 1.0,
+    "G53": 1.0,
+    "G55": null,
+    "I53": 1.0,
+    "I55": 0.5
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0075",
+   "inputs": {
+    "O1": "NRC RA Kitten Growth",
+    "G45": null,
+    "G47": 1.0,
+    "I45": 26.5,
+    "I47": 1.0,
+    "G53": 1.0,
+    "G55": 0.0,
+    "I53": 1.0,
+    "I55": 0.49
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0076",
+   "inputs": {
+    "O1": "NRC RA Kitten Growth",
+    "G45": 10.0,
+    "G47": 1.0,
+    "I45": -1.0,
+    "I47": 1.0,
+    "G53": null,
+    "G55": 0.1,
+    "I53": 1.0,
+    "I55": 0.2
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "EPA Exceeds NRC 60% of EPA+DHA",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0077",
+   "inputs": {
+    "O1": "NRC RA Kitten Growth",
+    "G45": 2.6,
+    "G47": 1.0,
+    "I45": 1.0,
+    "I47": -1.0,
+    "G53": 1.0,
+    "G55": 0.6,
+    "I53": 1.0,
+    "I55": 0.21
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0078",
+   "inputs": {
+    "O1": "NRC RA Kitten Growth",
+    "G45": 2.59,
+    "G47": 1.0,
+    "I45": 0.0,
+    "I47": 1.0,
+    "G53": 1.0,
+    "G55": 0.61,
+    "I53": 1.0,
+    "I55": 0.1
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "EPA Exceeds NRC 60% of EPA+DHA",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0079",
+   "inputs": {
+    "O1": "NRC RA Kitten Growth",
+    "G45": 16.0,
+    "G47": 1.0,
+    "I45": 5.0,
+    "I47": 0.0,
+    "G53": 1.0,
+    "G55": 0.5,
+    "I53": 0.03,
+    "I55": 0.004
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0080",
+   "inputs": {
+    "O1": "NRC RA Kitten Growth",
+    "G45": 16.01,
+    "G47": 1.0,
+    "I45": 3.3,
+    "I47": 0.2,
+    "G53": 1.0,
+    "G55": 0.49,
+    "I53": 0.028,
+    "I55": 0.004
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0081",
+   "inputs": {
+    "O1": "NRC RA Kitten Growth",
+    "G45": 26.0,
+    "G47": 1.0,
+    "I45": null,
+    "I47": null,
+    "G53": 1.0,
+    "G55": 0.2,
+    "I53": 0.0375,
+    "I55": 0.004
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0082",
+   "inputs": {
+    "O1": "NRC RA Kitten Growth",
+    "G45": 26.5,
+    "G47": 1.0,
+    "I45": 0.0,
+    "I47": 0.0,
+    "G53": 1.0,
+    "G55": 0.21,
+    "I53": -1.0,
+    "I55": 0.1
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "EPA Exceeds NRC 60% of EPA+DHA",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0083",
+   "inputs": {
+    "O1": "NRC RA Kitten Growth",
+    "G45": -1.0,
+    "G47": 1.0,
+    "I45": 10.0,
+    "I47": null,
+    "G53": 1.0,
+    "G55": 0.1,
+    "I53": 0.1,
+    "I55": -0.1
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0084",
+   "inputs": {
+    "O1": "NRC RA Kitten Growth",
+    "G45": 1.0,
+    "G47": -1.0,
+    "I45": null,
+    "I47": 1.0,
+    "G53": 0.03,
+    "G55": 0.004,
+    "I53": 0.0333333,
+    "I55": 0.0
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0085",
+   "inputs": {
+    "O1": "NRC RA Kitten Growth",
+    "G45": 0.0,
+    "G47": 1.0,
+    "I45": 10.0,
+    "I47": 1.0,
+    "G53": 0.028,
+    "G55": 0.004,
+    "I53": null,
+    "I55": null
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0086",
+   "inputs": {
+    "O1": "NRC RA Kitten Growth",
+    "G45": 5.0,
+    "G47": 0.0,
+    "I45": 2.6,
+    "I47": 1.0,
+    "G53": 0.0375,
+    "G55": 0.004,
+    "I53": 0.0,
+    "I55": 0.0
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0087",
+   "inputs": {
+    "O1": "NRC RA Kitten Growth",
+    "G45": 3.3,
+    "G47": 0.2,
+    "I45": 2.59,
+    "I47": 1.0,
+    "G53": -1.0,
+    "G55": 0.1,
+    "I53": 1.0,
+    "I55": null
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "EPA Exceeds NRC 60% of EPA+DHA",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0088",
+   "inputs": {
+    "O1": "NRC RA Kitten Growth",
+    "G45": null,
+    "G47": null,
+    "I45": 16.0,
+    "I47": 1.0,
+    "G53": 0.1,
+    "G55": -0.1,
+    "I53": 1.0,
+    "I55": 0.0
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0089",
+   "inputs": {
+    "O1": "NRC RA Kitten Growth",
+    "G45": 0.0,
+    "G47": 0.0,
+    "I45": 16.01,
+    "I47": 1.0,
+    "G53": 0.0333333,
+    "G55": 0.0,
+    "I53": null,
+    "I55": 0.1
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "EPA Exceeds NRC 60% of EPA+DHA",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0090",
+   "inputs": {
+    "O1": "NRC RA Cat Late Gestation",
+    "G45": null,
+    "G47": null,
+    "I45": 16.0,
+    "I47": 1.0,
+    "G53": null,
+    "G55": null,
+    "I53": 1.0,
+    "I55": 0.6
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0091",
+   "inputs": {
+    "O1": "NRC RA Cat Late Gestation",
+    "G45": 0.0,
+    "G47": 0.0,
+    "I45": 16.01,
+    "I47": 1.0,
+    "G53": 0.0,
+    "G55": 0.0,
+    "I53": 1.0,
+    "I55": 0.61
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "EPA Exceeds NRC 60% of EPA+DHA",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0092",
+   "inputs": {
+    "O1": "NRC RA Cat Late Gestation",
+    "G45": 10.0,
+    "G47": null,
+    "I45": 26.0,
+    "I47": 1.0,
+    "G53": 1.0,
+    "G55": null,
+    "I53": 1.0,
+    "I55": 0.5
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0093",
+   "inputs": {
+    "O1": "NRC RA Cat Late Gestation",
+    "G45": null,
+    "G47": 1.0,
+    "I45": 26.5,
+    "I47": 1.0,
+    "G53": 1.0,
+    "G55": 0.0,
+    "I53": 1.0,
+    "I55": 0.49
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0094",
+   "inputs": {
+    "O1": "NRC RA Cat Late Gestation",
+    "G45": 10.0,
+    "G47": 1.0,
+    "I45": -1.0,
+    "I47": 1.0,
+    "G53": null,
+    "G55": 0.1,
+    "I53": 1.0,
+    "I55": 0.2
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "EPA Exceeds NRC 60% of EPA+DHA",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0095",
+   "inputs": {
+    "O1": "NRC RA Cat Late Gestation",
+    "G45": 2.6,
+    "G47": 1.0,
+    "I45": 1.0,
+    "I47": -1.0,
+    "G53": 1.0,
+    "G55": 0.6,
+    "I53": 1.0,
+    "I55": 0.21
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0096",
+   "inputs": {
+    "O1": "NRC RA Cat Late Gestation",
+    "G45": 2.59,
+    "G47": 1.0,
+    "I45": 0.0,
+    "I47": 1.0,
+    "G53": 1.0,
+    "G55": 0.61,
+    "I53": 1.0,
+    "I55": 0.1
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "EPA Exceeds NRC 60% of EPA+DHA",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0097",
+   "inputs": {
+    "O1": "NRC RA Cat Late Gestation",
+    "G45": 16.0,
+    "G47": 1.0,
+    "I45": 5.0,
+    "I47": 0.0,
+    "G53": 1.0,
+    "G55": 0.5,
+    "I53": 0.03,
+    "I55": 0.004
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0098",
+   "inputs": {
+    "O1": "NRC RA Cat Late Gestation",
+    "G45": 16.01,
+    "G47": 1.0,
+    "I45": 3.3,
+    "I47": 0.2,
+    "G53": 1.0,
+    "G55": 0.49,
+    "I53": 0.028,
+    "I55": 0.004
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0099",
+   "inputs": {
+    "O1": "NRC RA Cat Late Gestation",
+    "G45": 26.0,
+    "G47": 1.0,
+    "I45": null,
+    "I47": null,
+    "G53": 1.0,
+    "G55": 0.2,
+    "I53": 0.0375,
+    "I55": 0.004
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0100",
+   "inputs": {
+    "O1": "NRC RA Cat Late Gestation",
+    "G45": 26.5,
+    "G47": 1.0,
+    "I45": 0.0,
+    "I47": 0.0,
+    "G53": 1.0,
+    "G55": 0.21,
+    "I53": -1.0,
+    "I55": 0.1
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "EPA Exceeds NRC 60% of EPA+DHA",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0101",
+   "inputs": {
+    "O1": "NRC RA Cat Late Gestation",
+    "G45": -1.0,
+    "G47": 1.0,
+    "I45": 10.0,
+    "I47": null,
+    "G53": 1.0,
+    "G55": 0.1,
+    "I53": 0.1,
+    "I55": -0.1
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0102",
+   "inputs": {
+    "O1": "NRC RA Cat Late Gestation",
+    "G45": 1.0,
+    "G47": -1.0,
+    "I45": null,
+    "I47": 1.0,
+    "G53": 0.03,
+    "G55": 0.004,
+    "I53": 0.0333333,
+    "I55": 0.0
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0103",
+   "inputs": {
+    "O1": "NRC RA Cat Late Gestation",
+    "G45": 0.0,
+    "G47": 1.0,
+    "I45": 10.0,
+    "I47": 1.0,
+    "G53": 0.028,
+    "G55": 0.004,
+    "I53": null,
+    "I55": null
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0104",
+   "inputs": {
+    "O1": "NRC RA Cat Late Gestation",
+    "G45": 5.0,
+    "G47": 0.0,
+    "I45": 2.6,
+    "I47": 1.0,
+    "G53": 0.0375,
+    "G55": 0.004,
+    "I53": 0.0,
+    "I55": 0.0
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0105",
+   "inputs": {
+    "O1": "NRC RA Cat Late Gestation",
+    "G45": 3.3,
+    "G47": 0.2,
+    "I45": 2.59,
+    "I47": 1.0,
+    "G53": -1.0,
+    "G55": 0.1,
+    "I53": 1.0,
+    "I55": null
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "EPA Exceeds NRC 60% of EPA+DHA",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0106",
+   "inputs": {
+    "O1": "NRC RA Cat Late Gestation",
+    "G45": null,
+    "G47": null,
+    "I45": 16.0,
+    "I47": 1.0,
+    "G53": 0.1,
+    "G55": -0.1,
+    "I53": 1.0,
+    "I55": 0.0
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0107",
+   "inputs": {
+    "O1": "NRC RA Cat Late Gestation",
+    "G45": 0.0,
+    "G47": 0.0,
+    "I45": 16.01,
+    "I47": 1.0,
+    "G53": 0.0333333,
+    "G55": 0.0,
+    "I53": null,
+    "I55": 0.1
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "EPA Exceeds NRC 60% of EPA+DHA",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0108",
+   "inputs": {
+    "O1": "NRC RA Cat Peak Lactation",
+    "G45": null,
+    "G47": null,
+    "I45": 16.0,
+    "I47": 1.0,
+    "G53": null,
+    "G55": null,
+    "I53": 1.0,
+    "I55": 0.6
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0109",
+   "inputs": {
+    "O1": "NRC RA Cat Peak Lactation",
+    "G45": 0.0,
+    "G47": 0.0,
+    "I45": 16.01,
+    "I47": 1.0,
+    "G53": 0.0,
+    "G55": 0.0,
+    "I53": 1.0,
+    "I55": 0.61
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "EPA Exceeds NRC 60% of EPA+DHA",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0110",
+   "inputs": {
+    "O1": "NRC RA Cat Peak Lactation",
+    "G45": 10.0,
+    "G47": null,
+    "I45": 26.0,
+    "I47": 1.0,
+    "G53": 1.0,
+    "G55": null,
+    "I53": 1.0,
+    "I55": 0.5
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0111",
+   "inputs": {
+    "O1": "NRC RA Cat Peak Lactation",
+    "G45": null,
+    "G47": 1.0,
+    "I45": 26.5,
+    "I47": 1.0,
+    "G53": 1.0,
+    "G55": 0.0,
+    "I53": 1.0,
+    "I55": 0.49
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0112",
+   "inputs": {
+    "O1": "NRC RA Cat Peak Lactation",
+    "G45": 10.0,
+    "G47": 1.0,
+    "I45": -1.0,
+    "I47": 1.0,
+    "G53": null,
+    "G55": 0.1,
+    "I53": 1.0,
+    "I55": 0.2
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "EPA Exceeds NRC 60% of EPA+DHA",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0113",
+   "inputs": {
+    "O1": "NRC RA Cat Peak Lactation",
+    "G45": 2.6,
+    "G47": 1.0,
+    "I45": 1.0,
+    "I47": -1.0,
+    "G53": 1.0,
+    "G55": 0.6,
+    "I53": 1.0,
+    "I55": 0.21
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0114",
+   "inputs": {
+    "O1": "NRC RA Cat Peak Lactation",
+    "G45": 2.59,
+    "G47": 1.0,
+    "I45": 0.0,
+    "I47": 1.0,
+    "G53": 1.0,
+    "G55": 0.61,
+    "I53": 1.0,
+    "I55": 0.1
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "EPA Exceeds NRC 60% of EPA+DHA",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0115",
+   "inputs": {
+    "O1": "NRC RA Cat Peak Lactation",
+    "G45": 16.0,
+    "G47": 1.0,
+    "I45": 5.0,
+    "I47": 0.0,
+    "G53": 1.0,
+    "G55": 0.5,
+    "I53": 0.03,
+    "I55": 0.004
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0116",
+   "inputs": {
+    "O1": "NRC RA Cat Peak Lactation",
+    "G45": 16.01,
+    "G47": 1.0,
+    "I45": 3.3,
+    "I47": 0.2,
+    "G53": 1.0,
+    "G55": 0.49,
+    "I53": 0.028,
+    "I55": 0.004
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0117",
+   "inputs": {
+    "O1": "NRC RA Cat Peak Lactation",
+    "G45": 26.0,
+    "G47": 1.0,
+    "I45": null,
+    "I47": null,
+    "G53": 1.0,
+    "G55": 0.2,
+    "I53": 0.0375,
+    "I55": 0.004
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0118",
+   "inputs": {
+    "O1": "NRC RA Cat Peak Lactation",
+    "G45": 26.5,
+    "G47": 1.0,
+    "I45": 0.0,
+    "I47": 0.0,
+    "G53": 1.0,
+    "G55": 0.21,
+    "I53": -1.0,
+    "I55": 0.1
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "EPA Exceeds NRC 60% of EPA+DHA",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0119",
+   "inputs": {
+    "O1": "NRC RA Cat Peak Lactation",
+    "G45": -1.0,
+    "G47": 1.0,
+    "I45": 10.0,
+    "I47": null,
+    "G53": 1.0,
+    "G55": 0.1,
+    "I53": 0.1,
+    "I55": -0.1
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0120",
+   "inputs": {
+    "O1": "NRC RA Cat Peak Lactation",
+    "G45": 1.0,
+    "G47": -1.0,
+    "I45": null,
+    "I47": 1.0,
+    "G53": 0.03,
+    "G55": 0.004,
+    "I53": 0.0333333,
+    "I55": 0.0
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0121",
+   "inputs": {
+    "O1": "NRC RA Cat Peak Lactation",
+    "G45": 0.0,
+    "G47": 1.0,
+    "I45": 10.0,
+    "I47": 1.0,
+    "G53": 0.028,
+    "G55": 0.004,
+    "I53": null,
+    "I55": null
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0122",
+   "inputs": {
+    "O1": "NRC RA Cat Peak Lactation",
+    "G45": 5.0,
+    "G47": 0.0,
+    "I45": 2.6,
+    "I47": 1.0,
+    "G53": 0.0375,
+    "G55": 0.004,
+    "I53": 0.0,
+    "I55": 0.0
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0123",
+   "inputs": {
+    "O1": "NRC RA Cat Peak Lactation",
+    "G45": 3.3,
+    "G47": 0.2,
+    "I45": 2.59,
+    "I47": 1.0,
+    "G53": -1.0,
+    "G55": 0.1,
+    "I53": 1.0,
+    "I55": null
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "EPA Exceeds NRC 60% of EPA+DHA",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0124",
+   "inputs": {
+    "O1": "NRC RA Cat Peak Lactation",
+    "G45": null,
+    "G47": null,
+    "I45": 16.0,
+    "I47": 1.0,
+    "G53": 0.1,
+    "G55": -0.1,
+    "I53": 1.0,
+    "I55": 0.0
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "OK",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0125",
+   "inputs": {
+    "O1": "NRC RA Cat Peak Lactation",
+    "G45": 0.0,
+    "G47": 0.0,
+    "I45": 16.01,
+    "I47": 1.0,
+    "G53": 0.0333333,
+    "G55": 0.0,
+    "I53": null,
+    "I55": 0.1
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "OK",
+    "N56": "EPA Exceeds NRC 60% of EPA+DHA",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0126",
+   "inputs": {
+    "O1": "NRC RA Cat Maintenance",
+    "G45": null,
+    "G47": null,
+    "I45": 16.0,
+    "I47": 1.0,
+    "G53": null,
+    "G55": null,
+    "I53": 1.0,
+    "I55": 0.6
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "OK",
+    "N58": "Outside NRC >0-20% of EPA + DHA = EPA"
+   }
+  },
+  {
+   "id": "TC-0127",
+   "inputs": {
+    "O1": "NRC RA Cat Maintenance",
+    "G45": 0.0,
+    "G47": 0.0,
+    "I45": 16.01,
+    "I47": 1.0,
+    "G53": 0.0,
+    "G55": 0.0,
+    "I53": 1.0,
+    "I55": 0.61
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "OK",
+    "N58": "Outside NRC >0-20% of EPA + DHA = EPA"
+   }
+  },
+  {
+   "id": "TC-0128",
+   "inputs": {
+    "O1": "NRC RA Cat Maintenance",
+    "G45": 10.0,
+    "G47": null,
+    "I45": 26.0,
+    "I47": 1.0,
+    "G53": 1.0,
+    "G55": null,
+    "I53": 1.0,
+    "I55": 0.5
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Outside NRC >0-20% of EPA + DHA = EPA",
+    "N58": "Outside NRC >0-20% of EPA + DHA = EPA"
+   }
+  },
+  {
+   "id": "TC-0129",
+   "inputs": {
+    "O1": "NRC RA Cat Maintenance",
+    "G45": null,
+    "G47": 1.0,
+    "I45": 26.5,
+    "I47": 1.0,
+    "G53": 1.0,
+    "G55": 0.0,
+    "I53": 1.0,
+    "I55": 0.49
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Outside NRC >0-20% of EPA + DHA = EPA",
+    "N58": "Outside NRC >0-20% of EPA + DHA = EPA"
+   }
+  },
+  {
+   "id": "TC-0130",
+   "inputs": {
+    "O1": "NRC RA Cat Maintenance",
+    "G45": 10.0,
+    "G47": 1.0,
+    "I45": -1.0,
+    "I47": 1.0,
+    "G53": null,
+    "G55": 0.1,
+    "I53": 1.0,
+    "I55": 0.2
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Outside NRC >0-20% of EPA + DHA = EPA",
+    "N58": "OK"
+   }
+  },
+  {
+   "id": "TC-0131",
+   "inputs": {
+    "O1": "NRC RA Cat Maintenance",
+    "G45": 2.6,
+    "G47": 1.0,
+    "I45": 1.0,
+    "I47": -1.0,
+    "G53": 1.0,
+    "G55": 0.6,
+    "I53": 1.0,
+    "I55": 0.21
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Outside NRC >0-20% of EPA + DHA = EPA",
+    "N58": "Outside NRC >0-20% of EPA + DHA = EPA"
+   }
+  },
+  {
+   "id": "TC-0132",
+   "inputs": {
+    "O1": "NRC RA Cat Maintenance",
+    "G45": 2.59,
+    "G47": 1.0,
+    "I45": 0.0,
+    "I47": 1.0,
+    "G53": 1.0,
+    "G55": 0.61,
+    "I53": 1.0,
+    "I55": 0.1
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Outside NRC >0-20% of EPA + DHA = EPA",
+    "N58": "OK"
+   }
+  },
+  {
+   "id": "TC-0133",
+   "inputs": {
+    "O1": "NRC RA Cat Maintenance",
+    "G45": 16.0,
+    "G47": 1.0,
+    "I45": 5.0,
+    "I47": 0.0,
+    "G53": 1.0,
+    "G55": 0.5,
+    "I53": 0.03,
+    "I55": 0.004
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Outside NRC >0-20% of EPA + DHA = EPA",
+    "N58": "OK"
+   }
+  },
+  {
+   "id": "TC-0134",
+   "inputs": {
+    "O1": "NRC RA Cat Maintenance",
+    "G45": 16.01,
+    "G47": 1.0,
+    "I45": 3.3,
+    "I47": 0.2,
+    "G53": 1.0,
+    "G55": 0.49,
+    "I53": 0.028,
+    "I55": 0.004
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Outside NRC >0-20% of EPA + DHA = EPA",
+    "N58": "DHA (EPA + DHA minus EPA) below NRC min"
+   }
+  },
+  {
+   "id": "TC-0135",
+   "inputs": {
+    "O1": "NRC RA Cat Maintenance",
+    "G45": 26.0,
+    "G47": 1.0,
+    "I45": null,
+    "I47": null,
+    "G53": 1.0,
+    "G55": 0.2,
+    "I53": 0.0375,
+    "I55": 0.004
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "OK",
+    "N58": "OK"
+   }
+  },
+  {
+   "id": "TC-0136",
+   "inputs": {
+    "O1": "NRC RA Cat Maintenance",
+    "G45": 26.5,
+    "G47": 1.0,
+    "I45": 0.0,
+    "I47": 0.0,
+    "G53": 1.0,
+    "G55": 0.21,
+    "I53": -1.0,
+    "I55": 0.1
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Outside NRC >0-20% of EPA + DHA = EPA",
+    "N58": "DHA (EPA + DHA minus EPA) below NRC min"
+   }
+  },
+  {
+   "id": "TC-0137",
+   "inputs": {
+    "O1": "NRC RA Cat Maintenance",
+    "G45": -1.0,
+    "G47": 1.0,
+    "I45": 10.0,
+    "I47": null,
+    "G53": 1.0,
+    "G55": 0.1,
+    "I53": 0.1,
+    "I55": -0.1
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "OK",
+    "N58": "Outside NRC >0-20% of EPA + DHA = EPA"
+   }
+  },
+  {
+   "id": "TC-0138",
+   "inputs": {
+    "O1": "NRC RA Cat Maintenance",
+    "G45": 1.0,
+    "G47": -1.0,
+    "I45": null,
+    "I47": 1.0,
+    "G53": 0.03,
+    "G55": 0.004,
+    "I53": 0.0333333,
+    "I55": 0.0
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "OK",
+    "N58": "Outside NRC >0-20% of EPA + DHA = EPA"
+   }
+  },
+  {
+   "id": "TC-0139",
+   "inputs": {
+    "O1": "NRC RA Cat Maintenance",
+    "G45": 0.0,
+    "G47": 1.0,
+    "I45": 10.0,
+    "I47": 1.0,
+    "G53": 0.028,
+    "G55": 0.004,
+    "I53": null,
+    "I55": null
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "DHA (EPA + DHA minus EPA) below NRC min",
+    "N58": "OK"
+   }
+  },
+  {
+   "id": "TC-0140",
+   "inputs": {
+    "O1": "NRC RA Cat Maintenance",
+    "G45": 5.0,
+    "G47": 0.0,
+    "I45": 2.6,
+    "I47": 1.0,
+    "G53": 0.0375,
+    "G55": 0.004,
+    "I53": 0.0,
+    "I55": 0.0
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "OK",
+    "N58": "OK"
+   }
+  },
+  {
+   "id": "TC-0141",
+   "inputs": {
+    "O1": "NRC RA Cat Maintenance",
+    "G45": 3.3,
+    "G47": 0.2,
+    "I45": 2.59,
+    "I47": 1.0,
+    "G53": -1.0,
+    "G55": 0.1,
+    "I53": 1.0,
+    "I55": null
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "DHA (EPA + DHA minus EPA) below NRC min",
+    "N58": "Outside NRC >0-20% of EPA + DHA = EPA"
+   }
+  },
+  {
+   "id": "TC-0142",
+   "inputs": {
+    "O1": "NRC RA Cat Maintenance",
+    "G45": null,
+    "G47": null,
+    "I45": 16.0,
+    "I47": 1.0,
+    "G53": 0.1,
+    "G55": -0.1,
+    "I53": 1.0,
+    "I55": 0.0
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Outside NRC >0-20% of EPA + DHA = EPA",
+    "N58": "Outside NRC >0-20% of EPA + DHA = EPA"
+   }
+  },
+  {
+   "id": "TC-0143",
+   "inputs": {
+    "O1": "NRC RA Cat Maintenance",
+    "G45": 0.0,
+    "G47": 0.0,
+    "I45": 16.01,
+    "I47": 1.0,
+    "G53": 0.0333333,
+    "G55": 0.0,
+    "I53": null,
+    "I55": 0.1
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Outside NRC >0-20% of EPA + DHA = EPA",
+    "N58": "Outside NRC >0-20% of EPA + DHA = EPA"
+   }
+  },
+  {
+   "id": "TC-0144",
+   "inputs": {
+    "O1": "NRC RA Cat Maintenance",
+    "G10": 25.0,
+    "G45": null,
+    "G47": null,
+    "I45": 16.0,
+    "I47": 1.0,
+    "G53": null,
+    "G55": null,
+    "I53": 1.0,
+    "I55": 0.6
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "OK",
+    "N58": "Outside NRC >0-20% of EPA + DHA = EPA"
+   }
+  },
+  {
+   "id": "TC-0145",
+   "inputs": {
+    "O1": "NRC RA Cat Maintenance",
+    "G10": 25.0,
+    "G45": 0.0,
+    "G47": 0.0,
+    "I45": 16.01,
+    "I47": 1.0,
+    "G53": 0.0,
+    "G55": 0.0,
+    "I53": 1.0,
+    "I55": 0.61
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "OK",
+    "N58": "Outside NRC >0-20% of EPA + DHA = EPA"
+   }
+  },
+  {
+   "id": "TC-0146",
+   "inputs": {
+    "O1": "NRC RA Cat Maintenance",
+    "G10": 25.0,
+    "G45": 10.0,
+    "G47": null,
+    "I45": 26.0,
+    "I47": 1.0,
+    "G53": 1.0,
+    "G55": null,
+    "I53": 1.0,
+    "I55": 0.5
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Outside NRC >0-20% of EPA + DHA = EPA",
+    "N58": "Outside NRC >0-20% of EPA + DHA = EPA"
+   }
+  },
+  {
+   "id": "TC-0147",
+   "inputs": {
+    "O1": "NRC RA Cat Maintenance",
+    "G10": 25.0,
+    "G45": null,
+    "G47": 1.0,
+    "I45": 26.5,
+    "I47": 1.0,
+    "G53": 1.0,
+    "G55": 0.0,
+    "I53": 1.0,
+    "I55": 0.49
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Outside NRC >0-20% of EPA + DHA = EPA",
+    "N58": "Outside NRC >0-20% of EPA + DHA = EPA"
+   }
+  },
+  {
+   "id": "TC-0148",
+   "inputs": {
+    "O1": "NRC RA Cat Maintenance",
+    "G10": 25.0,
+    "G45": 10.0,
+    "G47": 1.0,
+    "I45": -1.0,
+    "I47": 1.0,
+    "G53": null,
+    "G55": 0.1,
+    "I53": 1.0,
+    "I55": 0.2
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Outside NRC >0-20% of EPA + DHA = EPA",
+    "N58": "OK"
+   }
+  },
+  {
+   "id": "TC-0149",
+   "inputs": {
+    "O1": "NRC RA Cat Maintenance",
+    "G10": 25.0,
+    "G45": 2.6,
+    "G47": 1.0,
+    "I45": 1.0,
+    "I47": -1.0,
+    "G53": 1.0,
+    "G55": 0.6,
+    "I53": 1.0,
+    "I55": 0.21
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Outside NRC >0-20% of EPA + DHA = EPA",
+    "N58": "Outside NRC >0-20% of EPA + DHA = EPA"
+   }
+  },
+  {
+   "id": "TC-0150",
+   "inputs": {
+    "O1": "NRC RA Cat Maintenance",
+    "G10": 25.0,
+    "G45": 2.59,
+    "G47": 1.0,
+    "I45": 0.0,
+    "I47": 1.0,
+    "G53": 1.0,
+    "G55": 0.61,
+    "I53": 1.0,
+    "I55": 0.1
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Outside NRC >0-20% of EPA + DHA = EPA",
+    "N58": "OK"
+   }
+  },
+  {
+   "id": "TC-0151",
+   "inputs": {
+    "O1": "NRC RA Cat Maintenance",
+    "G10": 25.0,
+    "G45": 16.0,
+    "G47": 1.0,
+    "I45": 5.0,
+    "I47": 0.0,
+    "G53": 1.0,
+    "G55": 0.5,
+    "I53": 0.03,
+    "I55": 0.004
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Outside NRC >0-20% of EPA + DHA = EPA",
+    "N58": "DHA (EPA + DHA minus EPA) below NRC min"
+   }
+  },
+  {
+   "id": "TC-0152",
+   "inputs": {
+    "O1": "NRC RA Cat Maintenance",
+    "G10": 25.0,
+    "G45": 16.01,
+    "G47": 1.0,
+    "I45": 3.3,
+    "I47": 0.2,
+    "G53": 1.0,
+    "G55": 0.49,
+    "I53": 0.028,
+    "I55": 0.004
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Outside NRC >0-20% of EPA + DHA = EPA",
+    "N58": "DHA (EPA + DHA minus EPA) below NRC min"
+   }
+  },
+  {
+   "id": "TC-0153",
+   "inputs": {
+    "O1": "NRC RA Cat Maintenance",
+    "G10": 25.0,
+    "G45": 26.0,
+    "G47": 1.0,
+    "I45": null,
+    "I47": null,
+    "G53": 1.0,
+    "G55": 0.2,
+    "I53": 0.0375,
+    "I55": 0.004
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "OK",
+    "N58": "OK"
+   }
+  },
+  {
+   "id": "TC-0154",
+   "inputs": {
+    "O1": "NRC RA Cat Maintenance",
+    "G10": 25.0,
+    "G45": 26.5,
+    "G47": 1.0,
+    "I45": 0.0,
+    "I47": 0.0,
+    "G53": 1.0,
+    "G55": 0.21,
+    "I53": -1.0,
+    "I55": 0.1
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Outside NRC >0-20% of EPA + DHA = EPA",
+    "N58": "DHA (EPA + DHA minus EPA) below NRC min"
+   }
+  },
+  {
+   "id": "TC-0155",
+   "inputs": {
+    "O1": "NRC RA Cat Maintenance",
+    "G10": 25.0,
+    "G45": -1.0,
+    "G47": 1.0,
+    "I45": 10.0,
+    "I47": null,
+    "G53": 1.0,
+    "G55": 0.1,
+    "I53": 0.1,
+    "I55": -0.1
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "OK",
+    "N58": "Outside NRC >0-20% of EPA + DHA = EPA"
+   }
+  },
+  {
+   "id": "TC-0156",
+   "inputs": {
+    "O1": "NRC RA Cat Maintenance",
+    "G10": 25.0,
+    "G45": 1.0,
+    "G47": -1.0,
+    "I45": null,
+    "I47": 1.0,
+    "G53": 0.03,
+    "G55": 0.004,
+    "I53": 0.0333333,
+    "I55": 0.0
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "DHA (EPA + DHA minus EPA) below NRC min",
+    "N58": "Outside NRC >0-20% of EPA + DHA = EPA"
+   }
+  },
+  {
+   "id": "TC-0157",
+   "inputs": {
+    "O1": "NRC RA Cat Maintenance",
+    "G10": 25.0,
+    "G45": 0.0,
+    "G47": 1.0,
+    "I45": 10.0,
+    "I47": 1.0,
+    "G53": 0.028,
+    "G55": 0.004,
+    "I53": null,
+    "I55": null
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "DHA (EPA + DHA minus EPA) below NRC min",
+    "N58": "OK"
+   }
+  },
+  {
+   "id": "TC-0158",
+   "inputs": {
+    "O1": "NRC RA Cat Maintenance",
+    "G10": 25.0,
+    "G45": 5.0,
+    "G47": 0.0,
+    "I45": 2.6,
+    "I47": 1.0,
+    "G53": 0.0375,
+    "G55": 0.004,
+    "I53": 0.0,
+    "I55": 0.0
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "OK",
+    "N58": "OK"
+   }
+  },
+  {
+   "id": "TC-0159",
+   "inputs": {
+    "O1": "NRC RA Cat Maintenance",
+    "G10": 25.0,
+    "G45": 3.3,
+    "G47": 0.2,
+    "I45": 2.59,
+    "I47": 1.0,
+    "G53": -1.0,
+    "G55": 0.1,
+    "I53": 1.0,
+    "I55": null
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "DHA (EPA + DHA minus EPA) below NRC min",
+    "N58": "Outside NRC >0-20% of EPA + DHA = EPA"
+   }
+  },
+  {
+   "id": "TC-0160",
+   "inputs": {
+    "O1": "NRC RA Cat Maintenance",
+    "G10": 25.0,
+    "G45": null,
+    "G47": null,
+    "I45": 16.0,
+    "I47": 1.0,
+    "G53": 0.1,
+    "G55": -0.1,
+    "I53": 1.0,
+    "I55": 0.0
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Outside NRC >0-20% of EPA + DHA = EPA",
+    "N58": "Outside NRC >0-20% of EPA + DHA = EPA"
+   }
+  },
+  {
+   "id": "TC-0161",
+   "inputs": {
+    "O1": "NRC RA Cat Maintenance",
+    "G10": 25.0,
+    "G45": 0.0,
+    "G47": 0.0,
+    "I45": 16.01,
+    "I47": 1.0,
+    "G53": 0.0333333,
+    "G55": 0.0,
+    "I53": null,
+    "I55": 0.1
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Outside NRC >0-20% of EPA + DHA = EPA",
+    "N58": "Outside NRC >0-20% of EPA + DHA = EPA"
+   }
+  },
+  {
+   "id": "TC-0162",
+   "inputs": {
+    "O1": "AAFCO Dog Maintenance",
+    "G45": null,
+    "G47": null,
+    "I45": 16.0,
+    "I47": 1.0,
+    "G53": null,
+    "G55": null,
+    "I53": 1.0,
+    "I55": 0.6
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0163",
+   "inputs": {
+    "O1": "AAFCO Dog Maintenance",
+    "G45": 0.0,
+    "G47": 0.0,
+    "I45": 16.01,
+    "I47": 1.0,
+    "G53": 0.0,
+    "G55": 0.0,
+    "I53": 1.0,
+    "I55": 0.61
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0164",
+   "inputs": {
+    "O1": "AAFCO Dog Maintenance",
+    "G45": 10.0,
+    "G47": null,
+    "I45": 26.0,
+    "I47": 1.0,
+    "G53": 1.0,
+    "G55": null,
+    "I53": 1.0,
+    "I55": 0.5
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0165",
+   "inputs": {
+    "O1": "AAFCO Dog Maintenance",
+    "G45": null,
+    "G47": 1.0,
+    "I45": 26.5,
+    "I47": 1.0,
+    "G53": 1.0,
+    "G55": 0.0,
+    "I53": 1.0,
+    "I55": 0.49
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0166",
+   "inputs": {
+    "O1": "AAFCO Dog Maintenance",
+    "G45": 10.0,
+    "G47": 1.0,
+    "I45": -1.0,
+    "I47": 1.0,
+    "G53": null,
+    "G55": 0.1,
+    "I53": 1.0,
+    "I55": 0.2
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0167",
+   "inputs": {
+    "O1": "AAFCO Dog Maintenance",
+    "G45": 2.6,
+    "G47": 1.0,
+    "I45": 1.0,
+    "I47": -1.0,
+    "G53": 1.0,
+    "G55": 0.6,
+    "I53": 1.0,
+    "I55": 0.21
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0168",
+   "inputs": {
+    "O1": "AAFCO Dog Maintenance",
+    "G45": 2.59,
+    "G47": 1.0,
+    "I45": 0.0,
+    "I47": 1.0,
+    "G53": 1.0,
+    "G55": 0.61,
+    "I53": 1.0,
+    "I55": 0.1
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0169",
+   "inputs": {
+    "O1": "AAFCO Dog Maintenance",
+    "G45": 16.0,
+    "G47": 1.0,
+    "I45": 5.0,
+    "I47": 0.0,
+    "G53": 1.0,
+    "G55": 0.5,
+    "I53": 0.03,
+    "I55": 0.004
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0170",
+   "inputs": {
+    "O1": "AAFCO Dog Maintenance",
+    "G45": 16.01,
+    "G47": 1.0,
+    "I45": 3.3,
+    "I47": 0.2,
+    "G53": 1.0,
+    "G55": 0.49,
+    "I53": 0.028,
+    "I55": 0.004
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0171",
+   "inputs": {
+    "O1": "AAFCO Dog Maintenance",
+    "G45": 26.0,
+    "G47": 1.0,
+    "I45": null,
+    "I47": null,
+    "G53": 1.0,
+    "G55": 0.2,
+    "I53": 0.0375,
+    "I55": 0.004
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0172",
+   "inputs": {
+    "O1": "AAFCO Dog Maintenance",
+    "G45": 26.5,
+    "G47": 1.0,
+    "I45": 0.0,
+    "I47": 0.0,
+    "G53": 1.0,
+    "G55": 0.21,
+    "I53": -1.0,
+    "I55": 0.1
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0173",
+   "inputs": {
+    "O1": "AAFCO Dog Maintenance",
+    "G45": -1.0,
+    "G47": 1.0,
+    "I45": 10.0,
+    "I47": null,
+    "G53": 1.0,
+    "G55": 0.1,
+    "I53": 0.1,
+    "I55": -0.1
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0174",
+   "inputs": {
+    "O1": "AAFCO Dog Maintenance",
+    "G45": 1.0,
+    "G47": -1.0,
+    "I45": null,
+    "I47": 1.0,
+    "G53": 0.03,
+    "G55": 0.004,
+    "I53": 0.0333333,
+    "I55": 0.0
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0175",
+   "inputs": {
+    "O1": "AAFCO Dog Maintenance",
+    "G45": 0.0,
+    "G47": 1.0,
+    "I45": 10.0,
+    "I47": 1.0,
+    "G53": 0.028,
+    "G55": 0.004,
+    "I53": null,
+    "I55": null
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0176",
+   "inputs": {
+    "O1": "AAFCO Dog Maintenance",
+    "G45": 5.0,
+    "G47": 0.0,
+    "I45": 2.6,
+    "I47": 1.0,
+    "G53": 0.0375,
+    "G55": 0.004,
+    "I53": 0.0,
+    "I55": 0.0
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0177",
+   "inputs": {
+    "O1": "AAFCO Dog Maintenance",
+    "G45": 3.3,
+    "G47": 0.2,
+    "I45": 2.59,
+    "I47": 1.0,
+    "G53": -1.0,
+    "G55": 0.1,
+    "I53": 1.0,
+    "I55": null
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0178",
+   "inputs": {
+    "O1": "AAFCO Dog Maintenance",
+    "G45": null,
+    "G47": null,
+    "I45": 16.0,
+    "I47": 1.0,
+    "G53": 0.1,
+    "G55": -0.1,
+    "I53": 1.0,
+    "I55": 0.0
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0179",
+   "inputs": {
+    "O1": "AAFCO Dog Maintenance",
+    "G45": 0.0,
+    "G47": 0.0,
+    "I45": 16.01,
+    "I47": 1.0,
+    "G53": 0.0333333,
+    "G55": 0.0,
+    "I53": null,
+    "I55": 0.1
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0180",
+   "inputs": {
+    "O1": "FEDIAF Cat (MER 75 kcal/kg^0.67)",
+    "G45": null,
+    "G47": null,
+    "I45": 16.0,
+    "I47": 1.0,
+    "G53": null,
+    "G55": null,
+    "I53": 1.0,
+    "I55": 0.6
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0181",
+   "inputs": {
+    "O1": "FEDIAF Cat (MER 75 kcal/kg^0.67)",
+    "G45": 0.0,
+    "G47": 0.0,
+    "I45": 16.01,
+    "I47": 1.0,
+    "G53": 0.0,
+    "G55": 0.0,
+    "I53": 1.0,
+    "I55": 0.61
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0182",
+   "inputs": {
+    "O1": "FEDIAF Cat (MER 75 kcal/kg^0.67)",
+    "G45": 10.0,
+    "G47": null,
+    "I45": 26.0,
+    "I47": 1.0,
+    "G53": 1.0,
+    "G55": null,
+    "I53": 1.0,
+    "I55": 0.5
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0183",
+   "inputs": {
+    "O1": "FEDIAF Cat (MER 75 kcal/kg^0.67)",
+    "G45": null,
+    "G47": 1.0,
+    "I45": 26.5,
+    "I47": 1.0,
+    "G53": 1.0,
+    "G55": 0.0,
+    "I53": 1.0,
+    "I55": 0.49
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0184",
+   "inputs": {
+    "O1": "FEDIAF Cat (MER 75 kcal/kg^0.67)",
+    "G45": 10.0,
+    "G47": 1.0,
+    "I45": -1.0,
+    "I47": 1.0,
+    "G53": null,
+    "G55": 0.1,
+    "I53": 1.0,
+    "I55": 0.2
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0185",
+   "inputs": {
+    "O1": "FEDIAF Cat (MER 75 kcal/kg^0.67)",
+    "G45": 2.6,
+    "G47": 1.0,
+    "I45": 1.0,
+    "I47": -1.0,
+    "G53": 1.0,
+    "G55": 0.6,
+    "I53": 1.0,
+    "I55": 0.21
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0186",
+   "inputs": {
+    "O1": "FEDIAF Cat (MER 75 kcal/kg^0.67)",
+    "G45": 2.59,
+    "G47": 1.0,
+    "I45": 0.0,
+    "I47": 1.0,
+    "G53": 1.0,
+    "G55": 0.61,
+    "I53": 1.0,
+    "I55": 0.1
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0187",
+   "inputs": {
+    "O1": "FEDIAF Cat (MER 75 kcal/kg^0.67)",
+    "G45": 16.0,
+    "G47": 1.0,
+    "I45": 5.0,
+    "I47": 0.0,
+    "G53": 1.0,
+    "G55": 0.5,
+    "I53": 0.03,
+    "I55": 0.004
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0188",
+   "inputs": {
+    "O1": "FEDIAF Cat (MER 75 kcal/kg^0.67)",
+    "G45": 16.01,
+    "G47": 1.0,
+    "I45": 3.3,
+    "I47": 0.2,
+    "G53": 1.0,
+    "G55": 0.49,
+    "I53": 0.028,
+    "I55": 0.004
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0189",
+   "inputs": {
+    "O1": "FEDIAF Cat (MER 75 kcal/kg^0.67)",
+    "G45": 26.0,
+    "G47": 1.0,
+    "I45": null,
+    "I47": null,
+    "G53": 1.0,
+    "G55": 0.2,
+    "I53": 0.0375,
+    "I55": 0.004
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0190",
+   "inputs": {
+    "O1": "FEDIAF Cat (MER 75 kcal/kg^0.67)",
+    "G45": 26.5,
+    "G47": 1.0,
+    "I45": 0.0,
+    "I47": 0.0,
+    "G53": 1.0,
+    "G55": 0.21,
+    "I53": -1.0,
+    "I55": 0.1
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0191",
+   "inputs": {
+    "O1": "FEDIAF Cat (MER 75 kcal/kg^0.67)",
+    "G45": -1.0,
+    "G47": 1.0,
+    "I45": 10.0,
+    "I47": null,
+    "G53": 1.0,
+    "G55": 0.1,
+    "I53": 0.1,
+    "I55": -0.1
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0192",
+   "inputs": {
+    "O1": "FEDIAF Cat (MER 75 kcal/kg^0.67)",
+    "G45": 1.0,
+    "G47": -1.0,
+    "I45": null,
+    "I47": 1.0,
+    "G53": 0.03,
+    "G55": 0.004,
+    "I53": 0.0333333,
+    "I55": 0.0
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0193",
+   "inputs": {
+    "O1": "FEDIAF Cat (MER 75 kcal/kg^0.67)",
+    "G45": 0.0,
+    "G47": 1.0,
+    "I45": 10.0,
+    "I47": 1.0,
+    "G53": 0.028,
+    "G55": 0.004,
+    "I53": null,
+    "I55": null
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0194",
+   "inputs": {
+    "O1": "FEDIAF Cat (MER 75 kcal/kg^0.67)",
+    "G45": 5.0,
+    "G47": 0.0,
+    "I45": 2.6,
+    "I47": 1.0,
+    "G53": 0.0375,
+    "G55": 0.004,
+    "I53": 0.0,
+    "I55": 0.0
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0195",
+   "inputs": {
+    "O1": "FEDIAF Cat (MER 75 kcal/kg^0.67)",
+    "G45": 3.3,
+    "G47": 0.2,
+    "I45": 2.59,
+    "I47": 1.0,
+    "G53": -1.0,
+    "G55": 0.1,
+    "I53": 1.0,
+    "I55": null
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0196",
+   "inputs": {
+    "O1": "FEDIAF Cat (MER 75 kcal/kg^0.67)",
+    "G45": null,
+    "G47": null,
+    "I45": 16.0,
+    "I47": 1.0,
+    "G53": 0.1,
+    "G55": -0.1,
+    "I53": 1.0,
+    "I55": 0.0
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  },
+  {
+   "id": "TC-0197",
+   "inputs": {
+    "O1": "FEDIAF Cat (MER 75 kcal/kg^0.67)",
+    "G45": 0.0,
+    "G47": 0.0,
+    "I45": 16.01,
+    "I47": 1.0,
+    "G53": 0.0333333,
+    "G55": 0.0,
+    "I53": null,
+    "I55": 0.1
+   },
+   "expected": {
+    "L49": "Not applicable",
+    "N49": "Not applicable",
+    "L50": "Not applicable",
+    "N50": "Not applicable",
+    "L56": "Not applicable",
+    "N56": "Not applicable",
+    "L57": "Not applicable",
+    "N57": "Not applicable",
+    "L58": "Not applicable",
+    "N58": "Not applicable"
+   }
+  }
+ ]
+}

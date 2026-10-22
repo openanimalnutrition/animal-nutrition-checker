@@ -277,3 +277,83 @@ BAND_LABELS = {
     'range-d10': 'Highest (90% of Range or Greater)',  # s01!AO2
 }
 NO_RANGE_LABEL = 'No range'
+
+# Phase 3: the Standards tab's limits, bands and texts for rows 12-130.
+
+# s01 rows of the template's own rows (data/template.csv).
+TEMPLATE_ROWS = {55: 'epa', 66: 'calcium-large-breed-puppy', 98: 'vitamin-d2',
+                 99: 'vitamin-d2-mbw'}
+# s01 column B where it differs from the nutrient's name (the lookups ignore case).
+S01_LABELS = {42: 'Glutamic acid', 11: 'Energy (in kcal)'}
+# Descriptor cells with no formula (blank) or a fixed text.
+FIXED_DESCRIPTORS = {'L55': 'See below:', 'N55': None, 'AR55': None, 'L65': None,
+                     'N65': None, 'AR65': None, 'L123': None}
+# The first rows of the column C/E limits.
+LIMIT_COLUMNS = {'C': 'min', 'E': 'max'}
+# Band edge columns (lower edges) and the range high, as fractions of the minimum (Q-U),
+# the minimum (W) and of the range (Y-AO).
+EDGE_BELOW_MIN = [('Q', 0.25), ('S', 0.5), ('U', 0.75)]
+EDGE_MIN = 'W'
+EDGE_DECILES = [('Y', 0.1), ('AA', 0.2), ('AC', 0.3), ('AE', 0.4), ('AG', 0.5), ('AI', 0.6),
+                ('AK', 0.7), ('AM', 0.8), ('AO', 0.9)]
+RANGE_HIGH = 'AP'
+DESCRIPTOR_COLUMNS = {'L': 'low', 'N': 'high'}
+SUMMARY_COLUMN = 'AR'
+JOIN_COLUMN = 'M'
+NO_MIN_LABEL = 'No min requirement &/or no min amount entered to describe'
+# Helper cells: the selected requirement's MIN column position in B:AT (B = 1), the AAFCO
+# dry matter factor, the arginine minimums before the protein increase (per Mcal, MBW).
+POSITION_CELL = 'AX1'
+AAFCO_FACTOR_CELL = 'AS3'
+ARGININE_BASE_CELLS = {'AS1': 'arginine', 'AS2': 'arginine-mbw'}
+INTAKE_LABEL = ('M4', "Intake Below Calc. Req't:")
+INTAKE_SHORTFALL_CELL = 'N4'
+# The core's reasons -> the template's error codes.
+REQUIREMENT_ERROR = '#N/A'
+OTHER_ERROR = '#VALUE!'
+
+# The summary sentence (column AR) of each row: its shape after "<L> to <N> <B>".
+AR_SHAPES = {}
+for _r in (12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 45, 47, 51, 53,
+           61, 63, 67, 70, 72, 74, 76, 78, 80, 82, 83, 85, 87, 89, 91, 92, 94, 96, 98, 100,
+           102, 104, 106, 108, 110, 112, 114, 116, 118, 120):
+    AR_SHAPES[_r] = 'restriction+aafco'
+for _r in (13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35, 37, 39, 41, 44, 46, 48, 52, 54,
+           62, 64, 68, 71, 73, 75, 77, 79, 81, 84, 86, 88, 90, 93, 95, 97, 99, 101, 103, 105,
+           107, 109, 111, 113, 115, 117, 119, 121):
+    AR_SHAPES[_r] = 'intake-mbw'
+AR_SHAPES.update({11: 'intake', 43: 'aafco', 59: 'restriction', 60: 'restriction',
+                  66: 'restriction', 69: 'restriction', 123: 'water', 124: 'plain'})
+for _r in (122, 125, 126, 127, 128, 129, 130):
+    AR_SHAPES[_r] = 'default-min'
+# The template figure a 'default-min' sentence quotes, and the water maximum's.
+AR_FIGURES = {122: 'vitamin-c-min-default', 125: 'fiber-total-min-default',
+              126: 'fiber-insoluble-min-default', 127: 'fiber-soluble-min-default',
+              128: 'oxalate-min', 129: 'purine-min', 130: 'energy-density-min',
+              123: 'water-max'}
+AR_TEXTS = {
+    'based-on': ' Based on ',
+    'restriction': (' W/ A ', ' Caloric Restriction Adjustment'),
+    'aafco': ' W/ An AAFCO Dry Matter Adjustment: Min x ',
+    'intake': (' W/ An Energy Intake ', ' Below The Calculated Energy Requirement'),
+    'default-min': ' As a Min',
+    'water': ' As a Highest Range',
+}
+
+# The text checks (rows 49-58): the core's check -> its row, and the template's texts.
+TEXT_CHECK_ROWS = {
+    ('la-ala-ratio', 'la-ala-ratio-high-growth-reproduction'): 49,
+    ('la-ala-ratio', 'la-ala-ratio-high-adult'): 50,
+    ('epa-share-max', None): 56,
+    ('epa-share-range', None): 57,
+    ('epa-share-max-dha-only', None): 58,
+}
+TEXT_CHECK_TEXTS = {
+    49: {'ok': 'OK', 'outside': 'Outside NRC LA:ALA of 2.6 to 16'},
+    50: {'ok': 'OK', 'outside': 'Outside NRC LA:ALA of 2.6 to 26'},
+    56: {'ok': 'OK', 'above-maximum': 'EPA Exceeds NRC 60% of EPA+DHA'},
+    57: {'ok': 'OK', 'outside': 'Outside NRC 50-60% of EPA + DHA = EPA'},
+    58: {'ok': 'OK', 'outside': 'Outside NRC >0-20% of EPA + DHA = EPA',
+         'dha-below-minimum': 'DHA (EPA + DHA minus EPA) below NRC min'},
+}
+NOT_APPLICABLE = 'Not applicable'

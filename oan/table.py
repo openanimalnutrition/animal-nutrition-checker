@@ -77,7 +77,8 @@ def read_csv(path):
 
 
 def load(data_dir):
-    """Load the data folder: nutrients, requirements, limits, energy figures and notes."""
+    """Load the data folder: nutrients, requirements, limits, energy figures, the template's
+    own figures and rows, and notes."""
     nutrients = read_csv(os.path.join(data_dir, "nutrients.csv"))
     requirements = read_csv(os.path.join(data_dir, "requirements.csv"))
     notes = read_csv(os.path.join(data_dir, "notes.csv"))
@@ -86,8 +87,9 @@ def load(data_dir):
         path = os.path.join(data_dir, "standards", req["edition"], req["id"] + ".csv")
         limits[req["id"]] = {row["nutrient"]: row for row in read_csv(path)}
     energy = {row["id"]: row for row in read_csv(os.path.join(data_dir, "energy.csv"))}
+    template = {row["id"]: row for row in read_csv(os.path.join(data_dir, "template.csv"))}
     return {"nutrients": nutrients, "requirements": requirements, "limits": limits,
-            "energy": energy, "notes": notes}
+            "energy": energy, "template": template, "notes": notes}
 
 
 def parse_figure(text):

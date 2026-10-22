@@ -12,7 +12,7 @@ import os
 import re
 import sys
 
-from oan import energy, release, table
+from oan import energy, limits, release, table
 
 NUTRIENTS_HEADER = ["id", "name", "unit", "amount", "basis", "k", "mbw_of", "enterable",
                     "ig_code", "notes"]
@@ -23,6 +23,8 @@ LIMITS_HEADER = ["nutrient", "min", "min_unit", "min_rule", "min_source", "max",
 AMOUNTS = ["g", "mg", "mcg", "IU", ""]
 NOTES_HEADER = ["id", "scope", "text", "origin"]
 ENERGY_HEADER = ["id", "figure", "unit", "label", "source", "notes"]
+TEMPLATE_HEADER = ["id", "kind", "name", "figure", "unit", "k", "applies_to", "max_type",
+                   "source", "notes"]
 # A type's label ends with the figure and exponent it prints: "(95 * kg BW^0.75)".
 TYPE_LABEL = re.compile(r".*\((\S+) \* [^()]*\^(\S+)\)")
 
@@ -195,6 +197,7 @@ def validate(data_dir, against=None):
         check_note_refs(r["energy_notes"], where + " energy_notes", note_ids, report)
 
     check_energy(data_dir, note_ids, requirements, report)
+    check_template(data_dir, note_ids, nutrient_ids, requirements, report)
 
     # Every requirement has exactly one limits file, and there are no others.
     expected_files = {os.path.join(r["edition"], r["id"] + ".csv") for _, r in requirements}
@@ -311,6 +314,14 @@ def validate(data_dir, against=None):
                             report.warn("%s %s %s" % (rid, nid, bound), "changed more "
                                         "than %dx (%g to %g): check the unit (mg or mcg?)"
                                         % (CHANGE_FACTOR, prev, new))
+            for fid, row in data["template"].items():
+                prev = old["template"].get(fid)
+                if prev is None or row["kind"] != "figure" or prev["kind"] != "figure":
+                    continue
+                new, before = float(row["figure"]), float(prev["figure"])
+                if new and before and max(new / before, before / new) > CHANGE_FACTOR:
+                    report.warn("template.csv %s" % fid, "changed more than %dx (%g to %g)" % (
+                        CHANGE_FACTOR, before, new))
         except (OSError, KeyError, table.DataError) as e:
             report.warn(against, "could not compare with the old data: %s" % e)
     return report
@@ -375,6 +386,100 @@ def check_energy(data_dir, note_ids, requirements, report):
         if r["id"] not in energy.RULES:
             report.error("requirements.csv line %d id" % line, "no energy rule for %r: a new "
                          "requirement needs one in oan/energy.py" % r["id"])
+
+
+def check_template(data_dir, note_ids, nutrient_ids, requirements, report):
+    """template.csv: exactly the code's figures and rows (oan/limits.py), each figure a plain
+    number in the unit the code reads it in, with its source and the requirements it applies
+    to."""
+    rows = read(os.path.join(data_dir, "template.csv"), TEMPLATE_HEADER, report)
+    requirement_ids = {r["id"] for _, r in requirements}
+    by_id = {}
+    for line, r in rows:
+        where = "template.csv line %d" % line
+        tid, kind = r["id"], r["kind"]
+        if tid in by_id:
+            report.error(where + " id", "%r appears twice (also line %d)" % (tid, by_id[tid][0]))
+            continue
+        by_id[tid] = (line, r)
+        if kind == "figure":
+            if tid not in limits.FIGURES:
+                report.error(where + " id", "unknown figure %r (the code reads only the figures "
+                             "listed in oan/limits.py)" % tid)
+                continue
+            problem = number_problem(r["figure"])
+            if problem:
+                report.error(where + " figure", "%r: %s" % (r["figure"], problem))
+            if r["unit"] != limits.FIGURES[tid]:
+                report.error(where + " unit", "the code reads %s in %s; a figure in another "
+                             "unit needs a code change, not a new unit here" % (
+                                 tid, limits.FIGURES[tid] or "no unit (a plain number)"))
+            if r["k"]:
+                report.error(where + " k", "only a row has a multiplier K")
+            if tid in limits.MAXIMUM_FIGURES:
+                if r["max_type"] not in MAX_TYPES + [limits.COMPUTED]:
+                    report.error(where + " max_type", "this figure is a maximum: give its type, "
+                                 "one of " + ", ".join(MAX_TYPES + [limits.COMPUTED]))
+            elif r["max_type"]:
+                report.error(where + " max_type", "only a figure that is a maximum has a type")
+        elif kind == "row":
+            if tid not in limits.ROWS:
+                report.error(where + " id", "unknown row %r (the code computes only the rows "
+                             "listed in oan/limits.py)" % tid)
+                continue
+            if tid in nutrient_ids:
+                report.error(where + " id", "%r is also in nutrients.csv" % tid)
+            if r["figure"] or r["max_type"]:
+                report.error(where, "a row has no figure and no max_type")
+            if tid in limits.NOT_BANDED:
+                if r["k"]:
+                    report.error(where + " k", "this row is not banded: no multiplier K")
+            else:
+                problem = number_problem(r["k"])
+                if problem:
+                    report.error(where + " k", "the multiplier K: %s" % problem)
+        else:
+            report.error(where + " kind", "kind is figure or row")
+            continue
+        if not r["name"].strip():
+            report.error(where + " name", "every figure and row needs a name")
+        tokens = r["applies_to"].split()
+        if not tokens or ("*" in tokens and len(tokens) > 1):
+            report.error(where + " applies_to", 'write "*", a species (canine, feline) or '
+                         "requirement ids")
+        for token in tokens:
+            if token != "*" and token not in SPECIES and token not in requirement_ids:
+                report.error(where + " applies_to", "unknown requirement or species %r" % token)
+        if not r["source"].strip():
+            report.error(where + " source", "every figure and row needs its source")
+        check_note_refs(r["notes"], where + " notes", note_ids, report)
+    for tid in list(limits.FIGURES) + list(limits.ROWS):
+        if tid not in by_id:
+            report.error("template.csv", "no row for %r (the code needs it)" % tid)
+    if report.errors:
+        return
+    reqs = {r["id"]: r for _, r in requirements}
+
+    def covered(tid):
+        row = by_id[tid][1]
+        return {rid for rid in reqs if limits.applies(row, reqs[rid])}
+    for rid in reqs:
+        highs = [t for t in limits.LA_ALA_HIGH if rid in covered(t)]
+        if len(highs) > 1:
+            report.error("template.csv applies_to", "%s has two highest LA:ALA ratios (%s)" % (
+                rid, " and ".join(highs)))
+    for tid in limits.LA_ALA_HIGH:
+        if not covered(tid) <= covered("la-ala-ratio-low"):
+            report.error("template.csv line %d applies_to" % by_id[tid][0], "every requirement "
+                         "with a highest LA:ALA ratio needs the lowest too (la-ala-ratio-low)")
+    if covered("epa-share-range-low") != covered("epa-share-range-high"):
+        report.error("template.csv applies_to", "epa-share-range-low and epa-share-range-high "
+                     "apply to different requirements")
+    pairs = [("la-ala-ratio-low", t) for t in limits.LA_ALA_HIGH] + [
+        ("epa-share-range-low", "epa-share-range-high")]
+    for low, high in pairs:
+        if float(by_id[low][1]["figure"]) >= float(by_id[high][1]["figure"]):
+            report.warn("template.csv %s" % high, "is not above %s" % low)
 
 
 def check_limit(r, bound, where, req, nutrient, report):

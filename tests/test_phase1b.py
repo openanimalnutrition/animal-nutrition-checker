@@ -223,8 +223,9 @@ class Runner(unittest.TestCase):
         self.assertEqual(status, 0, text)
         self.assertIn("inputs.json: 132 cases: 132 pass, 0 differ, 0 outside-rule, 0 pending",
                       text)
-        self.assertIn("values.json: 945 cases: 781 pass, 0 differ, 0 outside-rule, "
-                      "164 pending", text)
+        # 781 table cases since phase 1b; the other 164 since phase 3 (18 outside the rules).
+        self.assertIn("values.json: 945 cases: 927 pass, 0 differ, 18 outside-rule, "
+                      "0 pending", text)
 
     def run_changed(self, name, change):
         cases, _ = run_vectors.load_cases(name)

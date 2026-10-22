@@ -4,9 +4,10 @@ Usage: nice -n 10 python3 -I -B tests/run_vectors.py [--show N]
 
 Every case of every vector file is run against the frozen baseline data, in file order and
 in reverse order, and counted per file: pass, difference, outside-rule, or pending (a part
-not built yet: minimums, maximums and bands are phase 3). Numbers compare within a relative
-1e-12 (the report also counts those that are not bit-exact); every other value must be
-identical: texts exactly, a blank as null, true/false only as true/false.
+not built yet). The cases of tests/vectors-extra (written after the freeze, not frozen) run
+the same way and are reported apart. Numbers compare within a relative 1e-12 (the report
+also counts those that are not bit-exact); every other value must be identical: texts
+exactly, a blank as null, true/false only as true/false.
 
 A case with an input outside its rule (oan/inputs.py) is not computed: the core rejects the
 input, so the case is in one approved category of difference (decision 1 A). Each file's
@@ -38,10 +39,11 @@ FILES = (
     "energy-testcases.json",
     "energy-testcases-row11.json",
 )
-PENDING = {
-    "formulas-testcases.json": "phase 3 (minimums, maximums and bands)",
-}
-VALUES_PENDING = "phase 3 (minimums, maximums and bands)"
+# Cases written after the freeze for what the frozen vectors do not test, run against the
+# same baseline data and reported apart (tests/vectors-extra; not frozen).
+EXTRA = os.path.join(HERE, "vectors-extra")
+EXTRA_FILES = ("text-checks-21OCT26b.json",)
+PENDING = {}
 
 
 class Pending(Exception):
@@ -67,7 +69,8 @@ def check_cell(cell, value, data):
     col, row = cell[:1], cell[1:]
     if row == str(sheet_map.ENERGY_ROW) and col in sheet_map.ENTRY_COLUMNS:
         return inputs.check_entry(inputs.ENERGY_ENTRY, value, data)
-    nid = sheet_map.S01_ROWS.get(int(row)) if row.isdigit() else None
+    rows = sheet_view.StandardsView.ENTRY_ROWS
+    nid = rows.get(int(row)) if row.isdigit() else None
     if nid is None or col not in sheet_map.ENTRY_COLUMNS:
         return None
     return inputs.check_entry(nid, value, data)
@@ -96,14 +99,43 @@ def run_input_case(case, data, view):
 
 
 def run_values_case(case, data, view):
-    """Group 'table': one cell of the requirement table at the default inputs."""
+    """Group 'table': one cell of the requirement table at the default inputs. The other
+    groups: the Standards tab's cells and descriptions for the case's inputs."""
     if case["group"] != "table":
-        raise Pending(VALUES_PENDING)
+        return run_standards_case(case, data, view)
     out = []
     for ref, expected in case["outputs"].items():
         got, kind = view.cell(ref)
         out.append((ref, expected, got, kind))
     return out
+
+
+def standards_kind(ref):
+    """The kind of a Standards tab cell, for the report."""
+    if ref.startswith("s02!"):
+        return "limit"
+    col = ref.rstrip("0123456789")
+    row = int(ref[len(col):])
+    if ref in ENERGY_KINDS:
+        return ENERGY_KINDS[ref]
+    if row in sheet_map.TEXT_CHECK_ROWS.values() and col in sheet_map.DESCRIPTOR_COLUMNS:
+        return "text check"
+    return {"C": "minimum", "E": "maximum", "AP": "range high", "L": "description",
+            "N": "description", "M": "description", "AR": "summary", "K": "multiplier"}.get(
+                col, "helper" if row <= 4 else "band edge")
+
+
+def run_standards_case(case, data, view):
+    """Every listed cell and description of one case through the Standards tab view."""
+    sv = sheet_view.StandardsView(data, case["inputs"])
+    expected = dict(case["outputs"])
+    expected.update(case.get("descriptors") or {})
+    return [(ref, exp, sv.cell(ref), standards_kind(ref)) for ref, exp in expected.items()]
+
+
+def run_formulas_case(case, data, view):
+    """The minimums, maximums, helper cells and text checks, and the descriptions."""
+    return run_standards_case(case, data, view)
 
 
 ENERGY_KINDS = {"G4": "energy", "C11": "energy", "C11_highlighted": "highlight",
@@ -128,9 +160,18 @@ def run_row11_case(case, data, view):
     return run_energy_rows(case, sheet_view.EnergyView(data, case["inputs"], defaults=True))
 
 
+def run_extra_case(case, data, view):
+    """A case of tests/vectors-extra: the listed cells through the Standards tab view."""
+    sv = sheet_view.StandardsView(data, case["inputs"])
+    return [(ref, exp, sv.cell(ref), standards_kind(ref)) for ref, exp in
+            case["expected"].items()]
+
+
 RUNNERS = {
+    "text-checks-21OCT26b.json": run_extra_case,
     "inputs.json": run_input_case,
     "values.json": run_values_case,
+    "formulas-testcases.json": run_formulas_case,
     "energy-testcases.json": run_energy_case,
     "energy-testcases-row11.json": run_row11_case,
 }
@@ -161,8 +202,14 @@ def run_file(name, cases, data, order):
 
 
 def load_cases(name):
-    with open(os.path.join(VECTORS, name), encoding="utf-8") as f:
+    folder = EXTRA if name in EXTRA_FILES else VECTORS
+    with open(os.path.join(folder, name), encoding="utf-8") as f:
         doc = json.load(f)
+    if "cells" in doc:
+        # The formulas file lists its cells once; each case's values are aligned with them.
+        for case in doc["cases"]:
+            if "values" in case:
+                case["outputs"] = dict(zip(doc["cells"], case["values"]))
     return doc["cases"], doc.get("outside_rule_cases", [])
 
 
@@ -243,7 +290,9 @@ def main(argv):
     data = table.load(BASELINE)
     total_diff = 0
     orders_agree = True
-    for name in FILES:
+    for name in FILES + EXTRA_FILES:
+        if name in EXTRA_FILES:
+            print("extra (tests/vectors-extra, not frozen):")
         cases, outside = load_cases(name)
         forward = run_file(name, cases, data, "forward")
         reverse = run_file(name, cases, data, "reverse")

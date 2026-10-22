@@ -123,6 +123,8 @@ def check_entry(nutrient_id, value, data):
         x, reason = numbers.as_input_number(value)
         return _reject(reason) if reason else _accept(x)
     nutrient = next((n for n in data["nutrients"] if n["id"] == nutrient_id), None)
+    if nutrient is None and data["template"].get(nutrient_id, {}).get("kind") == "row":
+        nutrient = {"enterable": "yes"}  # the template's own rows (data/template.csv)
     if nutrient is None:
         return _reject("unknown nutrient %r" % nutrient_id)
     if nutrient["enterable"] != "yes":
