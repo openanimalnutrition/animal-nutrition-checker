@@ -303,6 +303,23 @@ class Verdicts(unittest.TestCase):
         self.assertEqual(e["outcome"], "no-minimum")
         self.assertIsNone(e["verdict"])
 
+    def test_no_range_high_without_limits(self):
+        # The template's range high of a row with no minimum and no maximum is 0 (none x K);
+        # the Result gives none, and the bands are unchanged (steward, 22 Oct 2026).
+        res = run("aafco-dog-adult", {"protein-mbw": {"low": 65, "high": 70}, "protein": 65,
+                                      "water": 100})
+        n = nutrient(res, "protein-mbw")
+        self.assertEqual((n["minimum"], n["maximum"], n["range_high"], n["max_type"],
+                          n["max_provenance"]), (None, None, None, None, None))
+        self.assertEqual((n["low"]["outcome"], n["high"]["outcome"]), ("no-minimum", "no-range"))
+        self.assertGreater(nutrient(res, "protein")["range_high"], 0)
+        self.assertIsNotNone(nutrient(res, "water")["range_high"])
+        none = [(rid, x["id"]) for rid in sorted(REQS)
+                for x in result.get_limits(D, {"requirement": rid,
+                                               "animal": animal_for(rid)})["nutrients"]
+                if x["range_high"] == 0 and x["minimum"] is None and x["maximum"] is None]
+        self.assertEqual(none, [])
+
     def test_both_entries_and_summary(self):
         res = run("nrc-dog-adult", {"phosphorus": {"low": 0.9, "high": 1.5}})
         n = nutrient(res, "phosphorus")

@@ -310,12 +310,17 @@ def _nutrient(data, check, nid, entries):
     open_row = conditions.open_minimum(data.tables, request, nid) \
         if nid != inputs.ENERGY_ENTRY else None
     standard = request.requirement["standard"] if request.requirement else ""
+    # A row with neither a minimum nor a maximum has no range high: the template's is the
+    # minimum (none, read as 0) times K, which an AI reader took for a limit of 0 (steward,
+    # 22 Oct 2026). The bands still use the template's 0 (oan/outcomes.py).
+    no_limits = lim.minimum is None and lim.maximum is None
     out = {"id": nid, "name": name, "unit": unit, "basis": basis, "ig_code": ig_code,
            "minimum": _number_or_none(lim.minimum),
            "standard_minimum": _number_or_none(standard_min),
            "maximum": _number_or_none(lim.maximum),
-           "range_high": lim.range_high, "max_type": lim.max_code,
-           "max_provenance": provenance,
+           "range_high": None if no_limits else lim.range_high,
+           "max_type": None if no_limits else lim.max_code,
+           "max_provenance": None if no_limits else provenance,
            "limits_unavailable": None if unavailable is None else {
                "reason": unavailable.reason, "text": _reason_text(unavailable.reason)},
            "mbw": _mbw(data, request, nid, None if unavailable else lim, unit),

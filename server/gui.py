@@ -258,16 +258,18 @@ def result_page(data, request, res):
                         for c in n["conditions"])
         unavailable = n["limits_unavailable"]
         rows_html.append(
-            "<tr><td>%s<br><small>%s</small>%s</td><td>%s</td><td>%s</td><td>%s<br><small>%s, "
-            "%s</small></td>%s%s<td><ul>%s</ul>%s</td></tr>" % (
+            "<tr><td>%s<br><small>%s</small>%s</td><td>%s</td><td>%s</td><td>%s</td>%s%s"
+            "<td><ul>%s</ul>%s</td></tr>" % (
                 e(n["name"]), e(n["unit"]),
                 ("<br><small>%s</small>" % e(n["mbw"]["text"]) if n["mbw"] else "") + (
                     "<br><small>%s</small>" % e(n["requirement_maximum"]["text"])
                     if n["requirement_maximum"] and not n["requirement_maximum"]["set"]
                     else ""),
                 _num(n["minimum"]) or ("none" if not unavailable else e(unavailable["text"])),
-                _num(n["standard_minimum"]), _num(n["range_high"]), e(n["max_type"]),
-                e(n["max_provenance"]), _entry_cells(n["low"]), _entry_cells(n["high"]),
+                _num(n["standard_minimum"]),
+                "none" if n["range_high"] is None else "%s<br><small>%s, %s</small>" % (
+                    _num(n["range_high"]), e(n["max_type"]), e(n["max_provenance"])),
+                _entry_cells(n["low"]), _entry_cells(n["high"]),
                 conds, notes_fold(data, n["notes"])))
     checks = "".join("<li>%s: low %s, high %s%s</li>" % (
         e(c["id"]), e(c["low"]["text"] or c["low"]["result"]),
