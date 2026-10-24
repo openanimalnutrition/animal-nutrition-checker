@@ -1,6 +1,6 @@
 {
  "format": "oan text-check cases 1",
- "about": "Standards tab rows 49, 50, 56, 57 and 58 (NRC's LA:ALA and EPA share checks, and NRC adult cats' DHA minimum) of the DDS template Version 21OCT26b, computed by the project's evaluator (nextbuild/eval/sheval_next.py 2026-10-20.1) from the 21OCT26b export's formulas (dump sha256 below), at the inputs listed; every other input is the export's. Written in phase 3 because the frozen 21OCT26b vectors test only row 58. Values: text, or null (blank). Not part of the frozen baseline.",
+ "about": "Standards tab rows 49, 50, 56, 57 and 58 (NRC's LA:ALA and EPA share checks, and NRC adult cats' DHA minimum) of the DDS template Version 21OCT26b, computed by the project's formula evaluator (version 2026-10-20.1, kept in the build workspace, not published) from the 21OCT26b export's formulas (dump sha256 below), at the inputs listed; every other input is the export's. Written in phase 3 because the frozen 21OCT26b vectors test only row 58. Values: text, or null (blank). Not part of the frozen baseline.",
  "export_dump_sha256": "a3b4ae2a10c18a41161ee0d3b940ddc2dc0cd28ae432d5646a54b64d1c0ca96d",
  "cells": [
   "L49",

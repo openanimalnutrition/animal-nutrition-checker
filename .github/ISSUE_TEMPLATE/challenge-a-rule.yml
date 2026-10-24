@@ -1,0 +1,55 @@
+name: Challenge a rule
+description: Propose a change to one of the checker's rules, with your reasons and sources.
+title: "Challenge: "
+labels: ["challenge"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The checker's rules are the provisional steward's proposal, pending ratification by a
+        governance body. A challenge turns a disagreement into a recorded proposal: the steward
+        answers it here, and the governance body, once formed, decides.
+
+        Everything you write here is public and stays in the record. Cite the standards by
+        table and page, and quote them only in short phrases.
+  - type: input
+    id: rule
+    attributes:
+      label: Which rule
+      description: >-
+        Its name, or a link to the section that states it: docs/changes-from-21OCT26b.md in
+        this repository, or the IG's band computation page.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you propose instead
+    validations:
+      required: true
+  - type: textarea
+    id: reasons
+    attributes:
+      label: Why
+      description: >-
+        Your reasons and sources. Cite each source by table and page, for example
+        "NRC 2006, Table 15-4, p. 359".
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Which animals or requirements it affects
+      description: For example, "adult cats under NRC" or "every AAFCO growth requirement".
+    validations:
+      required: true
+  - type: textarea
+    id: interest
+    attributes:
+      label: Any interest to disclose (optional)
+      description: >-
+        A commercial, employment or research tie that bears on this rule. The steward's own is
+        disclosed in the IG's GOVERNANCE.md:
+        https://github.com/openanimalnutrition/animal-nutrition-ig/blob/main/GOVERNANCE.md
+    validations:
+      required: false

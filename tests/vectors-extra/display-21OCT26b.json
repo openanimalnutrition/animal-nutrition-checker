@@ -1,6 +1,6 @@
 {
  "format": "oan display cases 1",
- "about": "Standards tab cells the real-Sheets check pins only at the export's inputs: row 10 (the caloric restriction), the header cells M2, N2 and C3, the requirement table's energy row (s02 row 4) and the edges shown below each band edge of rows 12, 97, 124, 123, 130, computed by the project's evaluator (nextbuild/eval/sheval_next.py 2026-10-20.1) from the 21OCT26b export's formulas (dump sha256 below), at the inputs listed; every other input is the export's. Written in phase 4. Values: number, text, or null (blank). Not part of the frozen baseline.",
+ "about": "Standards tab cells the real-Sheets check pins only at the export's inputs: row 10 (the caloric restriction), the header cells M2, N2 and C3, the requirement table's energy row (s02 row 4) and the edges shown below each band edge of rows 12, 97, 124, 123, 130, computed by the project's formula evaluator (version 2026-10-20.1, kept in the build workspace, not published) from the 21OCT26b export's formulas (dump sha256 below), at the inputs listed; every other input is the export's. Written in phase 4. Values: number, text, or null (blank). Not part of the frozen baseline.",
  "export_dump_sha256": "a3b4ae2a10c18a41161ee0d3b940ddc2dc0cd28ae432d5646a54b64d1c0ca96d",
  "cases": [
   {

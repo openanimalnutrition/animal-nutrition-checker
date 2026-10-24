@@ -2,7 +2,7 @@
 data of version 21OCT26b.5 (the Standards tab's notes, the standard-derived minimums, the
 known limitations, the conditions and the open minimums).
 
-The steward's answers of 22 Oct 2026 (sean-answers, "Code phase 5") that these tests hold:
+The steward's answers of 22 Oct 2026 that these tests hold:
 deficient below the standard's part of a minimum, including the 31 standard-derived
 minimums, and no verdict (open point 6) below the template's own; both tests at 7 decimal
 places; the approved wording.

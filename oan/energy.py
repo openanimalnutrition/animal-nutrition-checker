@@ -1,10 +1,13 @@
 """Daily energy: each requirement's energy minimum, and the energy the checker uses.
 
-Written from the energy specification (ig-build impl/energy/spec.md, sections 1-5 and 8),
-in nutrition terms. Every figure the standards print is read from data/energy.csv by its id
-(FIGURES below); the shape of each equation, and which requirement uses which equation, is
-here. A requirement whose energy cannot be computed gets a reason code instead of a number
-(REASONS); the code never produces the template's messages or error codes.
+The equations are the standards' (each figure in data/energy.csv cites its table and page); the
+rules are on the IG's band computation page ("Requirements per kg of metabolic body weight",
+"Caloric restriction", "Energy rules proposed for the code version") and in
+docs/changes-from-21OCT26b.md. Written in nutrition terms. Every figure the standards print is
+read from data/energy.csv by its id (FIGURES below); the shape of each equation, and which
+requirement uses which equation, is here. A requirement whose energy cannot be computed gets a
+reason code instead of a number (REASONS); the code never produces the template's messages or
+error codes.
 
 The animal facts are the ones oan/inputs.py accepts, already normalised: None means not
 entered. A blank number of puppies or lactation week counts as 0, as in the template; a

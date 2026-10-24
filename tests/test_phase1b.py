@@ -2,8 +2,8 @@
 
 Run: nice -n 10 python3 -I -B tests/test_phase1b.py
 
-class Semantics has one test per bullet of the template's evaluation semantics (ai1/README.md,
-"Evaluation semantics"), named after it. A bullet the code meets by rejecting the input
+class Semantics has one test per rule of how the template's spreadsheet evaluates its formulas
+(numbers, text, blanks, lookups), named after it. A rule the code meets by rejecting the input
 (the core rejects inputs outside the rules, decision 1 A) is tested by that rejection. Not
 tested, because the code has no such construct: INDEX of a one-row array, IFERROR, and the
 branches IF and AND evaluate; the sheet view renders their results in phase 3.

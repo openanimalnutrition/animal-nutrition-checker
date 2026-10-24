@@ -1,0 +1,48 @@
+name: Report a data error
+description: A value in the checker's data differs from the standard it cites.
+title: "Data error: "
+labels: ["data error"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form when a value in the checker's data differs from the standard it cites.
+        To disagree with a rule instead, use "Challenge a rule".
+
+        Everything you write here is public and stays in the record. Cite the source by table
+        and page, and quote it only in short phrases.
+  - type: input
+    id: requirement
+    attributes:
+      label: Requirement
+      description: As the checker names it, for example "NRC RA Dog Maintenance".
+    validations:
+      required: true
+  - type: input
+    id: nutrient
+    attributes:
+      label: Nutrient
+    validations:
+      required: true
+  - type: input
+    id: checker-value
+    attributes:
+      label: The value in the checker
+      description: >-
+        With its unit, and where you saw it (a result, the GUI, or a file under
+        data/standards/).
+    validations:
+      required: true
+  - type: input
+    id: source-value
+    attributes:
+      label: The value in the source
+      description: With its unit, the standard, the table and the page.
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else (optional)
+    validations:
+      required: false
