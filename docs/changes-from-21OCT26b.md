@@ -21,8 +21,8 @@ version; every result states both (`code_release`, `data_version`).
   Data version 21OCT26b.7; the rules in section 1. Results before it said `0.5.0.dev0`
   whichever rules computed them; their data version tells them apart: 21OCT26b.5, the
   template's rules (22 Oct 2026); 21OCT26b.6, the rules of 23 Oct; 21OCT26b.7, those of 24 Oct.
-- 0.5.1 (24 Oct 2026): data version 21OCT26b.7; the verdicts are unchanged. Two fixes from an
-  AI-read test of 0.5.0 (steward, 24 Oct 2026):
+- 0.5.1 (24 Oct 2026): data version 21OCT26b.7; the verdicts are unchanged. Three fixes from
+  an AI-read test of 0.5.0 (steward, 24 Oct 2026):
   - A minimum this checker raises for a caloric restriction or by the energy factor is no
     longer reported as the standard's own. The status line names the standard's minimum before
     the raise, the factor and the reason, and says whether the value is below the standard's
@@ -31,6 +31,8 @@ version; every result states both (`code_release`, `data_version`).
     food (120 g/Mcal against 72.22, raised to 122.8); the raise is the provisional steward's
     rule, which adds to the standards and does not change them.
   - NRC's fatty acid advice checks no longer count a nutrient that is not entered as 0 (rule 9).
+  - The energy rules text in every result says when each computed range high applies (rules 4
+    and 7); it named the NRC dog choline maximum as computed where it was NRC's 500 mg/Mcal.
 
 ## Where the template's own text is kept
 

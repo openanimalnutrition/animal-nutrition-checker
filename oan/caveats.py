@@ -221,7 +221,8 @@ MBW_ENTRY_TEXT = ("the diet's amount per Mcal, as on the per-Mcal row; the limit
 # was approved the same day, with the steward's wording for growth, gestation and lactation
 # ("fed more energy than it needs to keep its weight stable ..."). On 24 Oct 2026 the steward
 # approved "(fat's and the ratios' excepted)" and the named exceptions to "Maximums do not
-# change per Mcal" (choline, the large-breed puppy calcium row, carbohydrate).
+# change per Mcal" (choline, the large-breed puppy calcium row, carbohydrate), and, the same day
+# after the AI-read test of release 0.5.0, when each of them applies.
 ENERGY_RULES_TEXT = (
     "How energy sets the limits (the provisional steward's rules, proposed, pending "
     "ratification). The reference energy is the energy the standard's per-Mcal figures assume, "
@@ -237,10 +238,12 @@ ENERGY_RULES_TEXT = (
     "the animal is fed more energy than it needs to keep its weight stable and the extra goes "
     "to growth, a pregnancy or milk, nutrient needs rise and fall with the energy fed: per-Mcal "
     "minimums hold at any intake and only a restriction raises them. Maximums do not change "
-    "per Mcal, except the range highs this checker computes from a minimum (the NRC dog "
-    "choline maximum, NRC's large-breed puppy calcium row and the carbohydrate maximum): MBW "
-    "maximums are converted at the reference energy, and a ratio's computed range uses the "
-    "minimums before any restriction or energy factor.")
+    "per Mcal, except three range highs this checker computes from a minimum, which follow it: "
+    "the NRC dog choline maximum, only when 1.1 times the higher choline minimum (per Mcal or "
+    "MBW) is above NRC's 500 mg/Mcal; the range high of NRC's large-breed puppy calcium row, "
+    "only when that row's minimum is above NRC's 4.5 g/Mcal; and the carbohydrate maximum, "
+    "where the standard sets none. MBW maximums are converted at the reference energy, and a "
+    "ratio's computed range uses the minimums before any restriction or energy factor.")
 # The reference energy's basis; the steward approved this wording on 24 Oct 2026. {figure},
 # {exponent}, {species} and {who} are filled in.
 REFERENCE_BASIS = {

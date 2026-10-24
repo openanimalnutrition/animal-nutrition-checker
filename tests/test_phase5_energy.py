@@ -399,8 +399,18 @@ class FatAndRatios(Close):
 
     def test_rules_text(self):
         self.assertIn("(fat's and the ratios' excepted)", caveats.ENERGY_RULES_TEXT)
-        self.assertIn("the NRC dog choline maximum, NRC's large-breed puppy calcium row and the "
-                      "carbohydrate maximum", caveats.ENERGY_RULES_TEXT)
+        # When each computed range high applies (steward, 24 Oct 2026: the AI-read test of
+        # release 0.5.0 found the choline maximum named as computed where it was NRC's 500).
+        self.assertIn("the NRC dog choline maximum, only when 1.1 times the higher choline "
+                      "minimum (per Mcal or MBW) is above NRC's 500 mg/Mcal; the range high of "
+                      "NRC's large-breed puppy calcium row, only when that row's minimum is "
+                      "above NRC's 4.5 g/Mcal; and the carbohydrate maximum, where the standard "
+                      "sets none.", caveats.ENERGY_RULES_TEXT)
+        self.assertEqual(limits.CHOLINE_MAX_OVER_MIN, 1.1)
+        r = request("nrc-dog-adult")
+        self.assertEqual(r.std("choline", "max"), 500.0)
+        self.assertEqual((r.figure("large-breed-puppy-calcium-max"),
+                          r.figure("large-breed-puppy-calcium-max-over-min")), (4.5, 1.1))
 
 
 class Floor(unittest.TestCase):
