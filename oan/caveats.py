@@ -167,6 +167,16 @@ CHECKS = {
                                                      "NRC states as DHA.",
 }
 DHA_NOT_COMPARED = "DHA not compared: this requirement's data has no EPA + DHA minimum."
+# A check that needs a nutrient not entered (outcomes.check_entry; steward, 24 Oct 2026: not
+# counted as 0, as the template did). {missing} is filled in from CHECK_NAMES.
+CHECK_NOT_ENTERED = {
+    "la-ala-ratio": "Not checked: {missing} is not entered. Enter it to compare LA:ALA with "
+                    "NRC's advised ratio.",
+    "epa": "Not checked: {missing} is not entered. Enter it to compare EPA's share of EPA + "
+           "DHA with NRC's advice.",
+}
+CHECK_NAMES = {"linoleic-acid": "LA", "alpha-linolenic-acid": "ALA", "epa": "EPA",
+               "epa-dha": "EPA + DHA"}
 
 # How the entries are read (check_diet's description, describe_inputs).
 ENTRIES_TEXT = ("low and high are the Min and Max entries: for a diet, one value (placed by "

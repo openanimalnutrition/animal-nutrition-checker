@@ -10,6 +10,14 @@ LA:ALA ratio (NRC dog requirements), and EPA's share of EPA + DHA (NRC requireme
 NRC adult cats' DHA minimum. Their figures and the requirements they apply to are in
 data/template.csv; each check reads the low entries together, and the high entries
 together, as the template does.
+
+Under the template's rules (limits.Request template_rules) a nutrient not entered counts as 0,
+as in the template. Under the checker's own rules (steward, 24 Oct 2026, after the AI-read
+test of release 0.5.0, which found "LA:ALA is outside NRC's advised ratio" with ALA not
+entered): a nutrient entered as one value counts on both sides, since the placement rule puts
+a lone EPA on the high side and EPA + DHA on the low; a nutrient entered as a range counts
+low with low and high with high; and a check that needs a nutrient not entered is not
+checked (NOT_ENTERED).
 """
 
 from collections import namedtuple
@@ -67,10 +75,26 @@ CHECKS = {
 Check = namedtuple("Check", "result figures")
 
 
-def _entry(request, nid, side):
-    """An entry for a text check: nothing entered counts as 0, as in the template."""
-    value = request.entries.get(nid, {}).get(side)
-    return 0.0 if value is None else value
+def check_entry(request, nid, side):
+    """An entry for a text check: under the template's rules nothing entered counts as 0, as in
+    the template; otherwise the side's entry, else the nutrient's one value when it has one,
+    else None (not entered)."""
+    given = request.entries.get(nid, {})
+    value = given.get(side)
+    if request.template_rules:
+        return 0.0 if value is None else value
+    if value is None and len(given) == 1:
+        value = next(iter(given.values()))
+    return value
+
+
+# The nutrients each check reads.
+READS = {"la-ala-ratio": ("linoleic-acid", "alpha-linolenic-acid")}
+EPA_READS = ("epa-dha", "epa")
+
+
+def reads(cid):
+    return READS.get(cid, EPA_READS)
 
 
 def _la_ala(la, ala, low, high):
@@ -127,12 +151,14 @@ def checks(request):
 
 
 def _check(cid, request, side, figures):
+    values = [check_entry(request, nid, side) for nid in reads(cid)]
+    if None in values:
+        return NOT_ENTERED
     if cid == "la-ala-ratio":
         low = figures["la-ala-ratio-low"]
         high = next(v for k, v in figures.items() if k in limits.LA_ALA_HIGH)
-        return _la_ala(_entry(request, "linoleic-acid", side),
-                       _entry(request, "alpha-linolenic-acid", side), low, high)
-    total, epa = _entry(request, "epa-dha", side), _entry(request, "epa", side)
+        return _la_ala(values[0], values[1], low, high)
+    total, epa = values
     if cid == "epa-share-max":
         return _epa_share_max(total, epa, figures["epa-share-max"])
     if cid == "epa-share-range":

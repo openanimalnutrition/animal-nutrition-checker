@@ -433,10 +433,9 @@ def _checks(data, check, entries):
     request = check.request
     if request.requirement is None:
         return []
-    reads = {"la-ala-ratio": ("linoleic-acid", "alpha-linolenic-acid")}
     out = []
     for cid, sides in outcomes.checks(request).items():
-        nids = reads.get(cid, ("epa-dha", "epa"))
+        nids = outcomes.reads(cid)
         if not any(n in entries for n in nids):
             continue
         figures = sides["low"].figures
@@ -453,8 +452,16 @@ def _checks(data, check, entries):
         item = {"id": cid, "status": caveats.CHECK_STATUS, "reads": list(nids),
                 "figures": figures}
         for side in ("low", "high"):
-            if not any(entries.get(n, {}).get(side) is not None for n in nids):
+            missing = [n for n in nids if outcomes.check_entry(request, n, side) is None]
+            if len(missing) == len(nids):
                 item[side] = {"result": "not-entered", "text": None}
+                continue
+            if missing:
+                # A nutrient the check needs is not entered: not checked (steward, 24 Oct 2026).
+                item[side] = {"result": outcomes.NOT_ENTERED, "text": caveats.fill(
+                    caveats.CHECK_NOT_ENTERED["la-ala-ratio" if cid == "la-ala-ratio" else
+                                              "epa"],
+                    {"missing": " and ".join(caveats.CHECK_NAMES[n] for n in missing)})}
                 continue
             result = sides[side].result
             text = caveats.CHECKS.get((cid, result))
