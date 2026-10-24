@@ -276,6 +276,7 @@ class Request:
         # factor (steward, 24 Oct 2026); see ratio_source.
         self.scale_minimums = True
         self._unscaled = None
+        self._without_dry_matter = None
 
     # Figures and lookups.
 
@@ -479,6 +480,27 @@ class Request:
         if self.data["limits"][self.requirement["id"]][nid]["min_rule"] == "template":
             return None
         return m
+
+    def dry_matter_raised(self, nid):
+        """Whether the AAFCO dry matter factor raises this row's minimum or maximum: each
+        compared with the same request without the energy density entered, where the factor
+        is 1 (steward, 24 Oct 2026: the dry matter condition on every row the factor raises)."""
+        a = self.aafco_factor
+        if self.requirement is None or not (number(a) and a > 1) or \
+                (nid not in self.nutrients and nid not in ROWS):
+            return False
+        if self._without_dry_matter is None:
+            entries = {k: v for k, v in self.entries.items() if k != "energy-density"}
+            self._without_dry_matter = Request(self.data, self.requirement["id"], self.facts,
+                                               entries, template_rules=self.template_rules)
+            self._without_dry_matter.scale_minimums = self.scale_minimums
+        other = self._without_dry_matter
+        for mine, theirs in ((self.minimum(nid), other.minimum(nid)),
+                             (self.maximum(nid), other.maximum(nid))):
+            if number(mine) and number(theirs) and mine > theirs and \
+                    not numbers.close(mine, theirs):
+                return True
+        return False
 
     def minimum_raise(self, nid):
         """How this checker raises the standard's minimum (standard_minimum) for a caloric

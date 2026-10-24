@@ -75,6 +75,9 @@ version; every result states both (`code_release`, `data_version`).
   From a fourth test (again no misreading): `outcomes_text` adds that on a row with no maximum
   a band places a value within the minimum × K span, not against a limit; and on such a row
   `comparison_to_max` is `above_range_high` or `not_above_range_high`.
+  From a fifth test (again no misreading): the dry matter condition (`dry-matter-basis`) is on
+  every row the AAFCO dry matter factor raises, minimum or maximum, not only on rows with an
+  AAFCO maximum.
 
 ## Where the template's own text is kept
 

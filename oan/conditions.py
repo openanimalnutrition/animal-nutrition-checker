@@ -17,7 +17,7 @@ WHEN = (
     "mature-weight-over-15-or-not-entered",
     "energy-density-not-entered",
     "aafco-factor-above-1",
-    "aafco-maximum-factor-above-1",
+    "aafco-dry-matter-raised",
     "default-minimum",
     "protein-not-entered",
     "moisture-rows-differ",
@@ -57,11 +57,11 @@ def _when(text, request, nid, lim):
         return not (mw is not None and 0 < mw <= 15)
     if text == "energy-density-not-entered":
         return request.low("energy-density") is None and request.aafco_raises(nid)
-    if text in ("aafco-factor-above-1", "aafco-maximum-factor-above-1"):
+    if text == "aafco-factor-above-1":
         f = request.aafco_factor
-        if not (limits.number(f) and f > 1):
-            return False
-        return text == "aafco-factor-above-1" or lim.max_code == "AAFCO"
+        return limits.number(f) and f > 1
+    if text == "aafco-dry-matter-raised":
+        return request.dry_matter_raised(nid)
     if text == "default-minimum":
         return request.std(nid, "min") is None
     if text in ("moisture-rows-differ", "moisture-rows-same"):

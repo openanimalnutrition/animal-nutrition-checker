@@ -305,6 +305,15 @@ class Verdicts(unittest.TestCase):
         self.assertIsNone(self.entry(res, "calcium", "high")["verdict"])
         self.assertIn("dry-matter-basis", [c["id"] for c in n["conditions"]])
         self.assertEqual(nutrient(res, "ca-p-ratio")["maximum"], 2.0)
+        # On every row the factor raises, minimum or maximum (steward, 24 Oct 2026); none at
+        # 4 kcal/g DM or more, and not on a ratio.
+        res = run(rid, {"protein": 60, "fat": 20, "ca-p-ratio": 1.5, "energy-density": 3.5})
+        for nid, shown in (("protein", True), ("fat", True), ("ca-p-ratio", False)):
+            self.assertEqual("dry-matter-basis" in [c["id"] for c in nutrient(res, nid)[
+                "conditions"]], shown, nid)
+        res = run(rid, {"protein": 60, "energy-density": 4.2})
+        self.assertNotIn("dry-matter-basis",
+                         [c["id"] for c in nutrient(res, "protein")["conditions"]])
         e = self.entry(run(rid, {"calcium": {"high": 7.5}, "energy-density": 3.5}),
                        "calcium", "high")
         self.assertEqual(e["verdict"], "excess")
