@@ -653,7 +653,7 @@ MAX_NOTE_IDS = 50
 
 def get_notes(data, request):
     """The texts of notes, by id (at most MAX_NOTE_IDS), with the tab and cell of the template
-    each comes from, in the envelope."""
+    each comes from or was adapted from, in the envelope."""
     if not isinstance(request, dict) or set(request) != {"ids"} or \
             not isinstance(request["ids"], list):
         raise RequestError('get_notes takes {"ids": [note ids]}')
