@@ -397,6 +397,101 @@ def energy_used(requirement, intake_kcal):
     return requirement
 
 
+# The steward's energy rules (23 Oct 2026; proposed, pending ratification). The template's
+# own rules use energy_used() alone (oan/limits.py, template_rules).
+#
+# The reference energy is the energy a standard's per-Mcal figures assume, at the current
+# body weight: what "below what the standard expected" is measured against. The adult dog
+# and cat types never set it: NRC's adult dog average for NRC and AAFCO dogs, NRC's lean
+# adult cat for NRC and AAFCO cats (AAFCO states no energy basis), FEDIAF's stated MER; any
+# other requirement, the equation this checker uses for its life stage (the energy row's: for
+# AAFCO growth, AVCN Box 3.1; for FEDIAF Cat Growth, NRC's kitten equation), with no adult type.
+REFERENCE_FIGURES = {
+    _nrc_dog_maintenance: ("nrc-dog-maintenance-average", "nrc-dog-exponent"),
+    _nrc_cat_maintenance: ("nrc-cat-maintenance-lean", "nrc-cat-exponent"),
+}
+# The adult maintenance rules: the only ones an optimal body weight applies to.
+ADULT_RULES = (_nrc_dog_maintenance, _nrc_cat_maintenance, _fediaf_adult)
+
+
+def reference_energy(data, requirement_id, facts):
+    """The requirement's reference energy (kcal a day) at the current body weight, or the
+    reason it has none."""
+    if facts.get("body_weight_kg") is None:
+        return _reason("body-weight-needed")
+    requirement = next(r for r in data["requirements"] if r["id"] == requirement_id)
+    rule = RULES[requirement_id]
+    a = _Animal(data, requirement, facts)
+    if rule in REFERENCE_FIGURES:
+        figure, exponent = REFERENCE_FIGURES[rule]
+        return _value(a.f(figure) * a.mbw(exponent))
+    a.dog_type = a.cat_type = None
+    return rule(a)
+
+
+def reference_basis(data, requirement_id):
+    """(the standard whose basis is used, its figure in kcal per kg BW^n, n), or None where the
+    reference is the equation this checker uses for the life stage."""
+    requirement = next(r for r in data["requirements"] if r["id"] == requirement_id)
+    rule = RULES[requirement_id]
+    if rule in REFERENCE_FIGURES:
+        figure, exponent = REFERENCE_FIGURES[rule]
+        return ("NRC", float(data["energy"][figure]["figure"]),
+                float(data["energy"][exponent]["figure"]))
+    if rule is _fediaf_adult:
+        exponent = "fediaf-dog-exponent" if requirement["species"] == "canine" else \
+            "fediaf-cat-exponent"
+        return ("FEDIAF", float(requirement["mer_kcal_per_mbw"]),
+                float(data["energy"][exponent]["figure"]))
+    return None
+
+
+def optimal_weight_status(requirement_id, facts):
+    """Whether an entered optimal body weight is used: None when none is entered, else "used",
+    "not-adult" (the requirement is not adult maintenance), "intake-entered" (the intake is
+    the energy fed) or "not-below-current" (at or above the current body weight)."""
+    optimal, current = facts.get("optimal_body_weight_kg"), facts.get("body_weight_kg")
+    if optimal is None:
+        return None
+    if RULES[requirement_id] not in ADULT_RULES:
+        return "not-adult"
+    if facts.get("energy_intake_kcal_per_day") is not None:
+        return "intake-entered"
+    if current is None or not optimal < current:
+        return "not-below-current"
+    return "used"
+
+
+def optimal_weight_energy(data, requirement_id, facts):
+    """The requirement's maintenance energy at the optimal body weight; for NRC and AAFCO
+    cats, NRC's lean equation whichever cat type is chosen (a cat at its optimal weight is
+    lean; steward, 23 Oct 2026)."""
+    requirement = next(r for r in data["requirements"] if r["id"] == requirement_id)
+    rule = RULES[requirement_id]
+    a = _Animal(data, requirement, dict(facts, body_weight_kg=facts["optimal_body_weight_kg"]))
+    if rule is _nrc_cat_maintenance:
+        return _value(a.f("nrc-cat-maintenance-lean") * a.mbw("nrc-cat-exponent"))
+    return rule(a)
+
+
+def energy_fed(data, requirement_id, facts, requirement):
+    """The energy the animal is fed: the intake when one is entered (a restriction entered
+    with it says how far below the need that intake is); else the requirement's energy, at
+    the optimal body weight when that is used, less the restriction.
+
+    requirement: the requirement's energy at the current body weight (requirement_energy)."""
+    intake = facts.get("energy_intake_kcal_per_day")
+    if intake is not None:
+        return _value(intake)
+    base = requirement
+    if optimal_weight_status(requirement_id, facts) == "used":
+        base = optimal_weight_energy(data, requirement_id, facts)
+    restriction = facts.get("caloric_restriction_percent") or 0
+    if base.kcal is None or not restriction > 0:
+        return base
+    return _value(base.kcal * (1 - restriction / 100))
+
+
 def range_high(data, energy_kcal):
     """The top of the energy row's range: the energy used x the template's factor."""
     return energy_kcal * float(data["energy"]["energy-range-high"]["figure"])

@@ -142,7 +142,7 @@ class Server(unittest.TestCase):
         page = self.http.post("/check", data=dict(form_of(REQUEST))).text
         self.assertIn("<details><summary>Notes (", page)
         self.assertIn("<h3>Animal and energy</h3>", page)
-        self.assertIn("body weight kg: 20", page)
+        self.assertIn("Current body weight (kg): 20", page)
         self.assertIn("Energy used, kcal/day:", page)
         self.assertIn("NRC RA Dog Maintenance sets no calcium maximum", page)
         first = page.index("Caveats")

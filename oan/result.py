@@ -266,26 +266,36 @@ def _mbw(data, request, nid, lim, unit):
     it was converted with, and a line saying so; None on other rows or when not computed."""
     if not nid.endswith("-mbw") or request.requirement is None or lim is None:
         return None
-    factor = request.mbw_factor
-    if not limits.number(factor) or not (limits.number(lim.minimum) or
-                                         limits.number(lim.maximum)):
+    bounds = [b for b in ("minimum", "maximum") if limits.number(getattr(lim, b))]
+    factors = {b: request.mbw_factor(b, nid) for b in bounds}
+    if not bounds or not all(limits.number(f) for f in factors.values()):
         return None
     n = next((x for x in data.tables["nutrients"] if x["id"] == nid), None)
     amount = n["amount"] if n is not None else "IU"
     mbw_unit = "%s/%s" % (amount, table.MBW_BASIS[request.requirement["species"]])
-    per = {}
-    for bound in ("minimum", "maximum"):
-        x = getattr(lim, bound)
-        per[bound] = float(numbers.to_text(x / factor)) if limits.number(x) else None
+    per = {"minimum": None, "maximum": None}
+    for bound in bounds:
+        per[bound] = float(numbers.to_text(getattr(lim, bound) / factors[bound]))
     figures = ", ".join("%s %s %s (%s %s)" % (
         bound, numbers.to_text(per[bound]), mbw_unit, numbers.to_text(getattr(lim, bound)), unit)
-        for bound in ("minimum", "maximum") if per[bound] is not None)
-    kcal, bw = request.energy.kcal, request.facts["body_weight_kg"]
-    text = caveats.MBW_TEXT.format(mbw_unit=mbw_unit.split("/", 1)[1], figures=figures,
-                                   unit=unit, kcal=numbers.to_text(kcal),
-                                   bw=numbers.to_text(bw))
+        for bound in bounds)
+    kcal = {b: request.mbw_energy(b, nid).kcal for b in bounds}
+    bw = request.facts["body_weight_kg"]
+    fill = {"mbw_unit": mbw_unit.split("/", 1)[1], "figures": figures, "unit": unit,
+            "bw": numbers.to_text(bw)}
+    if len(set(kcal.values())) == 1:
+        text = caveats.MBW_TEXT.format(kcal=numbers.to_text(kcal[bounds[0]]), **fill)
+    else:
+        which = "used" if nid in limits.MBW_NOT_RAISED and \
+            kcal["minimum"] != request.energy_fed.kcal else "fed"
+        text = caveats.MBW_TEXT_TWO_ENERGIES.format(
+            minimum_energy=caveats.MBW_MINIMUM_ENERGY[which],
+            minimum_kcal=numbers.to_text(kcal["minimum"]), ref=numbers.to_text(kcal["maximum"]),
+            **fill)
     return {"unit": mbw_unit, "minimum": per["minimum"], "maximum": per["maximum"],
-            "energy_kcal_per_day": kcal, "body_weight_kg": bw, "text": text}
+            "minimum_energy_kcal_per_day": kcal.get("minimum"),
+            "maximum_energy_kcal_per_day": kcal.get("maximum"),
+            "body_weight_kg": bw, "text": text}
 
 
 def _nutrient(data, check, nid, entries):
@@ -341,7 +351,8 @@ def _nutrient(data, check, nid, entries):
         out[side] = interpret.entry(value, outcome, lim, standard_min, provenance, open_row,
                                     standard, k, reason_text,
                                     energy_row=nid == inputs.ENERGY_ENTRY,
-                                    restricted=request.restricted)
+                                    restricted=request.restricted,
+                                    optimal_weight=request.optimal_status == "used")
         no_max = out["requirement_maximum"]
         if no_max and not no_max["set"] and \
                 out[side]["comparison_to_max"] == interpret.ABOVE_NON_AUTHORITATIVE_MAX:
@@ -418,6 +429,7 @@ def _factors(check):
     need = request.energy_requirement
     used = request.energy
     shortfall = request.intake_shortfall if request.requirement is not None else None
+    ref, fed = request.energy_reference, request.energy_fed
     return {
         "caloric_restriction_percent": facts.get("caloric_restriction_percent"),
         "restriction_factor": request.restriction_factor,
@@ -430,7 +442,71 @@ def _factors(check):
         "energy_reason": None if used.kcal is not None else {
             "reason": used.reason, "text": _reason_text(used.reason)},
         "intake_shortfall": shortfall,
+        "reference_energy_kcal_per_day": ref.kcal,
+        "reference_energy_basis": _reference_basis_text(check),
+        "energy_fed_kcal_per_day": fed.kcal,
+        "energy_fed_is": _energy_fed_is(request),
+        "energy_factor": request.energy_factor if request.requirement is not None else None,
+        "optimal_body_weight": None if request.optimal_status is None else {
+            "status": request.optimal_status,
+            "text": caveats.OPTIMAL_WEIGHT_STATUS[request.optimal_status]},
+        "energy_rules": caveats.ENERGY_RULES_TEXT,
     }
+
+
+def _reference_basis_text(check):
+    """The reference energy's basis in words (steward, 23 Oct 2026: the notation of what the
+    reference is and what it determines)."""
+    req = check.req
+    if req is None:
+        return None
+    basis = energy.reference_basis(check.data.tables, req["id"])
+    if basis is None:
+        return caveats.REFERENCE_BASIS["life-stage"]
+    standard, figure, exponent = basis
+    key = standard if standard == req["standard"] else "%s-for-%s" % (standard, req["standard"])
+    dog = req["species"] == "canine"
+    return caveats.REFERENCE_BASIS[key].format(
+        figure=numbers.to_text(figure), exponent=numbers.to_text(exponent),
+        species="dog" if dog else "cat", who="average adult dog" if dog else "lean adult cat")
+
+
+# The energy fed may not be below this share of the reference energy (steward, 23 Oct 2026).
+ENERGY_FED_FLOOR = 0.10
+
+
+def _guard_energy_fed(data, req, facts, report):
+    """Rejects the input that puts the energy fed below ENERGY_FED_FLOOR of the reference: the
+    intake when one is entered, else the optimal body weight, else the restriction."""
+    if req is None:
+        return
+    for _ in range(3):
+        r = limits.Request(data.tables, req["id"], facts, {})
+        ref, fed = r.energy_reference.kcal, r.energy_fed.kcal
+        if ref is None or fed is None or fed >= ENERGY_FED_FLOOR * ref:
+            return
+        if facts.get("energy_intake_kcal_per_day") is not None:
+            field = "energy_intake_kcal_per_day"
+        elif r.optimal_status == "used":
+            field = "optimal_body_weight_kg"
+        else:
+            field = "caloric_restriction_percent"
+        facts.pop(field)
+        report.append({"input": "animal." + field, "status": "rejected",
+                       "reason": "energy-fed-below-floor",
+                       "text": caveats.ENERGY_FED_FLOOR_TEXT.format(
+                           fed=numbers.to_text(fed), ref=numbers.to_text(ref),
+                           floor=numbers.to_text(ENERGY_FED_FLOOR * 100))})
+
+
+def _energy_fed_is(request):
+    if request.energy_fed.kcal is None:
+        return None
+    if request.facts.get("energy_intake_kcal_per_day") is not None:
+        return "the intake entered"
+    base = "the energy at the optimal body weight" if request.optimal_status == "used" \
+        else "the requirement's energy"
+    return base + (" less the restriction" if request.restricted else "")
 
 
 def _missing(report, nutrients):
@@ -476,6 +552,7 @@ def _limitations(data, nutrients):
 def check(data, request):
     """The Result of check_diet for a request (a dict, as parsed from JSON)."""
     req, facts, raw, subject, report = _parse(data, request)
+    _guard_energy_fed(data, req, facts, report)
     entries, bare = _accept_entries(data, raw, report)
     c = _Check(data, req, facts, {})
     _place_bare(c, entries, bare, report)
@@ -512,6 +589,7 @@ def get_limits(data, request):
     if "entries" in request:
         raise RequestError("get_limits takes no entries; use check_diet")
     req, facts, _, subject, report = _parse(data, request)
+    _guard_energy_fed(data, req, facts, report)
     c = _Check(data, req, facts, {})
     order = [inputs.ENERGY_ENTRY] + limits.nutrient_ids(data.tables)
     nutrients = [_nutrient(data, c, nid, {}) for nid in order]
@@ -561,6 +639,8 @@ def facts_read(data, rid):
                 read.add(f)
     if limits.applies(tables["template"]["calcium-large-breed-puppy"], req):
         read.add("puppy_body_weight_kg")
+    if energy.RULES[rid] in energy.ADULT_RULES:
+        read.add("optimal_body_weight_kg")
     if any(row["min_rule"] == "fediaf-late-growth-by-mature-weight" or
            row["max_rule"] == "fediaf-late-growth-by-mature-weight"
            for row in tables["limits"][rid].values()):
@@ -573,7 +653,7 @@ MAX_NOTE_IDS = 50
 
 def get_notes(data, request):
     """The texts of notes, by id (at most MAX_NOTE_IDS), with the tab and cell of the template
-    each comes from, in the envelope."""
+    each comes from or was adapted from, in the envelope."""
     if not isinstance(request, dict) or set(request) != {"ids"} or \
             not isinstance(request["ids"], list):
         raise RequestError('get_notes takes {"ids": [note ids]}')
@@ -605,6 +685,8 @@ def describe_inputs(data):
         if name == "requirement":
             continue
         item = {"name": name, "kind": kind}
+        if name in caveats.FACT_TEXTS:
+            item["label"], item["description"] = caveats.FACT_TEXTS[name]
         if kind in ("number", "whole", "restriction"):
             item["range"] = list(rule)
         elif kind == "life-stage":

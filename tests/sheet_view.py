@@ -240,8 +240,9 @@ class StandardsView:
                 raise OutsideRule("%s: %s" % (cell, verdict.reason))
         self.energy = EnergyView(data, energy_cells)
         self.name = self.facts.get("requirement")
+        # The template's own rules: the sheet view reproduces Version 21OCT26b (parity).
         self.request = limits.Request(data, self.energy.requirement_id, self.facts,
-                                      self.entries)
+                                      self.entries, template_rules=True)
         self.table = TableView(data, self.facts.get("mature_weight_kg"))
         self.nutrients = {n["id"]: n for n in data["nutrients"]}
         self._energy_cells = None

@@ -45,8 +45,9 @@ def animal_schema(data):
         if name == "requirement":
             continue
         if kind in ("number", "whole", "restriction"):
-            props[name] = {"type": "number", "description": "range %s to %s%s" % (
-                rule[0], rule[1], " (or 0 for none)" if kind == "restriction" else "")}
+            props[name] = {"type": "number", "description": "range %s to %s%s%s" % (
+                rule[0], rule[1], " (or 0 for none)" if kind == "restriction" else "",
+                ". " + caveats.FACT_TEXTS[name][1] if name in caveats.FACT_TEXTS else "")}
         elif kind == "life-stage":
             props[name] = {"type": "string", "enum": list(rule)}
         else:
@@ -73,17 +74,18 @@ def tools(data):
         ("get_limits", "Every nutrient's minimum, maximum, range high and the kind of maximum, "
          "with conditions and note ids, for a requirement and animal.",
          {"requirement": requirement, "animal": animal_schema(data)}, ["requirement"]),
-        ("check_diet", "Compares nutrient values (per Mcal, or per kg of metabolic body weight "
-         "on MBW rows) of a diet or a requirement range with a requirement: band, proposed "
-         "verdict (deficient, excess or none), conditions and notes per nutrient. " +
+        ("check_diet", "Compares nutrient values of a diet or a requirement range with a "
+         "requirement, every entry per Mcal, on metabolic body weight (MBW) rows too (their "
+         "limits are converted to per Mcal): band, proposed verdict (deficient, excess or none), "
+         "conditions and notes per nutrient. " +
          caveats.ENTRIES_TEXT + " The energy entry is " + caveats.ENERGY_ENTRY_TEXT,
          {"requirement": requirement, "animal": animal_schema(data),
           "entries": {"type": "object", "additionalProperties": entry,
                       "description": "{nutrient id: number, or {low, high}} (describe_inputs)"},
           "subject": {"type": "string", "enum": list(result.SUBJECTS)}},
          ["requirement", "entries"]),
-        ("get_notes", "The texts of the template's notes, by the note ids a result gives, with "
-         "the tab and cell each comes from.",
+        ("get_notes", "The texts of the checker's notes, by the note ids a result gives, with "
+         "the template tab and cell each comes from or was adapted from.",
          {"ids": {"type": "array", "items": {"type": "string"}, "minItems": 1,
                   "maxItems": result.MAX_NOTE_IDS}}, ["ids"]),
     ]

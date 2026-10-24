@@ -58,6 +58,9 @@ STATUS = {
                              "6).",
     "energy-restriction": "The caloric restriction raises the nutrient minimums; it does not "
                           "lower this energy estimate.",
+    "energy-optimal-weight": "Feeding the energy at the optimal body weight raises the nutrient "
+                             "minimums; it does not lower this estimate, which is for the "
+                             "current body weight.",
     "within": "Within the range.",
     "excess": "Above {kind}: excess (proposed, pending ratification).",
     "above-conditional": "Above {kind}: conditional, not excess.",
@@ -118,10 +121,84 @@ ENERGY_ENTRY_TEXT = ("the energy the diet supplies, kcal per day; to replace the
 # per Mcal with the animal's energy and body weight; entries are per Mcal (steward, 22 Oct
 # 2026: the template's column D label "g/kg BW^0.75" misread as the entry's unit).
 MBW_TEXT = ("This row's requirement is per {mbw_unit} a day: {figures}, converted to {unit} at "
-            "{kcal} kcal/day and a body weight of {bw} kg. Enter the diet's {unit}.")
+            "{kcal} kcal/day and a current body weight of {bw} kg. Enter the diet's {unit}.")
+# Draft, 23 Oct 2026, pending the steward's approval: the minimum at the energy fed, the maximum
+# at the reference energy (ENERGY_RULES_TEXT).
+MBW_TEXT_TWO_ENERGIES = ("This row's requirement is per {mbw_unit} a day: {figures}, converted "
+                         "to {unit} at a current body weight of {bw} kg, the minimum at "
+                         "{minimum_energy} ({minimum_kcal} kcal/day) and the maximum at the "
+                         "reference energy ({ref} kcal/day). Enter the diet's {unit}.")
+# The energy an MBW minimum is converted at (limits.MBW_NOT_RAISED: steward, 23 Oct 2026).
+MBW_MINIMUM_ENERGY = {
+    "fed": "the energy fed",
+    "used": "the energy with no caloric restriction or optimal body weight applied, as fat per "
+            "se is not essential",
+}
 MBW_ENTRY_TEXT = ("the diet's amount per Mcal, as on the per-Mcal row; the limits are the "
-                  "requirement's per kg BW^0.75 (dogs) or BW^0.67 (cats) a day, converted with "
-                  "the animal's energy and body weight.")
+                  "requirement's per kg BW^0.75 (dogs) or BW^0.67 (cats) a day at the current "
+                  "body weight, the minimum converted at the energy fed (fat's with no caloric "
+                  "restriction or optimal body weight applied) and the maximum at the "
+                  "reference energy.")
+
+# The steward's energy rules (23 Oct 2026); the steward approved this wording on 23 Oct 2026,
+# and the fat exception ("except fat's ... optimal body weight", decision D1) the same day.
+# The adult-maintenance-only sentence ("Under adult maintenance ... raises them", decision D3)
+# was approved the same day, with the steward's wording for growth, gestation and lactation
+# ("fed more energy than it needs to keep its weight stable ...").
+ENERGY_RULES_TEXT = (
+    "How energy sets the limits (the provisional steward's rules, proposed, pending "
+    "ratification). The reference energy is the energy the standard's per-Mcal figures assume, "
+    "at the current body weight. The energy fed is the intake entered, or else the "
+    "requirement's energy (at the optimal body weight when that is used) less any caloric "
+    "restriction. MBW minimums are converted to per Mcal at the energy fed, so the diet still "
+    "supplies the daily amount per kg BW^0.75 (dogs) or BW^0.67 (cats), except fat's: fat per "
+    "se is not essential, so neither fat row takes a restriction or an optimal body weight. "
+    "Under adult maintenance requirements, on a row with no MBW minimum, the per-Mcal minimum "
+    "is multiplied by the energy factor, the reference energy divided by the energy fed (at "
+    "least 1, and at least the restriction's factor); in growth, gestation and lactation, where "
+    "the animal is fed more energy than it needs to keep its weight stable and the extra goes "
+    "to growth, a pregnancy or milk, nutrient needs rise and fall with the energy fed: per-Mcal "
+    "minimums hold at any intake and only a restriction raises them. Maximums do not change "
+    "per Mcal: MBW maximums are converted at the reference energy.")
+# Draft, 23 Oct 2026, pending the steward's approval: the reference energy's basis. {figure},
+# {exponent}, {species} and {who} are filled in.
+REFERENCE_BASIS = {
+    "NRC": "NRC's {who} energy, {figure} kcal x kg BW^{exponent} at the current body weight: "
+           "the energy NRC's per-Mcal figures assume. The adult {species} type chosen sets only "
+           "the energy fed.",
+    "NRC-for-AAFCO": "NRC's {who} energy, {figure} kcal x kg BW^{exponent} at the current body "
+                     "weight. AAFCO states no energy basis; using NRC's is the provisional "
+                     "steward's proposal, pending ratification. The adult {species} type chosen "
+                     "sets only the energy fed.",
+    "FEDIAF": "FEDIAF's stated MER for this requirement, {figure} kcal x kg BW^{exponent} at the "
+              "current body weight.",
+    "life-stage": "The energy equation this checker uses for this requirement's life stage (the "
+                  "energy row's; see the requirement's energy notes), at the current body "
+                  "weight; an adult dog or cat type, if chosen, is not used.",
+}
+# Draft, 23 Oct 2026, pending the steward's approval (also ENERGY_FED_FLOOR_TEXT).
+OPTIMAL_WEIGHT_STATUS = {
+    "used": "Used: the energy fed is the requirement's energy at the optimal body weight (for "
+            "NRC and AAFCO cats, NRC's lean equation), less any caloric restriction.",
+    "not-adult": "Not used: an optimal body weight applies only to adult maintenance "
+                 "requirements.",
+    "intake-entered": "Not used: an intake is entered, and the intake is the energy fed.",
+    "not-below-current": "Not used: it is not below the current body weight.",
+}
+ENERGY_FED_FLOOR_TEXT = ("Not used: the energy fed would be {fed} kcal/day, below {floor}% of the "
+                         "reference energy ({ref} kcal/day). Check the entry.")
+# Labels and descriptions of animal facts (describe_inputs, the GUI). The steward approved the
+# optimal body weight wording on 23 Oct 2026; the current body weight wording is a draft.
+FACT_TEXTS = {
+    "body_weight_kg": ("Current body weight (kg)",
+                       "The animal's current body weight; for lactating queens, the body "
+                       "weight at mating."),
+    "optimal_body_weight_kg": ("Optimal body weight (kg), optional",
+                               "Only if you will feed the energy calculated at the optimal "
+                               "weight. The minimums then rise so that the diet still supplies "
+                               "the daily amounts for the current body weight. Adult "
+                               "maintenance only; not used when an intake is entered."),
+}
 
 # A requirement that sets no maximum for a nutrient, on either basis (steward, 22 Oct 2026: AI
 # readers brought in other standards' or life stages' limits from memory).
@@ -131,7 +208,8 @@ NO_MAXIMUM_TEXT = ("{requirement} sets no {nutrient} maximum{basis}; limits from
 # Reasons in plain words.
 REASONS = {
     "requirement-needed": "Choose a requirement.",
-    "body-weight-needed": "Enter the body weight (for adults, the optimal body weight).",
+    "body-weight-needed": "Enter the current body weight (for lactating queens, the body weight "
+                          "at mating).",
     "adult-dog-type-needed": "Choose the type of adult dog.",
     "adult-cat-type-needed": "Choose the type of adult cat.",
     "mature-weight-needed": "Enter the expected mature body weight.",

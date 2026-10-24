@@ -46,7 +46,7 @@ def kind(code, provenance):
 
 
 def entry(value, outcome, lim, standard_minimum, provenance, open_minimum, standard, k,
-          reason_text, energy_row=False, restricted=False):
+          reason_text, energy_row=False, restricted=False, optimal_weight=False):
     """The interpretation of one entry, as a dict in the Result's order.
 
     value: the entry (a number); outcome: outcomes.Outcome; lim: limits.Limits;
@@ -54,7 +54,8 @@ def entry(value, outcome, lim, standard_minimum, provenance, open_minimum, stand
     maxProvenance; open_minimum: the open-minimums.csv row that applies, or None; standard:
     the requirement's standard (NRC, AAFCO, FEDIAF); k: the multiplier of a K range high;
     reason_text: the plain words of an unavailable outcome's reason; energy_row: the energy
-    row, whose minimum is an estimate; restricted: a caloric restriction is entered."""
+    row, whose minimum is an estimate; restricted: a caloric restriction is entered;
+    optimal_weight: the energy fed is the energy at the optimal body weight."""
     out = {"value": value, "outcome": outcome.code, "outcome_reason": outcome.reason,
            "comparison_to_min": None, "comparison_to_max": None, "verdict": None,
            "verdict_status": caveats.VERDICT_STATUS, "open_reason": None, "status": None}
@@ -94,6 +95,8 @@ def entry(value, outcome, lim, standard_minimum, provenance, open_minimum, stand
         out["open_reason"] = OPEN_POINT_6
         if energy_row:
             lines.append(caveats.STATUS["energy-below-estimate"])
+            if optimal_weight:
+                lines.append(caveats.STATUS["energy-optimal-weight"])
             if restricted:
                 lines.append(caveats.STATUS["energy-restriction"])
         else:

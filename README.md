@@ -34,6 +34,8 @@ the Open Animal Nutrition organisation.
 | `tools/` (other) | The one-time converters from the template (the table, the export's cell values), the source finder, the validator runner |
 | `.github/workflows/checks.yml` | Runs `tools/check.py` on every pull request and on main (not yet run on GitHub) |
 | `docs/parity-21OCT26b.md` | The parity gate: what was compared with the template, and every difference with its reason |
+| `docs/changes-from-21OCT26b.md` | Where the checker's rules and notes now differ from the template, and why |
+| `docs/template-21OCT26b-notes.csv` | The template's 301 notes word for word (the record the adapted notes are checked against) |
 | `tests/parity/` | The frozen 21OCT26b baseline: a copy of the data, the test vectors, the export's cell values, `SHA256SUMS` |
 | `tests/run_vectors.py` | Runs every test vector against the baseline (both orders) and counts them per file |
 | `tests/real_sheets_check.py` | The one check against Google Sheets' own values: the released template's export |
@@ -112,6 +114,7 @@ Version 21OCT26b. The frozen baseline in `tests/parity/` is never edited.
 | 21OCT26b.3 | `energy.csv`: the energy figures of 21OCT26b, moved from the template's formulas into data with a source for each (steward, 21 Oct 2026). No value changed |
 | 21OCT26b.5 | The Standards tab's 133 notes (n169-n301), and every note's tab and cell; the 31 minimums the template takes from NRC's own figure by NRC's own rule get the rule `standard-derived` (the 29 NRC RA Cat Late Gestation MBW minimums by Table 15-14 footnote d, and pantothenic acid 1.44 mg/Mcal under both NRC queen selections); `limitations.csv`, `conditions.csv`, `open-minimums.csv` (steward, 22 Oct 2026). No value changed |
 | 21OCT26b.4 | `template.csv`: the template's own figures and its four extra rows, moved from the Standards tab's formulas into data with a source for each (steward, 21 Oct 2026). No value changed |
+| 21OCT26b.6 | `notes.csv`: the notes describe the checker, not the spreadsheet: 224 adapted (cells to field names, cross-references to note ids, the rules of 23 Oct 2026), 3 deleted (n169, n174, n186); each change and its reason in `docs/changes-from-21OCT26b.md` (steward, 23 Oct 2026). No value changed |
 
 The frozen baseline gained the same `energy.csv` once, in phase 2, and the same
 `template.csv` once, in phase 3 (steward, 21 Oct 2026 both times), so the 21OCT26b cases
@@ -230,6 +233,16 @@ that leaves it without one, and a one-line status. The rules (steward, 22 Oct 20
   derived-provisional one the value is "not excess";
 - both compared at 7 decimal places, as the bands are, so a verdict agrees with its band (IG
   open point 7).
+
+The steward's energy rules (23 Oct 2026; proposed, pending ratification) keep the daily
+amount of each nutrient at what the standard expected for the current body weight when the
+animal is fed less energy than that: MBW minimums are converted at the energy fed, MBW
+maximums at the reference energy (the energy the standard's per-Mcal figures assume), and,
+under adult maintenance requirements, on a row with no MBW minimum the per-Mcal minimum is
+multiplied by the reference energy divided by the energy fed (fat takes no restriction on
+either row). The body weight is the current one; an optional optimal body weight sets
+the energy fed for adults. Every result states the reference, the energy fed and the factor
+(`factors`). The parity check runs the template's own rules (docs/parity-21OCT26b.md); where the checker differs from the template, and why: docs/changes-from-21OCT26b.md.
 
 The MCP tools (stateless Streamable HTTP at `/mcp`): `list_requirements`, `describe_inputs`,
 `get_limits`, `check_diet` and `get_notes`. Each returns the whole Result as structured

@@ -31,6 +31,9 @@ LIFE_STAGES = (
 FACTS = {
     "requirement": ("requirement", None),
     "body_weight_kg": ("number", (0.05, 150)),
+    # Adult maintenance only: used when the energy at the optimal body weight is what is fed
+    # (steward, 23 Oct 2026); not an input of the template.
+    "optimal_body_weight_kg": ("number", (0.05, 150)),
     "mature_weight_kg": ("number", (0.5, 150)),
     "puppies_nursing": ("whole", (0, 20)),
     "lactation_week": ("whole", (0, 7)),
