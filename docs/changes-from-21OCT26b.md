@@ -33,6 +33,51 @@ version; every result states both (`code_release`, `data_version`).
   - NRC's fatty acid advice checks no longer count a nutrient that is not entered as 0 (rule 9).
   - The energy rules text in every result says when each computed range high applies (rules 4
     and 7); it named the NRC dog choline maximum as computed where it was NRC's 500 mg/Mcal.
+- 0.6.0 (24 Oct 2026): data version 21OCT26b.8. Fixes from two AI-read tests (steward, 24
+  Oct 2026). From the test of 0.5.1, where both models could not tell which moisture category
+  a value was compared with, and one read "Cats: 1.43X if Vit D2" as an instruction to
+  multiply the entry (section 3):
+  - The dry rows of taurine, copper and selenium are named for the foods they cover, and each
+    moisture row says which foods it is for and whether the wet and dry limits differ under
+    the requirement. On a canned cat food entered on the plain taurine row, the checker
+    compared the dry-food minimum, about half the wet-food one.
+  - Template data-entry instructions left the row names; the two that carry meaning are now
+    conditions (the cat vitamin D form, and arginine without protein under NRC and FEDIAF).
+  - The Result's `standard_minimum` is now `verdict_minimum`, as it includes this checker's
+    raise; the schema is `oan-check-result/2`, and a condition outside the template's ten
+    known limitations has `limitation: null`.
+
+  From a second test, of this release before it was merged:
+  - Rules 10, 11 and 12: a value entered on one of a nutrient's per-Mcal and MBW rows is also
+    checked on the other (dog A's calcium entered once read "Within the range"; on the MBW row
+    the same value is deficient); the large-breed puppy calcium row applies only over 25 kg
+    expected mature weight, with the current body weight; AAFCO's maximums are its dry matter
+    maximums for a food below 4 kcal/g DM, and authoritative (a cat food's phosphorus that met
+    AAFCO's 2.0% DM read above 5.0 g/Mcal, "conditional").
+  - The result explains its codes where it uses them: each band's display name in the Dynamic
+    Decile System (`outcome_text`), each range high's kind (`max_type_text`), the energies
+    (`energies_text`), the entries' low and high (`entries_text`), the verdict (`verdict_text`)
+    and the note ids (the notes block's `text`); NRC's and AAFCO's adult cats' reference energy
+    says why it is a lean cat's. The ten known limitations cite note ids, not template cells
+    (section 2).
+
+  From a third test, no model misread a result; what still confused one was fixed:
+  - A value entered alone is shown as `entry`, with `placed` (the template's column it is in);
+    `low` and `high` only for a range entered as two ends. The advice checks follow.
+  - A nutrient's per-Mcal and MBW rows checked together each name the other's verdict
+    (`other_row`): the more protective row applies. `requirement_maximum` names the row that
+    holds the requirement's maximum when it is the other one; the large-breed puppy calcium
+    row records its NRC SUL.
+  - `outcomes_text`: range-d10, Highest (90% of Range or Greater), includes values above the
+    range high. The moisture condition where wet and dry limits are the same says so on each
+    row (`moisture-same-dry`, `moisture-same-wet`).
+
+  From a fourth test (again no misreading): `outcomes_text` adds that on a row with no maximum
+  a band places a value within the minimum × K span, not against a limit; and on such a row
+  `comparison_to_max` is `above_range_high` or `not_above_range_high`.
+  From a fifth test (again no misreading): the dry matter condition (`dry-matter-basis`) is on
+  every row the AAFCO dry matter factor raises, minimum or maximum, not only on rows with an
+  AAFCO maximum.
 
 ## Where the template's own text is kept
 
@@ -46,8 +91,8 @@ version; every result states both (`code_release`, `data_version`).
 
 ## 1. Rules
 
-From 23 Oct 2026 (rules 2 and 8 completed on 24 Oct 2026, rule 9 from release 0.5.1) the
-checker's own rules differ from
+From 23 Oct 2026 (rules 2 and 8 completed on 24 Oct 2026, rule 9 from release 0.5.1, rules 10
+to 12 from release 0.6.0) the checker's own rules differ from
 the template's (`oan/energy.py`,
 `oan/limits.py`; tested by `tests/test_phase5_energy.py`). The parity check still compares the
 template's computation: the code keeps the template's rules for that check only
@@ -134,7 +179,29 @@ tests).
    for adult cats (steward, 24 Oct 2026, after the AI-read test of release 0.5.0;
    `oan/outcomes.py`, tested by `tests/test_phase5.py`).
 
-## 2. Notes (data versions 21OCT26b.6 and 21OCT26b.7)
+10. A value entered on one of a nutrient's two rows, per Mcal and MBW, is also checked on the
+    other when that one is not entered and has a limit under the requirement: both rows take
+    the diet's per-Mcal value, and the input report says so. The template checked only the
+    rows entered, so with an optimal body weight or a low intake, a diet entered once per
+    nutrient missed the energy-fed check, which only the MBW rows carry (steward, 24 Oct 2026;
+    `oan/result.py`, tested by `tests/test_phase5.py`).
+11. The large-breed puppy calcium row (NRC RA Puppy 4-14 Wk Growth) applies only to an expected
+    mature body weight over 25 kg (NRC 2006 Table 15-3 footnote h); otherwise it is not
+    computed, and says so. Its minimum of 0.54 g calcium per kg body weight a day uses the
+    current body weight, which is the puppy's; the template applied the row whenever its
+    optional puppy body weight was entered, a second weight field that the checker no longer
+    reads. Calcium entered on the general row alone does not apply footnote h, so for those
+    puppies that row carries a condition naming the large-breed row; the two rows are not
+    checked together, as above 4.5 g/Mcal they can disagree (IG conflict 12) (steward, 24 Oct
+    2026).
+12. Under the AAFCO requirements, for a food below 4 kcal/g DM with its energy density entered,
+    AAFCO's maximums are AAFCO's dry matter maximums for the food (the maximum per Mcal times
+    4 ÷ energy density), as its minimums are; ratios are not changed. They are authoritative,
+    so a value above one is excess. The template kept them per Mcal, conditional (its known
+    limitation 8), so a food could read above a maximum it met on dry matter (steward, 24 Oct
+    2026; the IG's other rules proposed for the code version).
+
+## 2. Notes (data versions 21OCT26b.6 to 21OCT26b.8)
 
 The checker's notes describe the checker, not the spreadsheet (steward, 23 Oct 2026). In every
 adapted note:
@@ -178,8 +245,46 @@ An adapted note's origin reads "Adapted from DDS template Version 21OCT26b, <tab
 - n278, n279, n289: Values calculated from the minimums (the folate note, the carbohydrate maximum) also follow the energy factor (rule 3).
 - n223, n224, n226, n227, n238: Ratios calculated from other rows: the template's notes said they reflect any raise of the minimums, and that a calculated Ca:P maximum falls as the restriction rises; the checker computes them from the minimums before any raise, so they do not change (rule 8).
 
+Data version 21OCT26b.8 changed 15 notes to the new row names only (section 3): n010, n012,
+n131, n132, n133, n135, n136, n137, n250, n262, n263, n264, n265, n266, n267.
+
+Data version 21OCT26b.8 also adapted n098 (kept as the template wrote it until then) and changed
+n233 and n234 to rule 11: the large-breed puppy calcium row applies over 25 kg expected mature
+weight, with the current body weight, and the general calcium row names it. The ten known
+limitations (limitations.csv) were adapted like the notes: template cells became note ids,
+"this sheet" became "this checker", and item 8 follows rule 12; the template's own text stays
+in its export (`tests/parity/export-21OCT26b/`).
+
 The steward read n175, n192 and n183 in full and approved them (23 Oct 2026). On 24 Oct 2026 n181, n182, n183, n192, n214, n223, n224, n226, n227 and n238 changed to follow that day's decisions (rules 2, 4 and 8; data version 21OCT26b.7).
 
 ### Wording only
 
 The other adapted notes changed in wording only, by the conventions above: n001, n002, n005, n007, n011, n013, n015, n017, n018, n019, n021, n022, n026, n028, n036, n037, n038, n039, n040, n041, n042, n043, n044, n045, n046, n047, n048, n050, n051, n052, n053, n054, n057, n058, n059, n060, n066, n069, n074, n078, n080, n081, n082, n083, n084, n086, n087, n088, n089, n090, n095, n096, n097, n099, n100, n101, n102, n103, n104, n105, n106, n111, n112, n122, n123, n127, n128, n131, n132, n133, n134, n135, n136, n137, n143, n144, n145, n152, n153, n154, n156, n158, n159, n160, n161, n162, n163, n170, n171, n172, n173, n177, n178, n179, n180, n187, n188, n189, n190, n191, n193, n195, n196, n197, n198, n199, n200, n201, n202, n205, n207, n209, n211, n213, n215, n216, n217, n218, n220, n221, n222, n231, n232, n233, n234, n235, n236, n237, n239, n240, n242, n244, n245, n246, n247, n248, n249, n250, n251, n252, n253, n254, n255, n256, n257, n258, n259, n260, n261, n262, n263, n264, n265, n266, n268, n269, n270, n271, n272, n273, n274, n275, n276, n277, n280, n281, n283, n288, n291, n293, n295, n297, n298, n299.
+
+## 3. Row names (data version 21OCT26b.8)
+
+The template's row names carried data-entry instructions for the spreadsheet's user. The
+checker's names say what each row is; an instruction that carries meaning is a condition on
+the row, which every result shows (steward, 24 Oct 2026, after the AI-read test of release
+0.5.1). The template's names are kept in the frozen baseline (`tests/parity/`).
+
+| Row | Template name | Checker name |
+|---|---|---|
+| taurine, taurine-mbw | Taurine, Tau (MBW) | Taurine, Tau (For 12% or Less Moisture Foods) (MBW) |
+| copper | Copper, Cu | Copper, Cu (For 12% or Less Moisture Foods) |
+| selenium | Selenium, Se | Selenium, Se (For 12% or Less Moisture Foods) |
+| vitamin-d, vitamin-d-mbw | Vitamin D (D2 +D3) \| Cats: 1.43X if Vit D2 (MBW) | Vitamin D (dogs: D2 + D3; cats: D3) (MBW) |
+| vitamin-d2, vitamin-d2-mbw | Vitamin D2 (ergocalciferol) \| Cats Only (MBW) | Vitamin D2 (ergocalciferol), cats only (MBW) |
+| arginine, arginine-mbw | Arginine, Arg \| Also Enter Protein if NRC/FEDIAF (MBW) | Arginine, Arg (MBW) |
+| calcium-large-breed-puppy | Calcium, Ca (NRC 4-14 Wk Dogs w/ Adult BW >25 kg ONLY) | Calcium, Ca (NRC puppies 4 to 14 weeks, expected adult weight over 25 kg) |
+| vitamin-e, vitamin-e-mbw | Vitamin E, Alpha-tocopherol \| [PUFA] or fish oil may affect / [PUFA] may affect MBW | Vitamin E, Alpha-tocopherol (MBW) |
+
+The copper and selenium MBW rows keep their names: they apply to foods of any moisture (notes
+n250, n257). The conditions that replace the instructions: `vitamin-d-form-cats` and
+`vitamin-d-form-cats-mbw` (enter D3 on the vitamin D row and D2 on the D2 row, whose minimum
+is 1.43 times; never multiply an entry), `arginine-protein-not-entered` (NRC and FEDIAF, shown
+when protein is not entered); vitamin E's was already `not-calculated-vitamin-e`. The single
+moisture condition became four: `moisture-dry` and `moisture-wet` where the two rows' limits
+differ under the requirement, `moisture-same` where they do not (with the alert that some
+standards set different copper, selenium and taurine limits by moisture or format), and
+`moisture-any` on the copper and selenium MBW rows.

@@ -212,13 +212,28 @@ def _num(x):
     return "" if x is None else e(result.numbers.to_text(x) if isinstance(x, float) else x)
 
 
+def _side(n, side):
+    """A nutrient's low or high cells: a range's end, or a value entered alone in its column."""
+    if n["entry"] is not None:
+        return n["entry"] if n["entry"]["placed"] == side else None
+    return n[side]
+
+
+def _check_text(c):
+    if c["entry"] is not None:
+        return c["entry"]["text"] or c["entry"]["result"]
+    return "low %s, high %s" % (c["low"]["text"] or c["low"]["result"],
+                                c["high"]["text"] or c["high"]["result"])
+
+
 def _entry_cells(entry):
     if entry is None:
         return "<td></td><td></td><td></td>"
     verdict = entry["verdict"] or ""
+    band = e(entry["outcome"]) + (
+        "<br><small>%s</small>" % e(entry["outcome_text"]) if entry["outcome_text"] else "")
     return '<td>%s</td><td>%s</td><td class="%s">%s<br><small>%s</small></td>' % (
-        _num(entry["value"]), e(entry["outcome"]), e(verdict), e(verdict.upper()),
-        e(entry["status"]))
+        _num(entry["value"]), band, e(verdict), e(verdict.upper()), e(entry["status"]))
 
 
 def notes_fold(data, ids):
@@ -267,7 +282,8 @@ def result_page(data, request, res):
                      for i in res["input_report"] if i["status"] != "defaulted")
     rows_html = []
     for n in res["nutrients"]:
-        conds = "".join("<li>%s (limitation %s)</li>" % (e(c["depends_on"]), e(c["limitation"]))
+        conds = "".join("<li>%s%s</li>" % (e(c["depends_on"]), "" if c["limitation"] is None
+                                           else " (limitation %s)" % e(c["limitation"]))
                         for c in n["conditions"])
         unavailable = n["limits_unavailable"]
         rows_html.append(
@@ -276,20 +292,22 @@ def result_page(data, request, res):
                 e(n["name"]), e(n["unit"]),
                 ("<br><small>%s</small>" % e(n["minimum_raise"]["text"])
                  if n["minimum_raise"] else "") +
+                ("<br><small>%s</small>" % e(n["other_row"]["text"])
+                 if n["other_row"] else "") +
                 ("<br><small>%s</small>" % e(n["mbw"]["text"]) if n["mbw"] else "") + (
                     "<br><small>%s</small>" % e(n["requirement_maximum"]["text"])
                     if n["requirement_maximum"] and not n["requirement_maximum"]["set"]
                     else ""),
                 _num(n["minimum"]) or ("none" if not unavailable else e(unavailable["text"])),
-                _num(n["standard_minimum"]),
-                "none" if n["range_high"] is None else "%s<br><small>%s, %s</small>" % (
-                    _num(n["range_high"]), e(n["max_type"]), e(n["max_provenance"])),
-                _entry_cells(n["low"]), _entry_cells(n["high"]),
+                _num(n["verdict_minimum"]),
+                "none" if n["range_high"] is None else "%s<br><small>%s, %s: %s</small>" % (
+                    _num(n["range_high"]), e(n["max_type"]), e(n["max_provenance"]),
+                    e(n["max_type_text"] or "")),
+                _entry_cells(_side(n, "low")), _entry_cells(_side(n, "high")),
                 conds, notes_fold(data, n["notes"])))
-    checks = "".join("<li>%s: low %s, high %s%s</li>" % (
-        e(c["id"]), e(c["low"]["text"] or c["low"]["result"]),
-        e(c["high"]["text"] or c["high"]["result"]),
-        (" " + e(c["caveat"])) if c["caveat"] else "") for c in res["checks"])
+    checks = "".join("<li>%s: %s%s</li>" % (
+        e(c["id"]), e(_check_text(c)), (" " + e(c["caveat"])) if c["caveat"] else "")
+        for c in res["checks"])
     lims = "".join("<li>%s</li>" % e(l["text"]) for l in res["limitations"])
     req = res["requirement"]
     body = (

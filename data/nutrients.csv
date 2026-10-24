@@ -2,8 +2,8 @@ id,name,unit,amount,basis,k,mbw_of,enterable,ig_code,notes
 protein,Protein,g/Mcal,g,per-mcal,4,,yes,protein,n196
 protein-mbw,Protein MBW,Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,protein,yes,,
 protein-dm,Protein,g/100 g DM,g,per-100g-dm,,,no,,n052 n053
-arginine,"Arginine, Arg | Also Enter Protein if NRC/FEDIAF",g/Mcal,g,per-mcal,4,,yes,,n197
-arginine-mbw,"Arginine, Arg | Also Enter Protein if NRC/FEDIAF MBW",Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,arginine,yes,,n198
+arginine,"Arginine, Arg",g/Mcal,g,per-mcal,4,,yes,,n197
+arginine-mbw,"Arginine, Arg MBW",Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,arginine,yes,,n198
 histidine,"Histidine, His",g/Mcal,g,per-mcal,4,,yes,,
 histidine-mbw,"Histidine, His MBW",Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,histidine,yes,,
 isoleucine,"Isoleucine, Ile",g/Mcal,g,per-mcal,4,,yes,,
@@ -26,8 +26,8 @@ tryptophan,"Tryptophan, Trp",g/Mcal,g,per-mcal,4,,yes,,
 tryptophan-mbw,"Tryptophan, Trp MBW",Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,tryptophan,yes,,
 valine,"Valine, Val",g/Mcal,g,per-mcal,4,,yes,,
 valine-mbw,"Valine, Val MBW",Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,valine,yes,,
-taurine,"Taurine, Tau",g/Mcal,g,per-mcal,4,,yes,,n205 n206
-taurine-mbw,"Taurine, Tau MBW",Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,taurine,yes,,n207 n208
+taurine,"Taurine, Tau (For 12% or Less Moisture Foods)",g/Mcal,g,per-mcal,4,,yes,,n205 n206
+taurine-mbw,"Taurine, Tau (For 12% or Less Moisture Foods) MBW",Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,taurine,yes,,n207 n208
 taurine-wet,"Taurine, Tau (For >12% Moisture Foods)",g/Mcal,g,per-mcal,4,,yes,,n069 n209 n210
 taurine-wet-mbw,"Taurine, Tau (For >12% Moisture Foods) MBW",Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,taurine-wet,yes,,n074 n211 n212
 fat,"Fat, Total Lipid",g/Mcal,g,per-mcal,4,,yes,,n213 n214
@@ -62,7 +62,7 @@ magnesium,"Magnesium, Mg",mg/Mcal,mg,per-mcal,4,,yes,,n244
 magnesium-mbw,"Magnesium, Mg MBW",Dogs: mg/kg BW^0.75 Cats: mg/kg BW^0.67,mg,per-mbw,4,magnesium,yes,,n245
 iron,"Iron, Fe",mg/Mcal,mg,per-mcal,4,,yes,,n246
 iron-mbw,"Iron, Fe MBW",Dogs: mg/kg BW^0.75 Cats: mg/kg BW^0.67,mg,per-mbw,4,iron,yes,,n247
-copper,"Copper, Cu",mg/Mcal,mg,per-mcal,4,,yes,,n248
+copper,"Copper, Cu (For 12% or Less Moisture Foods)",mg/Mcal,mg,per-mcal,4,,yes,,n248
 copper-mbw,"Copper, Cu MBW",Dogs: mg/kg BW^0.75 Cats: mg/kg BW^0.67,mg,per-mbw,4,copper,yes,,n249
 copper-wet,"Copper, Cu (For >12% Moisture Foods)",mg/Mcal,mg,per-mcal,4,,yes,,n127 n250
 copper-wet-mbw,"Copper, Cu (For >12% Moisture Foods) MBW",Dogs: mg/kg BW^0.75 Cats: mg/kg BW^0.67,mg,per-mbw,,copper-wet,no,,n128
@@ -72,7 +72,7 @@ zinc,"Zinc, Zn",mg/Mcal,mg,per-mcal,4,,yes,,n251
 zinc-mbw,"Zinc, Zn MBW",Dogs: mg/kg BW^0.75 Cats: mg/kg BW^0.67,mg,per-mbw,4,zinc,yes,,n252
 iodine,"Iodine, I",mg/Mcal,mg,per-mcal,4,,yes,,n253
 iodine-mbw,"Iodine, I MBW",Dogs: mg/kg BW^0.75 Cats: mg/kg BW^0.67,mg,per-mbw,4,iodine,yes,,n254
-selenium,"Selenium, Se",mcg/Mcal,mcg,per-mcal,4,,yes,,n255
+selenium,"Selenium, Se (For 12% or Less Moisture Foods)",mcg/Mcal,mcg,per-mcal,4,,yes,,n255
 selenium-mbw,"Selenium, Se MBW",Dogs: mcg/kg BW^0.75 Cats: mcg/kg BW^0.67,mcg,per-mbw,4,selenium,yes,,n256
 selenium-wet,"Selenium, Se (For >12% Moisture Foods)",mcg/Mcal,mcg,per-mcal,4,,yes,,n134 n257
 selenium-wet-mbw,"Selenium, Se (For >12% Moisture Foods) MBW",Dogs: mcg/kg BW^0.75 Cats: mcg/kg BW^0.67,mcg,per-mbw,,selenium-wet,no,,n138
@@ -80,10 +80,10 @@ retinol,Retinol (for cats),mcg retinol/Mcal,mcg,per-mcal,4,,yes,,n258
 retinol-mbw,Retinol (for cats) MBW,Dogs: mcg retinol/kg BW^0.75 Cats: mcg retinol/kg BW^0.67,mcg,per-mbw,4,retinol,yes,,n259
 vitamin-a,Vitamin A (for dogs),"IU, Vit A/Mcal",IU,per-mcal,4,,yes,,n139 n260
 vitamin-a-mbw,Vitamin A (for dogs) MBW,Dogs: IU/kg BW^0.75 Cats: IU/kg BW^0.67,IU,per-mbw,4,vitamin-a,yes,,n140 n261
-vitamin-d,Vitamin D (D2 +D3) | Cats: 1.43X if Vit D2,"IU, Vit D/Mcal",IU,per-mcal,4,,yes,vitamin-d,n141 n262
-vitamin-d-mbw,Vitamin D (D2 +D3) | Cats: 1.43X if Vit D2 MBW,Dogs: IU/kg BW^0.75 Cats: IU/kg BW^0.67,IU,per-mbw,4,vitamin-d,yes,,n142 n263
-vitamin-e,"Vitamin E, Alpha-tocopherol | [PUFA] or fish oil may affect","IU, Vit E/Mcal",IU,per-mcal,4,,yes,,n143 n268 n269
-vitamin-e-mbw,"Vitamin E, Alpha-tocopherol | [PUFA] may affect MBW",Dogs: IU/kg BW^0.75 Cats: IU/kg BW^0.67,IU,per-mbw,4,vitamin-e,yes,,n144 n270 n271
+vitamin-d,Vitamin D (dogs: D2 + D3; cats: D3),"IU, Vit D/Mcal",IU,per-mcal,4,,yes,vitamin-d,n141 n262
+vitamin-d-mbw,Vitamin D (dogs: D2 + D3; cats: D3) MBW,Dogs: IU/kg BW^0.75 Cats: IU/kg BW^0.67,IU,per-mbw,4,vitamin-d,yes,,n142 n263
+vitamin-e,"Vitamin E, Alpha-tocopherol","IU, Vit E/Mcal",IU,per-mcal,4,,yes,,n143 n268 n269
+vitamin-e-mbw,"Vitamin E, Alpha-tocopherol MBW",Dogs: IU/kg BW^0.75 Cats: IU/kg BW^0.67,IU,per-mbw,4,vitamin-e,yes,,n144 n270 n271
 vitamin-k1,"Vitamin K1, Phylloquinone",mg/Mcal,mg,per-mcal,4,,yes,,n145 n272
 vitamin-k1-mbw,"Vitamin K1, Phylloquinone MBW",Dogs: mg/kg BW^0.75 Cats: mg/kg BW^0.67,mg,per-mbw,4,vitamin-k1,yes,,n154 n273
 thiamine,"Thiamin(e), Vitamin B1",mg/Mcal,mg,per-mcal,4,,yes,,n274

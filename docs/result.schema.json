@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://openanimalnutrition.org/schema/oan-check-result/1",
-  "title": "oan-check-result/1",
-  "description": "The result of the Open Animal Nutrition reference checker (every tool: check_diet, get_limits, list_requirements, describe_inputs, get_notes). Within version 1 a change only adds fields; a breaking change is version 2. The caveats come first and are in every result. Verdicts are proposed, pending ratification.",
+  "$id": "https://openanimalnutrition.org/schema/oan-check-result/2",
+  "title": "oan-check-result/2",
+  "description": "The result of the Open Animal Nutrition reference checker (every tool: check_diet, get_limits, list_requirements, describe_inputs, get_notes). Within version 2 a change only adds fields; a breaking change is version 3. Version 2 (release 0.6.0) renamed standard_minimum to verdict_minimum, lets a condition have no limitation (null), and added verdict_text, entries_text, outcomes_text, max_type_text, outcome_text, energies_text, other_row and the notes block's text, and shows a value entered alone as entry (low and high only for a range). The caveats come first and are in every result. Verdicts are proposed, pending ratification.",
   "type": "object",
-  "required": ["schema", "caveats", "tool", "code_release", "data_version", "data_sha256", "template_version", "verdict_status"],
+  "required": ["schema", "caveats", "tool", "code_release", "data_version", "data_sha256", "template_version", "verdict_status", "verdict_text"],
   "properties": {
-    "schema": {"const": "oan-check-result/1"},
+    "schema": {"const": "oan-check-result/2"},
     "caveats": {
       "type": "array",
       "minItems": 4,
@@ -26,6 +26,9 @@
     "data_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
     "template_version": {"type": "string"},
     "verdict_status": {"const": "proposed, pending ratification"},
+    "verdict_text": {"description": "What the verdict field can hold, and that null is not an approval.", "type": "string"},
+    "entries_text": {"description": "check_diet: what entry, placed, low and high are (the template's two entry columns).", "type": "string"},
+    "outcomes_text": {"description": "check_diet: what outcome and outcome_text are, and that range-d10 includes values above the range high.", "type": "string"},
     "requirement": {"$ref": "#/$defs/requirement"},
     "subject": {"enum": ["diet", "requirement range"]},
     "inputs": {"type": "object", "required": ["submitted", "normalized"]},
@@ -48,10 +51,11 @@
     },
     "notes": {
       "type": "object",
-      "required": ["file", "general", "requirement"],
+      "required": ["file", "text", "general", "requirement"],
       "additionalProperties": false,
       "properties": {
         "file": {"type": "string"},
+        "text": {"type": "string"},
         "general": {"$ref": "#/$defs/note_ids"},
         "requirement": {"$ref": "#/$defs/note_ids"}
       }
@@ -104,7 +108,7 @@
     },
     "factors": {
       "type": "object",
-      "required": ["caloric_restriction_percent", "restriction_factor", "aafco_dry_matter_factor", "energy_requirement_kcal_per_day", "energy_used_kcal_per_day", "energy_used_is", "energy_reason", "intake_shortfall", "reference_energy_kcal_per_day", "reference_energy_basis", "energy_fed_kcal_per_day", "energy_fed_is", "energy_factor", "optimal_body_weight", "energy_rules"],
+      "required": ["caloric_restriction_percent", "restriction_factor", "aafco_dry_matter_factor", "energy_requirement_kcal_per_day", "energy_used_kcal_per_day", "energy_used_is", "energy_reason", "intake_shortfall", "reference_energy_kcal_per_day", "reference_energy_basis", "energy_fed_kcal_per_day", "energy_fed_is", "energy_factor", "optimal_body_weight", "energies_text", "energy_rules"],
       "additionalProperties": false,
       "properties": {
         "caloric_restriction_percent": {"$ref": "#/$defs/number_or_null"},
@@ -126,6 +130,7 @@
           "additionalProperties": false,
           "properties": {"status": {"enum": ["used", "not-adult", "intake-entered", "no-current-weight", "not-below-current"]}, "text": {"type": "string"}}
         }]},
+        "energies_text": {"description": "What each energy above is, and what uses it.", "type": "string"},
         "energy_rules": {"type": "string"}
       }
     },
@@ -137,7 +142,7 @@
     },
     "nutrient": {
       "type": "object",
-      "required": ["id", "name", "unit", "basis", "ig_code", "minimum", "standard_minimum", "maximum", "range_high", "max_type", "max_provenance", "limits_unavailable", "mbw", "requirement_maximum", "conditions", "notes"],
+      "required": ["id", "name", "unit", "basis", "ig_code", "minimum", "verdict_minimum", "maximum", "range_high", "max_type", "max_provenance", "max_type_text", "limits_unavailable", "mbw", "requirement_maximum", "conditions", "notes"],
       "additionalProperties": false,
       "properties": {
         "id": {"type": "string"},
@@ -146,12 +151,13 @@
         "basis": {"type": "string"},
         "ig_code": {"type": ["string", "null"]},
         "minimum": {"$ref": "#/$defs/number_or_null"},
-        "standard_minimum": {"description": "The part of the minimum counted as the applied standard's for the verdict deficient. It includes any raise this checker applies for a caloric restriction or the energy factor (the provisional steward's rule); minimum_raise then gives the standard's minimum before the raise.", "$ref": "#/$defs/number_or_null"},
+        "verdict_minimum": {"description": "The minimum below which a value is deficient: the applied standard's minimum, including any raise this checker applies (see minimum_raise). Null where the whole minimum is this checker's own, which gives no verdict; on an open point (open_reason), a value below it also gets no verdict. Named standard_minimum before schema 2.", "$ref": "#/$defs/number_or_null"},
         "minimum_raise": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/minimum_raise"}]},
         "maximum": {"$ref": "#/$defs/number_or_null"},
         "range_high": {"$ref": "#/$defs/number_or_null"},
         "max_type": {"type": ["string", "null"]},
         "max_provenance": {"enum": ["authoritative", "conditional", "template-set", "derived-provisional", null]},
+        "max_type_text": {"description": "The kind of the range high in words.", "type": ["string", "null"]},
         "limits_unavailable": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/reason"}]},
         "mbw": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/mbw"}]},
         "requirement_maximum": {"oneOf": [{"type": "null"}, {
@@ -161,9 +167,16 @@
           "additionalProperties": false,
           "properties": {"set": {"type": "boolean"}, "text": {"type": ["string", "null"]}}
         }]},
-        "low": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/entry"}]},
-        "high": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/entry"}]},
+        "entry": {"description": "A value entered alone, with placed: the template's entry column it is in.", "oneOf": [{"type": "null"}, {"$ref": "#/$defs/entry"}]},
+        "low": {"description": "The low end of a range entered (two ends); null for a value entered alone.", "oneOf": [{"type": "null"}, {"$ref": "#/$defs/entry"}]},
+        "high": {"description": "The high end of a range entered (two ends); null for a value entered alone.", "oneOf": [{"type": "null"}, {"$ref": "#/$defs/entry"}]},
         "summary": {"type": ["string", "null"]},
+        "other_row": {"description": "On a nutrient's per-Mcal and MBW rows checked together: the other row's verdicts.", "oneOf": [{"type": "null"}, {
+          "type": "object",
+          "required": ["id", "verdicts", "text"],
+          "additionalProperties": false,
+          "properties": {"id": {"type": "string"}, "verdicts": {"type": "array", "items": {"enum": ["deficient", "excess"]}}, "text": {"type": "string"}}
+        }]},
         "conditions": {"type": "array", "items": {"$ref": "#/$defs/condition"}},
         "notes": {"$ref": "#/$defs/note_ids"}
       }
@@ -197,18 +210,20 @@
     },
     "entry": {
       "type": "object",
-      "required": ["value", "outcome", "outcome_reason", "comparison_to_min", "comparison_to_max", "verdict", "verdict_status", "open_reason", "status"],
+      "required": ["value", "outcome", "outcome_text", "outcome_reason", "comparison_to_min", "comparison_to_max", "verdict", "verdict_status", "open_reason", "status"],
       "additionalProperties": false,
       "properties": {
         "value": {"type": "number"},
         "outcome": {"enum": ["below-min-lt25", "below-min-25-50", "below-min-50-75", "below-min-75-100", "range-d1", "range-d2", "range-d3", "range-d4", "range-d5", "range-d6", "range-d7", "range-d8", "range-d9", "range-d10", "no-range", "no-minimum", "not-entered", "unavailable", "not-banded"]},
+        "outcome_text": {"description": "The band's display name in the Dynamic Decile System (the IG's Nutrient Decile Bands); null for an outcome other than a band.", "type": ["string", "null"]},
         "outcome_reason": {"type": ["string", "null"]},
         "comparison_to_min": {"enum": ["below_min", "below_template_min", "at_or_above_min", null]},
-        "comparison_to_max": {"enum": ["above_max", "above_non_authoritative_max", "not_above_max", null]},
+        "comparison_to_max": {"description": "above_max, above_non_authoritative_max and not_above_max where the row has a maximum; above_range_high and not_above_range_high where it has none (the range high is the minimum times K).", "enum": ["above_max", "above_non_authoritative_max", "not_above_max", "above_range_high", "not_above_range_high", null]},
         "verdict": {"enum": ["deficient", "excess", null]},
         "verdict_status": {"const": "proposed, pending ratification"},
         "open_reason": {"enum": ["ig-open-point-3", "ig-open-point-6", "ig-open-point-6-aafco-dry-matter", null]},
-        "status": {"type": ["string", "null"]}
+        "status": {"type": ["string", "null"]},
+        "placed": {"description": "On a value entered alone: the template's entry column it is in, low (Min) or high (Max).", "enum": ["low", "high"]}
       }
     },
     "condition": {
@@ -217,22 +232,23 @@
       "additionalProperties": false,
       "properties": {
         "id": {"type": "string"},
-        "limitation": {"type": "integer", "minimum": 1},
+        "limitation": {"description": "The item of the template's known limitations (limitations) this condition belongs to; null for a condition outside them.", "type": ["integer", "null"], "minimum": 1},
         "depends_on": {"type": "string"},
         "notes": {"$ref": "#/$defs/note_ids"}
       }
     },
     "check": {
       "type": "object",
-      "required": ["id", "status", "reads", "figures", "low", "high", "caveat", "notes"],
+      "required": ["id", "status", "reads", "figures", "entry", "low", "high", "caveat", "notes"],
       "additionalProperties": false,
       "properties": {
         "id": {"enum": ["la-ala-ratio", "epa-share-max", "epa-share-range", "epa-share-max-dha-only"]},
         "status": {"type": "string"},
         "reads": {"type": "array", "items": {"type": "string"}},
         "figures": {"type": "object", "additionalProperties": {"type": "number"}},
-        "low": {"$ref": "#/$defs/check_side"},
-        "high": {"$ref": "#/$defs/check_side"},
+        "entry": {"description": "The result when every nutrient read was entered as one value; low and high are then null.", "oneOf": [{"type": "null"}, {"$ref": "#/$defs/check_side"}]},
+        "low": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/check_side"}]},
+        "high": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/check_side"}]},
         "caveat": {"type": ["string", "null"]},
         "notes": {"$ref": "#/$defs/note_ids"}
       }

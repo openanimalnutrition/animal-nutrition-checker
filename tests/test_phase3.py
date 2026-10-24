@@ -198,7 +198,8 @@ class Limits(unittest.TestCase):
         self.assertEqual(r.limits("calcium").max_code, "AAFCO")
         self.assertEqual(limits.provenance("AAFCO", r.aafco_factor), "authoritative")
         r = request("aafco-dog-adult", entries={"energy-density": {"low": 3.5}})
-        self.assertEqual(limits.provenance(r.limits("calcium").max_code, r.aafco_factor),
+        self.assertEqual(limits.provenance(r.limits("calcium").max_code, r.aafco_factor,
+                                           r.template_rules),
                          "conditional")
         self.assertEqual(request("nrc-dog-adult").limits("vitamin-d-mbw").max_code, "SULm")
         self.assertEqual(request("fediaf-dog-adult-mer95").limits("calcium-mbw").max_code, "CALC")

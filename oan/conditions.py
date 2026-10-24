@@ -17,9 +17,18 @@ WHEN = (
     "mature-weight-over-15-or-not-entered",
     "energy-density-not-entered",
     "aafco-factor-above-1",
-    "aafco-maximum-factor-above-1",
+    "aafco-dry-matter-raised",
     "default-minimum",
+    "protein-not-entered",
+    "moisture-rows-differ",
+    "moisture-rows-same",
+    "mature-weight-over-large-breed",
 )
+# A row for foods of 12% moisture or less and its row for wetter foods (steward, 24 Oct 2026:
+# say on each row which foods it is for, and whether the two differ under the requirement).
+MOISTURE_TWINS = {"taurine": "taurine-wet", "taurine-mbw": "taurine-wet-mbw",
+                  "copper": "copper-wet", "selenium": "selenium-wet"}
+MOISTURE_TWINS.update({wet: dry for dry, wet in list(MOISTURE_TWINS.items())})
 RANGE_HIGH_TYPE = "range-high-type:"
 
 
@@ -48,13 +57,25 @@ def _when(text, request, nid, lim):
         return not (mw is not None and 0 < mw <= 15)
     if text == "energy-density-not-entered":
         return request.low("energy-density") is None and request.aafco_raises(nid)
-    if text in ("aafco-factor-above-1", "aafco-maximum-factor-above-1"):
+    if text == "aafco-factor-above-1":
         f = request.aafco_factor
-        if not (limits.number(f) and f > 1):
-            return False
-        return text == "aafco-factor-above-1" or lim.max_code == "AAFCO"
+        return limits.number(f) and f > 1
+    if text == "aafco-dry-matter-raised":
+        return request.dry_matter_raised(nid)
     if text == "default-minimum":
         return request.std(nid, "min") is None
+    if text in ("moisture-rows-differ", "moisture-rows-same"):
+        twin = MOISTURE_TWINS[nid]
+        same = all(request.std(nid, b) == request.std(twin, b) for b in ("min", "max"))
+        return same == (text == "moisture-rows-same")
+    if text == "mature-weight-over-large-breed":
+        mw = request.facts.get("mature_weight_kg")
+        return mw is not None and mw > limits.LARGE_BREED_PUPPY_MATURE_WEIGHT_KG
+    if text == "protein-not-entered":
+        # The arginine minimum's protein increase reads the protein entered as low.
+        protein = "protein-mbw" if nid.endswith("-mbw") else "protein"
+        return request.low(protein) is None and \
+            any(request.applies(f) for f in limits.ARGININE_PER_PROTEIN)
     if text.startswith(RANGE_HIGH_TYPE):
         return lim.max_code == text[len(RANGE_HIGH_TYPE):]
     raise ValueError("unknown condition case %r" % text)
@@ -86,7 +107,9 @@ def for_nutrient(data, request, nid, lim, k):
             continue
         if not _when(row["when"], request, nid, lim):
             continue
-        out.append({"id": row["id"], "limitation": int(row["item"]),
+        # A condition outside the template's ten known limitations has no item (steward, 24
+        # Oct 2026: the cat vitamin D form and the arginine protein conditions).
+        out.append({"id": row["id"], "limitation": int(row["item"]) if row["item"] else None,
                     "depends_on": _fill(row["depends_on"], lim, k),
                     "notes": row["notes"].split()})
     return out

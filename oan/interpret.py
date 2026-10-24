@@ -29,6 +29,10 @@ AT_OR_ABOVE_MIN = "at_or_above_min"
 ABOVE_MAX = "above_max"
 ABOVE_NON_AUTHORITATIVE_MAX = "above_non_authoritative_max"
 NOT_ABOVE_MAX = "not_above_max"
+# On a row with no maximum, whose range high is the minimum times K (steward, 24 Oct 2026:
+# "not_above_max" was read as a maximum where there is none).
+ABOVE_RANGE_HIGH = "above_range_high"
+NOT_ABOVE_RANGE_HIGH = "not_above_range_high"
 
 # open_reason
 OPEN_POINT_6 = "ig-open-point-6"
@@ -60,7 +64,8 @@ def entry(value, outcome, lim, standard_minimum, provenance, open_minimum, stand
     optimal_weight: the energy fed is the energy at the optimal body weight; minimum_raise:
     None, or {"before": the standard's minimum before the raise, "fill": the status texts'
     fill-ins} when this checker raises the standard's minimum (limits.Request.minimum_raise)."""
-    out = {"value": value, "outcome": outcome.code, "outcome_reason": outcome.reason,
+    out = {"value": value, "outcome": outcome.code,
+           "outcome_text": bands.DISPLAY.get(outcome.code), "outcome_reason": outcome.reason,
            "comparison_to_min": None, "comparison_to_max": None, "verdict": None,
            "verdict_status": caveats.VERDICT_STATUS, "open_reason": None, "status": None}
     if outcome.code in (outcomes.UNAVAILABLE, outcomes.NOT_BANDED, outcomes.NOT_ENTERED):
@@ -84,7 +89,9 @@ def entry(value, outcome, lim, standard_minimum, provenance, open_minimum, stand
     if limits.number(minimum):
         out["comparison_to_min"] = BELOW_MIN if below_standard or below_open else \
             BELOW_TEMPLATE_MIN if below_min else AT_OR_ABOVE_MIN
-    if has_range_high:
+    if has_range_high and lim.maximum is None:
+        out["comparison_to_max"] = ABOVE_RANGE_HIGH if above else NOT_ABOVE_RANGE_HIGH
+    elif has_range_high:
         out["comparison_to_max"] = (ABOVE_MAX if provenance == "authoritative" else
                                     ABOVE_NON_AUTHORITATIVE_MAX) if above else NOT_ABOVE_MAX
 

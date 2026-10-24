@@ -156,9 +156,10 @@ class Server(unittest.TestCase):
         seen = 0
         for key in ("check_diet", "check_diet#2"):
             for n in self.mcp[key].structured_content["nutrients"]:
-                for side in ("low", "high"):
+                for side in ("entry", "low", "high"):
                     entry = n[side]
-                    if entry and entry["comparison_to_max"] == "above_non_authoritative_max":
+                    if entry and entry["comparison_to_max"] in (
+                            "above_non_authoritative_max", "above_range_high"):
                         seen += 1
                         self.assertIsNone(entry["verdict"], n["id"])
                     if entry and entry["verdict"] == "excess":
@@ -226,7 +227,9 @@ class Server(unittest.TestCase):
     def test_steps(self):
         self.assertIn("Choose a requirement", self.http.get("/").text)
         page = self.http.get("/", params={"requirement": "nrc-puppy-4-14-wk"}).text
-        self.assertIn("animal.puppy_body_weight_kg", page)
+        # The large-breed puppy calcium row uses the current body weight (steward, 24 Oct 2026).
+        self.assertIn("animal.mature_weight_kg", page)
+        self.assertNotIn("animal.puppy_body_weight_kg", page)
         self.assertNotIn("animal.adult_cat_type", page)
         r = self.http.post("/parse", data={"requirement": "nrc-dog-adult",
                                            "paste": "Calcium, Ca, 1.2, 3\nprotein,30,\n"

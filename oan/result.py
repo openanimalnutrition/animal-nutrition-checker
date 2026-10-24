@@ -1,4 +1,4 @@
-"""The Result: what the checker returns, as one JSON object (schema "oan-check-result/1",
+"""The Result: what the checker returns, as one JSON object (schema "oan-check-result/2",
 docs/result.schema.json).
 
 check() is the only path from a request to a result; the GUI and the MCP server only render
@@ -20,8 +20,8 @@ rejected in the input report and never computed with.
 from . import (caveats, conditions, energy, inputs, interpret, limits, numbers, outcomes,
                release, table)
 
-SCHEMA = "oan-check-result/1"
-CODE_RELEASE = "0.5.1"
+SCHEMA = "oan-check-result/2"
+CODE_RELEASE = "0.6.0"
 SUBJECTS = ("diet", "requirement range")
 REQUEST_FIELDS = ("requirement", "animal", "entries", "subject")
 ENERGY_NAME, ENERGY_UNIT = "Energy", "kcal/day"
@@ -66,7 +66,7 @@ def _envelope(data, tool):
     return {"schema": SCHEMA, "caveats": caveats.caveats(data.version), "tool": tool,
             "code_release": CODE_RELEASE, "data_version": data.version,
             "data_sha256": data.sha256, "template_version": caveats.TEMPLATE_VERSION,
-            "verdict_status": caveats.VERDICT_STATUS}
+            "verdict_status": caveats.VERDICT_STATUS, "verdict_text": caveats.VERDICT_TEXT}
 
 
 def _reason_text(code):
@@ -208,6 +208,39 @@ def _place_bare(check, entries, bare, report):
                                    "entry (the template's heading rule)."})
 
 
+def _twin_entries(data, check, entries, bare, report):
+    """A value entered on one of a nutrient's per-Mcal and MBW rows is also checked on the other
+    when that one is not entered and has a limit under the requirement: both rows take the
+    diet's per-Mcal value (steward, 24 Oct 2026, after the AI-read test of release 0.5.1: an
+    entry on the per-Mcal row alone missed the energy-fed check on the MBW row). A single
+    value is placed on the other row by the heading rule."""
+    rows = {n["id"]: n for n in data.tables["nutrients"]}
+    twins = {}
+    for n in rows.values():
+        if n["basis"] == "per-mbw" and n["mbw_of"] and n["enterable"] == "yes":
+            twins[n["mbw_of"]] = n["id"]
+            twins[n["id"]] = n["mbw_of"]
+    for nid in sorted(entries):
+        twin = twins.get(nid)
+        if twin is None or twin in entries:
+            continue
+        lim, _ = check.limits_of(twin)
+        if lim.minimum is None and lim.maximum is None:
+            continue
+        sides = entries[nid]
+        if nid in bare:
+            value = next(iter(sides.values()))
+            entries[twin] = {"high" if lim.minimum is None else "low": value}
+        else:
+            entries[twin] = dict(sides)
+        shown = " to ".join(numbers.to_text(sides[s]) for s in ("low", "high") if s in sides)
+        per_mcal = twin if rows[nid]["basis"] == "per-mbw" else nid
+        report.append({"input": "entries." + twin, "status": "defaulted",
+                       "reason": "checked-with-twin",
+                       "text": caveats.fill(caveats.TWIN_ENTRY_TEXT, {
+                           "source": nid, "value": shown, "unit": rows[per_mcal]["unit"]})})
+
+
 def _row_info(data, nid):
     """(name, unit, basis, ig_code, notes) of a nutrient, a template row or the energy row."""
     if nid == inputs.ENERGY_ENTRY:
@@ -236,27 +269,38 @@ STANDARD_MAXIMUM_TYPES = {code for code, kind in limits.PROVENANCE.items()
                           if kind in ("authoritative", "conditional")}
 
 
-def _requirement_maximum(data, request, nid):
+def _requirement_maximum(data, request, nid, lim):
     """Whether the requirement sets a maximum of its own for this nutrient, per Mcal or per kg
-    BW^n (its per-Mcal row and its MBW row together), and if not a line saying so; None for the
-    energy row, the template's rows, or with no requirement."""
+    BW^n (its per-Mcal row and its MBW row together), and if not a line saying so; where it
+    sets one on the nutrient's other row only, a line naming that row (steward, 24 Oct 2026).
+    A template row: set when its maximum is a standard's. None for the energy row or with no
+    requirement."""
     nutrients = {n["id"]: n for n in data.tables["nutrients"]}
-    if request.requirement is None or nid not in nutrients:
+    if request.requirement is None or nid == inputs.ENERGY_ENTRY:
         return None
+    if nid not in nutrients:
+        code = lim.max_code if lim is not None else None
+        return {"set": True, "text": None} if code in STANDARD_MAXIMUM_TYPES else None
     first = nutrients[nid]["mbw_of"] or nid
     family = [first] + [m for m, n in nutrients.items() if n["mbw_of"] == first]
     rows = data.tables["limits"][request.requirement["id"]]
-    if any(rows[m]["max_type"] in STANDARD_MAXIMUM_TYPES for m in family if m in rows):
-        return {"set": True, "text": None}
+    name = nutrients[first]["name"].split(" (For")[0].split(",")[0].strip()
+    if len(name) > 1 and name[1].islower():
+        name = name[0].lower() + name[1:]
+    holders = [m for m in family if m in rows and rows[m]["max_type"] in STANDARD_MAXIMUM_TYPES]
+    if holders:
+        if nid in holders:
+            return {"set": True, "text": None}
+        other = holders[0]
+        return {"set": True, "text": caveats.MAXIMUM_ON_OTHER_ROW.format(
+            requirement=request.requirement["name"], nutrient=name,
+            basis="MBW" if nutrients[other]["basis"] == "per-mbw" else "per Mcal", row=other)}
     basis = ""
     if nutrients[first]["basis"] == "per-mcal":
         has_mbw = any(rows[m]["min"] not in ("none", "") or rows[m]["max"] not in ("none", "")
                       for m in family[1:] if m in rows)
         basis = ", per Mcal" + (" or per kg %s" % table.MBW_BASIS[
             request.requirement["species"]].split(" ", 1)[1] if has_mbw else "")
-    name = nutrients[first]["name"].split(" |")[0].split(",")[0].strip()
-    if len(name) > 1 and name[1].islower():
-        name = name[0].lower() + name[1:]
     return {"set": False, "text": caveats.NO_MAXIMUM_TEXT.format(
         requirement=request.requirement["name"], nutrient=name, basis=basis)}
 
@@ -334,6 +378,16 @@ def _minimum_raise(request, nid, standard_min, unit):
             "fill": dict(fill, why=caveats.fill(caveats.RAISE_WHY[r.reason], values))}
 
 
+def _max_type_text(code, k, provenance):
+    """The kind of a range high in words (steward, 24 Oct 2026: the codes were not explained)."""
+    if code is None:
+        return None
+    if code in caveats.MAX_TYPE_TEXTS:
+        return caveats.fill(caveats.MAX_TYPE_TEXTS[code],
+                            {"k": numbers.to_text(k) if k is not None else "K"})
+    return interpret.kind(code, provenance) or None
+
+
 def _kcal_text(kcal):
     """kcal/day in a sentence: a whole number (steward, 24 Oct 2026); the result's
     *_kcal_per_day fields keep the full figure."""
@@ -349,7 +403,7 @@ def _nutrient(data, check, nid, entries):
         standard_min = None if not limits.unavailable(lim.minimum) else lim.minimum
     else:
         standard_min = request.standard_minimum(nid)
-    provenance = limits.provenance(lim.max_code, request.aafco_factor) \
+    provenance = limits.provenance(lim.max_code, request.aafco_factor, request.template_rules) \
         if lim.max_code else None
     if request.requirement is not None and nid in request.data["limits"].get(
             request.requirement["id"], {}):
@@ -370,20 +424,22 @@ def _nutrient(data, check, nid, entries):
     no_limits = lim.minimum is None and lim.maximum is None
     out = {"id": nid, "name": name, "unit": unit, "basis": basis, "ig_code": ig_code,
            "minimum": _number_or_none(lim.minimum),
-           "standard_minimum": _number_or_none(standard_min),
+           "verdict_minimum": _number_or_none(standard_min),
            "minimum_raise": None if raise_ is None else raise_["field"],
            "maximum": _number_or_none(lim.maximum),
            "range_high": None if no_limits else lim.range_high,
            "max_type": None if no_limits else lim.max_code,
            "max_provenance": None if no_limits else provenance,
+           "max_type_text": None if no_limits else _max_type_text(lim.max_code, k, provenance),
            "limits_unavailable": None if unavailable is None else {
                "reason": unavailable.reason, "text": _reason_text(unavailable.reason)},
            "mbw": _mbw(data, request, nid, None if unavailable else lim, unit),
-           "requirement_maximum": _requirement_maximum(data, request, nid),
-           "low": None, "high": None, "summary": None}
+           "requirement_maximum": _requirement_maximum(data, request, nid, lim),
+           "entry": None, "low": None, "high": None, "summary": None, "other_row": None}
     if open_row is not None:
         notes = notes + open_row["notes"].split()
     given = entries.get(nid, {})
+    described = {}
     for side in ("low", "high"):
         value = given.get(side)
         if value is None:
@@ -393,20 +449,26 @@ def _nutrient(data, check, nid, entries):
         else:
             outcome = outcomes.describe(value, side, lim)
         reason_text = _reason_text(outcome.reason) if outcome.reason else ""
-        out[side] = interpret.entry(value, outcome, lim, standard_min, provenance, open_row,
-                                    standard, k, reason_text,
-                                    energy_row=nid == inputs.ENERGY_ENTRY,
-                                    restricted=request.restricted,
-                                    optimal_weight=request.optimal_status == "used",
-                                    minimum_raise=None if raise_ is None else {
-                                        "before": raise_["field"][
-                                            "standard_minimum_before_raise"],
-                                        "fill": raise_["fill"]})
+        described[side] = interpret.entry(
+            value, outcome, lim, standard_min, provenance, open_row, standard, k, reason_text,
+            energy_row=nid == inputs.ENERGY_ENTRY, restricted=request.restricted,
+            optimal_weight=request.optimal_status == "used",
+            minimum_raise=None if raise_ is None else {
+                "before": raise_["field"]["standard_minimum_before_raise"],
+                "fill": raise_["fill"]})
         no_max = out["requirement_maximum"]
         if no_max and not no_max["set"] and \
-                out[side]["comparison_to_max"] == interpret.ABOVE_NON_AUTHORITATIVE_MAX:
-            out[side]["status"] += " " + no_max["text"]
-    if out["low"] and out["high"]:
+                described[side]["comparison_to_max"] in (interpret.ABOVE_NON_AUTHORITATIVE_MAX,
+                                                         interpret.ABOVE_RANGE_HIGH):
+            described[side]["status"] += " " + no_max["text"]
+    # One value is the entry, with the template column it is in; low and high are the two
+    # ends of a range (steward, 24 Oct 2026, after the AI-read tests: a single value in a
+    # "low" slot read as a judgment of it).
+    if len(described) == 1:
+        side, out["entry"] = next(iter(described.items()))
+        out["entry"]["placed"] = side
+    elif described:
+        out["low"], out["high"] = described["low"], described["high"]
         out["summary"] = "%s to %s" % (out["low"]["outcome"], out["high"]["outcome"])
     out["conditions"] = conditions.for_nutrient(data.tables, request, nid,
                                                 None if unavailable else lim, k)
@@ -414,6 +476,32 @@ def _nutrient(data, check, nid, entries):
         notes = notes + c["notes"]
     out["notes"] = _dedupe(notes)
     return out
+
+
+def _other_rows(data, nutrients):
+    """On each of a nutrient's per-Mcal and MBW rows checked together, the other's verdict
+    (steward, 24 Oct 2026: the two rows gave different results for one value, and neither
+    named the other)."""
+    basis = {n["id"]: n["basis"] for n in data.tables["nutrients"]}
+    twin = {}
+    for n in data.tables["nutrients"]:
+        if n["basis"] == "per-mbw" and n["mbw_of"]:
+            twin[n["id"]], twin[n["mbw_of"]] = n["mbw_of"], n["id"]
+    by_id = {n["id"]: n for n in nutrients}
+    for n in nutrients:
+        other = by_id.get(twin.get(n["id"]))
+        if other is None:
+            continue
+        verdicts = []
+        for side in ("entry", "low", "high"):
+            v = other[side] and other[side]["verdict"]
+            if v and v not in verdicts:
+                verdicts.append(v)
+        n["other_row"] = {"id": other["id"], "verdicts": verdicts,
+                          "text": caveats.fill(caveats.OTHER_ROW_TEXT, {
+                              "basis": "MBW" if basis[other["id"]] == "per-mbw" else "per-Mcal",
+                              "row": other["id"],
+                              "verdict": " and ".join(verdicts) or "no verdict"})}
 
 
 def _energy_outcome(value, lim):
@@ -450,7 +538,7 @@ def _checks(data, check, entries):
         else:
             fill = {"{x}": _percent(figures[cid])}
         item = {"id": cid, "status": caveats.CHECK_STATUS, "reads": list(nids),
-                "figures": figures}
+                "figures": figures, "entry": None}
         for side in ("low", "high"):
             missing = [n for n in nids if outcomes.check_entry(request, n, side) is None]
             if len(missing) == len(nids):
@@ -468,6 +556,9 @@ def _checks(data, check, entries):
             for key, value in fill.items():
                 text = text.replace(key, value) if text else text
             item[side] = {"result": result, "text": text}
+        # Every nutrient read entered as one value: one result, as for the nutrients' entry.
+        if all(len(entries[n]) == 1 for n in nids if n in entries):
+            item["entry"], item["low"], item["high"] = item["low"], None, None
         item["caveat"] = None
         if cid == "epa-share-max-dha-only" and not limits.number(request.minimum("epa-dha")):
             item["caveat"] = caveats.DHA_NOT_COMPARED
@@ -506,6 +597,7 @@ def _factors(check):
         "optimal_body_weight": None if request.optimal_status is None else {
             "status": request.optimal_status,
             "text": caveats.OPTIMAL_WEIGHT_STATUS[request.optimal_status]},
+        "energies_text": caveats.ENERGIES_TEXT,
         "energy_rules": caveats.ENERGY_RULES_TEXT,
     }
 
@@ -522,9 +614,10 @@ def _reference_basis_text(check):
     standard, figure, exponent = basis
     key = standard if standard == req["standard"] else "%s-for-%s" % (standard, req["standard"])
     dog = req["species"] == "canine"
-    return caveats.REFERENCE_BASIS[key].format(
+    text = caveats.REFERENCE_BASIS[key].format(
         figure=numbers.to_text(figure), exponent=numbers.to_text(exponent),
         species="dog" if dog else "cat", who="average adult dog" if dog else "lean adult cat")
+    return text if dog else text + " " + caveats.CAT_REFERENCE_TEXT
 
 
 # The energy fed may not be below this share of the reference energy (steward, 23 Oct 2026).
@@ -569,7 +662,7 @@ def _missing(report, nutrients):
     """Missing animal facts that leave an entered nutrient without limits."""
     reasons = set()
     for n in nutrients:
-        for side in ("low", "high"):
+        for side in ("entry", "low", "high"):
             e = n.get(side)
             if e and e["outcome"] == outcomes.UNAVAILABLE and e["outcome_reason"]:
                 reasons.add(e["outcome_reason"])
@@ -593,14 +686,16 @@ def _requirement_block(req, requested):
 
 def _root_notes(data, req):
     general = [n["id"] for n in data.tables["notes"] if n["scope"] == "table"]
-    out = {"file": "data/notes.csv", "general": general, "requirement": []}
+    out = {"file": "data/notes.csv", "text": caveats.NOTES_TEXT, "general": general,
+           "requirement": []}
     if req is not None:
         out["requirement"] = _dedupe(req["notes"].split() + req["energy_notes"].split())
     return out
 
 
 def _limitations(data, nutrients):
-    items = sorted({c["limitation"] for n in nutrients for c in n["conditions"]})
+    items = sorted({c["limitation"] for n in nutrients for c in n["conditions"]
+                    if c["limitation"] is not None})
     return [{"item": i, "text": data.limitations[i]["text"],
              "notes": data.limitations[i]["notes"].split()} for i in items]
 
@@ -612,6 +707,10 @@ def check(data, request):
     entries, bare = _accept_entries(data, raw, report)
     c = _Check(data, req, facts, {})
     _place_bare(c, entries, bare, report)
+    _twin_entries(data, c, entries, bare, report)
+    if "puppy_body_weight_kg" in facts:
+        report.append({"input": "animal.puppy_body_weight_kg", "status": "warning",
+                       "reason": "not-used", "text": caveats.PUPPY_BODY_WEIGHT_NOT_USED})
     c = _Check(data, req, facts, entries)
     for nid, sides in entries.items():
         if "low" in sides and "high" in sides and sides["low"] > sides["high"]:
@@ -621,6 +720,7 @@ def check(data, request):
                                    "as entered."})
     order = [inputs.ENERGY_ENTRY] + limits.nutrient_ids(data.tables)
     nutrients = [_nutrient(data, c, nid, entries) for nid in order if nid in entries]
+    _other_rows(data, nutrients)
     _missing(report, nutrients)
     out = _envelope(data, "check_diet")
     out.update({
@@ -631,6 +731,8 @@ def check(data, request):
                                   "animal": facts, "entries": entries, "subject": subject}},
         "input_report": report,
         "factors": _factors(c),
+        "entries_text": caveats.ENTRIES_RESULT_TEXT,
+        "outcomes_text": caveats.OUTCOMES_TEXT,
         "nutrients": nutrients,
         "checks": _checks(data, c, entries),
         "limitations": _limitations(data, nutrients),
@@ -650,7 +752,7 @@ def get_limits(data, request):
     order = [inputs.ENERGY_ENTRY] + limits.nutrient_ids(data.tables)
     nutrients = [_nutrient(data, c, nid, {}) for nid in order]
     for n in nutrients:
-        for side in ("low", "high", "summary"):
+        for side in ("entry", "low", "high", "summary", "other_row"):
             n.pop(side)
     out = _envelope(data, "get_limits")
     out.update({
@@ -693,8 +795,6 @@ def facts_read(data, rid):
             less.pop(f)
             if energy.requirement_energy(tables, rid, less) != whole:
                 read.add(f)
-    if limits.applies(tables["template"]["calcium-large-breed-puppy"], req):
-        read.add("puppy_body_weight_kg")
     if energy.RULES[rid] in energy.ADULT_RULES:
         read.add("optimal_body_weight_kg")
     if any(row["min_rule"] == "fediaf-late-growth-by-mature-weight" or

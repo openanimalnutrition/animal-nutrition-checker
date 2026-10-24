@@ -523,8 +523,8 @@ def check_conditions(data_dir, note_ids, nutrient_ids, requirements, report):
         if not ID.fullmatch(r["id"]) or r["id"] in seen:
             report.error(where + " id", "ids are lower-case words joined by -, with no repeats")
         seen.add(r["id"])
-        if not r["item"].isdigit() or int(r["item"]) not in items:
-            report.error(where + " item", "not an item of limitations.csv")
+        if r["item"] and (not r["item"].isdigit() or int(r["item"]) not in items):
+            report.error(where + " item", "not an item of limitations.csv (or empty: none)")
         for token in r["applies_to"].split() or [""]:
             if token not in tokens_known:
                 report.error(where + " applies_to", 'unknown %r: write "*", a species, a '

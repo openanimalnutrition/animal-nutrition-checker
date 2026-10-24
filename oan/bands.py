@@ -24,6 +24,25 @@ BANDS = (
     "range-d9",
     "range-d10",
 )
+# Each band's display: the Dynamic Decile System's own names, as the IG's Nutrient Decile
+# Bands code system gives them (the template's labels, character for character). The result
+# carries them beside each band code (steward, 24 Oct 2026: keep the system's nomenclature).
+DISPLAY = {
+    "below-min-lt25": "Very Severely Restricted (<25% of Min)",
+    "below-min-25-50": "Severely Restricted (25 to <50% of Min)",
+    "below-min-50-75": "Moderately Restricted (50 to <75% of Min)",
+    "below-min-75-100": "Slightly Restricted (75 to <100% of Min)",
+    "range-d1": "Lowest/Just Above Min (Min to <10% of Range)",
+    "range-d2": "Lower (10 to <20% of Range)",
+    "range-d3": "Low (20 to <30% of Range)",
+    "range-d4": "Low Moderate (30 to <40% of Range)",
+    "range-d5": "Mid Moderate (40 to <50% of Range)",
+    "range-d6": "High Moderate (50 to <60% of Range)",
+    "range-d7": "High (60 to <70% of Range)",
+    "range-d8": "Higher (70 to <80% of Range)",
+    "range-d9": "Near Highest (80 to <90% of Range)",
+    "range-d10": "Highest (90% of Range or Greater)",
+}
 NO_RANGE = "no-range"
 BELOW_MIN_FRACTIONS = (0.25, 0.5, 0.75)
 DECILE_FRACTIONS = (0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9)
