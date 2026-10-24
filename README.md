@@ -1,15 +1,101 @@
-# Open Animal Nutrition: reference implementation (work in progress)
+# Open Animal Nutrition: the checker
 
-The code version of the Dynamic Decile System template (DDS, frozen at Version 21OCT26b).
-It reproduces the template's published test cases, and the steward approved every
-difference on 22 Oct 2026 (`docs/parity-21OCT26b.md`). It becomes the reference when the
-Implementation Guide declares it so; until then it is a non-normative reference
-implementation of the proposed computation.
+The checker compares the nutrient values of a dog or cat diet with one published requirement:
+any of 21 requirements from the 2006 NRC Nutrient Requirements of Dogs and Cats, the 2026
+AAFCO Official Publication and the FEDIAF Nutritional Guidelines of September 2025. For each
+nutrient entered it reports where the value lies among 14 bands, from below the minimum to
+above the range high, and a proposed verdict: `deficient`, `excess` or none. It is the code
+version of the Dynamic Decile System (DDS) template, frozen at Version 21OCT26b, and it gives
+the same result to people, through a small web page, and to AI systems, through an MCP
+server.
 
-Python 3.9 or later, standard library only. Not yet published; the repository will move to
-the Open Animal Nutrition organisation.
+It compares a diet with one standard's figures. It is not a safety or compliance assessment,
+and not veterinary advice; every result says so first.
 
-## Layout
+## Status: proposed, not ratified
+
+- This is a non-normative reference implementation of the computation proposed by Open
+  Animal Nutrition. Its rules, and the verdicts `deficient` and `excess`, are the
+  provisional steward's proposal, pending ratification by a governance body that has not
+  yet been formed. It becomes the reference when the Implementation Guide (IG) declares it
+  so.
+- The provisional steward is DVM Consulting, Inc., a California Certified B Corporation. It
+  sells nutritional supplements and offers diet formulation software that implements this
+  standard ([disclosure of interest](https://github.com/openanimalnutrition/animal-nutrition-ig/blob/main/GOVERNANCE.md)).
+  The computation references no product, ingredient, supplement or vendor.
+- The steward keeps working on the checker. Every change goes through a pull request, is
+  recorded with its reason in `docs/changes-from-21OCT26b.md`, and gets a new data version
+  (`data/RELEASE`; now 21OCT26b.7).
+
+## Where the reasoning is
+
+| What | Where |
+|---|---|
+| The computation: the basis, the bands, the adequacy interpretation, the open points and the conflicts left for the governance body | The IG's [band computation page](https://github.com/openanimalnutrition/animal-nutrition-ig/blob/main/input/pagecontent/band-computation.md) |
+| Where the checker's rules and notes differ from the template, and why | [`docs/changes-from-21OCT26b.md`](docs/changes-from-21OCT26b.md) |
+| What was compared with the template, and the three differences the steward approved | [`docs/parity-21OCT26b.md`](docs/parity-21OCT26b.md) |
+| Every value, with its source (table and page) | `data/standards/<edition>/<requirement>.csv`, `data/energy.csv`, `data/template.csv` |
+| The notes on values and rows | `data/notes.csv` (the template's own wording: `docs/template-21OCT26b-notes.csv`) |
+| The template's known limitations, and where each puts a condition on a result | `data/limitations.csv`, `data/conditions.csv` |
+
+## Challenge a rule or report an error
+
+[Open an issue](https://github.com/openanimalnutrition/animal-nutrition-checker/issues/new/choose)
+with one of the two forms:
+
+- **Challenge a rule**: the rule, what you propose instead, why (with sources by table and
+  page), and which animals or requirements it affects;
+- **Report a data error**: the value in the checker and the value in the source, with its
+  table and page.
+
+Everything in an issue is public and stays in the record. The steward answers in the issue;
+once a governance body is formed, it decides. An accepted change is made by a pull request,
+with its entry in the changes document and a new data version.
+
+No GitHub account? Email admin+oan@dvmconsulting.com, and the steward will file it for you
+as a public issue.
+
+## Run it
+
+The web page and the MCP server, in Docker (port 8790 on this computer only):
+
+```
+docker build --target runtime -t oan-checker:dev .
+docker run --rm --read-only --tmpfs /tmp --cpus 1 --memory 512m -p 127.0.0.1:8790:8790 oan-checker:dev
+```
+
+Then open http://127.0.0.1:8790/ for the web page; the MCP server is at
+http://127.0.0.1:8790/mcp.
+
+From Python (3.9 or later, standard library only), in this folder:
+
+```python
+from oan import result
+
+data = result.Data("data")
+res = result.check(data, {
+    "requirement": "nrc-dog-adult",
+    "animal": {"body_weight_kg": 20,
+               "adult_dog_type": "Average laboratory or active (130 * kg BW^0.75)"},
+    "entries": {"protein": 60, "calcium": 1.2},   # in each row's unit, here g/Mcal
+})
+print(result.to_json(res))
+```
+
+`result.list_requirements(data)` lists the requirements, and `result.describe_inputs(data)`
+the inputs, their units and their rules.
+
+## Licence
+
+CC0 1.0 Universal ([`LICENSE`](LICENSE)): the code, the data, the notes and the documents.
+The standards and the other works the notes cite remain their publishers'; see
+[`NOTICE`](NOTICE).
+
+## Reference
+
+The rest of this page is for those who maintain or check the code.
+
+### Layout
 
 | Path | What it is |
 |---|---|
@@ -32,7 +118,9 @@ the Open Animal Nutrition organisation.
 | `tools/check.py` | Every automatic check in one command (what a pull request must pass) |
 | `tools/impact_report.py` | The impact report of a data change, old data against new: evidence for the steward |
 | `tools/` (other) | The one-time converters from the template (the table, the export's cell values), the source finder, the validator runner |
-| `.github/workflows/checks.yml` | Runs `tools/check.py` on every pull request and on main (not yet run on GitHub) |
+| `.github/workflows/checks.yml` | Runs `tools/check.py` on every pull request and on main |
+| `.github/ISSUE_TEMPLATE/` | The two issue forms: challenge a rule, report a data error |
+| `LICENSE`, `NOTICE` | CC0 1.0; the standards and other cited works remain their publishers' |
 | `docs/parity-21OCT26b.md` | The parity gate: what was compared with the template, and every difference with its reason |
 | `docs/changes-from-21OCT26b.md` | Where the checker's rules and notes now differ from the template, and why |
 | `docs/template-21OCT26b-notes.csv` | The template's 301 notes word for word (the record the adapted notes are checked against) |
@@ -47,7 +135,7 @@ the Open Animal Nutrition organisation.
 | `tests/contract/` | The server's contract tests, run in the test image |
 | `tests/vectors-extra/` | Cases written after the freeze for what the frozen vectors do not test (the text checks; row 10, the header cells, the energy row of the table, the edges shown below band edges), not frozen |
 
-## The data
+### The data
 
 - `nutrients.csv`: id, the template's name and unit, the amount unit and basis, the K
   multiplier, the per-Mcal nutrient of an MBW row, and whether it can be entered.
@@ -84,7 +172,8 @@ the Open Animal Nutrition organisation.
     of the calculated carbohydrate maximum, the n-6:n-3 ratio maximums' defaults). A figure
     that is a maximum carries its type (TPL when the template sets it; the puppy calcium
     maximum of 4.5 is NRC's calcium SUL). The shape of each rule is in `oan/limits.py`.
-- `notes.csv`: the template's notes as records, each with the tab and cell it comes from.
+- `notes.csv`: the notes, adapted from the template's to describe the checker
+  (`docs/changes-from-21OCT26b.md`), each with the tab and cell it comes from.
 - `limitations.csv`: the template's ten known limitations, word for word (Standards tab A140 to
   A149).
 - `conditions.csv`: where each limitation puts a condition on a result: the requirements
@@ -102,7 +191,7 @@ value below it gets no verdict (IG open point 6, as the steward settled it on 22
 No CSV cell holds an expression. A value computed from another (for example a per-MBW
 maximum) has an empty figure, so it cannot go stale when its source changes.
 
-## Data versions
+### Data versions
 
 The data version (in `data/RELEASE`) is the code's own; the template sheet stays at
 Version 21OCT26b. The frozen baseline in `tests/parity/` is never edited.
@@ -112,8 +201,8 @@ Version 21OCT26b. The frozen baseline in `tests/parity/` is never edited.
 | 21OCT26b.1 | The 21OCT26b requirement table as CSV, with a source for every figure |
 | 21OCT26b.2 | Source text only: the five NRC dog choline minimums (340 mg/Mcal, 45 mg/kg BW^0.75) now say "AI column; see NRC p. 233" (steward, 21 Oct 2026). No value changed |
 | 21OCT26b.3 | `energy.csv`: the energy figures of 21OCT26b, moved from the template's formulas into data with a source for each (steward, 21 Oct 2026). No value changed |
-| 21OCT26b.5 | The Standards tab's 133 notes (n169-n301), and every note's tab and cell; the 31 minimums the template takes from NRC's own figure by NRC's own rule get the rule `standard-derived` (the 29 NRC RA Cat Late Gestation MBW minimums by Table 15-14 footnote d, and pantothenic acid 1.44 mg/Mcal under both NRC queen selections); `limitations.csv`, `conditions.csv`, `open-minimums.csv` (steward, 22 Oct 2026). No value changed |
 | 21OCT26b.4 | `template.csv`: the template's own figures and its four extra rows, moved from the Standards tab's formulas into data with a source for each (steward, 21 Oct 2026). No value changed |
+| 21OCT26b.5 | The Standards tab's 133 notes (n169-n301), and every note's tab and cell; the 31 minimums the template takes from NRC's own figure by NRC's own rule get the rule `standard-derived` (the 29 NRC RA Cat Late Gestation MBW minimums by Table 15-14 footnote d, and pantothenic acid 1.44 mg/Mcal under both NRC queen selections); `limitations.csv`, `conditions.csv`, `open-minimums.csv` (steward, 22 Oct 2026). No value changed |
 | 21OCT26b.6 | `notes.csv`: the notes describe the checker, not the spreadsheet: 224 adapted (cells to field names, cross-references to note ids, the rules of 23 Oct 2026), 3 deleted (n169, n174, n186); each change and its reason in `docs/changes-from-21OCT26b.md` (steward, 23 Oct 2026). No value changed |
 | 21OCT26b.7 | `notes.csv`: ten notes (n181, n182, n183, n192, n214, n223, n224, n226, n227, n238) follow the rules of 24 Oct 2026: a restriction never raises fat, ratios do not change with a restriction or a low energy fed, and the range highs computed from a minimum are named (steward, 24 Oct 2026). No value changed |
 
@@ -126,7 +215,7 @@ In phase 4 the baseline gained, beside the data, the cell values of the released
 template's export (`tests/parity/export-21OCT26b`, steward, 22 Oct 2026); `SHA256SUMS`
 gained that one line.
 
-## Checks
+### Checks
 
 Every check, in one command (what a pull request must pass; GitHub runs the same):
 
@@ -175,7 +264,7 @@ released 21OCT26b values: 4,829 are bit for bit the same, and one differs in the
 binary digit (the template's `=0.17*40` gives 6.800000000000001; the code gives 6.8). The
 steward approved the two as the same value (21 Oct 2026).
 
-## Status
+### How it was built, and parity with the template
 
 Phase 1a of the plan: the data format, the converter, per-value sources, the validator,
 the frozen baseline. Phase 1b: number handling, the input rules and the vector runner.
@@ -186,7 +275,8 @@ checks (the template's figures as data). Phase 4: the parity gate (the real-Shee
 the difference list, the impact report, the automatic checks). Phase 5: the Result
 (`oan-check-result/1`), the proposed verdicts, the conditions, the GUI and the MCP server.
 
-**Parity with Version 21OCT26b: no case differs; the three differences in
+**Parity with Version 21OCT26b, run with the template's own rules
+(`limits.Request(..., template_rules=True)`): no case differs; the three differences in
 `docs/parity-21OCT26b.md` were approved by the steward** (21 and 22 Oct 2026).
 
 | Vector file | Cases | Pass | Differ | Outside the rules |
@@ -218,7 +308,7 @@ values 8,595 values, formulas 51,229 (53 cases skipped, as in the original: a wi
 unmatched requirement name), energy every case. With a figure changed, the core and the
 models still agree (tests/test_phase3.py, tests/test_phase4.py).
 
-## The Result, the GUI and the MCP server
+### The Result, the GUI and the MCP server
 
 Every result starts with four caveats: a non-normative reference implementation of the
 proposed computation; the steward's disclosed interest; not a safety or compliance
@@ -250,11 +340,7 @@ The MCP tools (stateless Streamable HTTP at `/mcp`): `list_requirements`, `descr
 content and as a text block whose first lines are the caveats. The GUI (`/`) takes the same
 inputs and its "download JSON" gives the same bytes.
 
-Run it locally (Docker; port 8790 on this computer only):
+To run it, see [Run it](#run-it) above.
 
-```
-docker build --target runtime -t oan-checker:dev .
-docker run --rm --read-only --tmpfs /tmp --cpus 1 --memory 512m -p 127.0.0.1:8790:8790 oan-checker:dev
-```
-
-Next: the IG pull request that declares the code the reference; then hosting (phase 6).
+Next: hosting at openanimalnutrition.org (phase 6), and the IG pull request that declares
+the code the reference.
