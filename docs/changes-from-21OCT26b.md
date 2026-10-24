@@ -38,8 +38,9 @@ tests).
    multiplied by the energy factor, the reference energy divided by the energy fed (at least 1
    and at least the restriction's factor); the template applies only the restriction's factor,
    and an entered intake never raised a minimum. Growth, gestation and lactation keep the
-   template's rule: body tissue is being accreted, and the standards' per Mcal amounts hold at
-   the energy actually fed (steward, 23 Oct 2026).
+   template's rule: the animal is fed more energy than it needs to keep its weight stable and
+   the extra goes to growth, a pregnancy or milk, so nutrient needs rise and fall with the
+   energy fed and the per Mcal minimums hold at any intake (steward, 23 Oct 2026).
 4. MBW maximums are converted at the reference energy, the energy the standard's per Mcal
    figures assume at the current body weight: NRC's average adult dog (130 kcal x kg BW^0.75)
    for NRC and AAFCO dogs, NRC's lean adult cat (100 kcal x kg BW^0.67) for NRC and AAFCO cats

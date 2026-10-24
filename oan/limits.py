@@ -326,9 +326,9 @@ class Request:
     def energy_factor(self):
         """The reference energy / the energy fed, at least 1, or None when either is not
         known (steward, 23 Oct 2026); 1 under the template's rules, and for requirements other
-        than adult maintenance (steward, 23 Oct 2026: in growth, gestation and lactation body
-        tissue is being accreted, and the standards' per-Mcal amounts hold at the energy
-        actually fed)."""
+        than adult maintenance (steward, 23 Oct 2026: in growth, gestation and lactation the
+        animal is fed more energy than it needs to keep its weight stable and the extra goes to
+        growth, a pregnancy or milk, so nutrient needs rise and fall with the energy fed)."""
         if self.template_rules or self.requirement is None or \
                 self.requirement["life_stage"] != "adult-maintenance":
             return 1.0

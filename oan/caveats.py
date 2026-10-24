@@ -143,7 +143,8 @@ MBW_ENTRY_TEXT = ("the diet's amount per Mcal, as on the per-Mcal row; the limit
 # The steward's energy rules (23 Oct 2026); the steward approved this wording on 23 Oct 2026,
 # and the fat exception ("except fat's ... optimal body weight", decision D1) the same day.
 # The adult-maintenance-only sentence ("Under adult maintenance ... raises them", decision D3)
-# was approved the same day.
+# was approved the same day, with the steward's wording for growth, gestation and lactation
+# ("fed more energy than it needs to keep its weight stable ...").
 ENERGY_RULES_TEXT = (
     "How energy sets the limits (the provisional steward's rules, proposed, pending "
     "ratification). The reference energy is the energy the standard's per-Mcal figures assume, "
@@ -155,9 +156,10 @@ ENERGY_RULES_TEXT = (
     "Under adult maintenance requirements, on a row with no MBW minimum, the per-Mcal minimum "
     "is multiplied by the energy factor, the reference energy divided by the energy fed (at "
     "least 1, and at least the restriction's factor); in growth, gestation and lactation, where "
-    "body tissue is being accreted, per-Mcal minimums hold at any intake and only a "
-    "restriction raises them. Maximums do not change per Mcal: MBW maximums are converted at "
-    "the reference energy.")
+    "the animal is fed more energy than it needs to keep its weight stable and the extra goes "
+    "to growth, a pregnancy or milk, nutrient needs rise and fall with the energy fed: per-Mcal "
+    "minimums hold at any intake and only a restriction raises them. Maximums do not change "
+    "per Mcal: MBW maximums are converted at the reference energy.")
 # Draft, 23 Oct 2026, pending the steward's approval: the reference energy's basis. {figure},
 # {exponent}, {species} and {who} are filled in.
 REFERENCE_BASIS = {
