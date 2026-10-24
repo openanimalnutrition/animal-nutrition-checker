@@ -267,7 +267,8 @@ def result_page(data, request, res):
                      for i in res["input_report"] if i["status"] != "defaulted")
     rows_html = []
     for n in res["nutrients"]:
-        conds = "".join("<li>%s (limitation %s)</li>" % (e(c["depends_on"]), e(c["limitation"]))
+        conds = "".join("<li>%s%s</li>" % (e(c["depends_on"]), "" if c["limitation"] is None
+                                           else " (limitation %s)" % e(c["limitation"]))
                         for c in n["conditions"])
         unavailable = n["limits_unavailable"]
         rows_html.append(
@@ -281,7 +282,7 @@ def result_page(data, request, res):
                     if n["requirement_maximum"] and not n["requirement_maximum"]["set"]
                     else ""),
                 _num(n["minimum"]) or ("none" if not unavailable else e(unavailable["text"])),
-                _num(n["standard_minimum"]),
+                _num(n["verdict_minimum"]),
                 "none" if n["range_high"] is None else "%s<br><small>%s, %s</small>" % (
                     _num(n["range_high"]), e(n["max_type"]), e(n["max_provenance"])),
                 _entry_cells(n["low"]), _entry_cells(n["high"]),

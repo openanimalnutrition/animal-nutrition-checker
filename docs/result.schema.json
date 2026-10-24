@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://openanimalnutrition.org/schema/oan-check-result/1",
-  "title": "oan-check-result/1",
-  "description": "The result of the Open Animal Nutrition reference checker (every tool: check_diet, get_limits, list_requirements, describe_inputs, get_notes). Within version 1 a change only adds fields; a breaking change is version 2. The caveats come first and are in every result. Verdicts are proposed, pending ratification.",
+  "$id": "https://openanimalnutrition.org/schema/oan-check-result/2",
+  "title": "oan-check-result/2",
+  "description": "The result of the Open Animal Nutrition reference checker (every tool: check_diet, get_limits, list_requirements, describe_inputs, get_notes). Within version 2 a change only adds fields; a breaking change is version 3. Version 2 (release 0.6.0) renamed standard_minimum to verdict_minimum and lets a condition have no limitation (null). The caveats come first and are in every result. Verdicts are proposed, pending ratification.",
   "type": "object",
   "required": ["schema", "caveats", "tool", "code_release", "data_version", "data_sha256", "template_version", "verdict_status"],
   "properties": {
-    "schema": {"const": "oan-check-result/1"},
+    "schema": {"const": "oan-check-result/2"},
     "caveats": {
       "type": "array",
       "minItems": 4,
@@ -137,7 +137,7 @@
     },
     "nutrient": {
       "type": "object",
-      "required": ["id", "name", "unit", "basis", "ig_code", "minimum", "standard_minimum", "maximum", "range_high", "max_type", "max_provenance", "limits_unavailable", "mbw", "requirement_maximum", "conditions", "notes"],
+      "required": ["id", "name", "unit", "basis", "ig_code", "minimum", "verdict_minimum", "maximum", "range_high", "max_type", "max_provenance", "limits_unavailable", "mbw", "requirement_maximum", "conditions", "notes"],
       "additionalProperties": false,
       "properties": {
         "id": {"type": "string"},
@@ -146,7 +146,7 @@
         "basis": {"type": "string"},
         "ig_code": {"type": ["string", "null"]},
         "minimum": {"$ref": "#/$defs/number_or_null"},
-        "standard_minimum": {"description": "The part of the minimum counted as the applied standard's for the verdict deficient. It includes any raise this checker applies for a caloric restriction or the energy factor (the provisional steward's rule); minimum_raise then gives the standard's minimum before the raise.", "$ref": "#/$defs/number_or_null"},
+        "verdict_minimum": {"description": "The minimum below which a value is deficient: the applied standard's minimum, including any raise this checker applies (see minimum_raise). Null where the whole minimum is this checker's own, which gives no verdict; on an open point (open_reason), a value below it also gets no verdict. Named standard_minimum before schema 2.", "$ref": "#/$defs/number_or_null"},
         "minimum_raise": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/minimum_raise"}]},
         "maximum": {"$ref": "#/$defs/number_or_null"},
         "range_high": {"$ref": "#/$defs/number_or_null"},
@@ -217,7 +217,7 @@
       "additionalProperties": false,
       "properties": {
         "id": {"type": "string"},
-        "limitation": {"type": "integer", "minimum": 1},
+        "limitation": {"description": "The item of the template's known limitations (limitations) this condition belongs to; null for a condition outside them.", "type": ["integer", "null"], "minimum": 1},
         "depends_on": {"type": "string"},
         "notes": {"$ref": "#/$defs/note_ids"}
       }

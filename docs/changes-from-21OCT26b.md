@@ -33,6 +33,19 @@ version; every result states both (`code_release`, `data_version`).
   - NRC's fatty acid advice checks no longer count a nutrient that is not entered as 0 (rule 9).
   - The energy rules text in every result says when each computed range high applies (rules 4
     and 7); it named the NRC dog choline maximum as computed where it was NRC's 500 mg/Mcal.
+- 0.6.0 (24 Oct 2026): data version 21OCT26b.8; the verdicts and limits are unchanged. Three
+  fixes from an AI-read test of 0.5.1, where both models could not tell which moisture category
+  a value was compared with, and one read "Cats: 1.43X if Vit D2" as an instruction to
+  multiply the entry (steward, 24 Oct 2026; section 3):
+  - The dry rows of taurine, copper and selenium are named for the foods they cover, and each
+    moisture row says which foods it is for and whether the wet and dry limits differ under
+    the requirement. On a canned cat food entered on the plain taurine row, the checker
+    compared the dry-food minimum, about half the wet-food one.
+  - Template data-entry instructions left the row names; the two that carry meaning are now
+    conditions (the cat vitamin D form, and arginine without protein under NRC and FEDIAF).
+  - The Result's `standard_minimum` is now `verdict_minimum`, as it includes this checker's
+    raise; the schema is `oan-check-result/2`, and a condition outside the template's ten
+    known limitations has `limitation: null`.
 
 ## Where the template's own text is kept
 
@@ -134,7 +147,7 @@ tests).
    for adult cats (steward, 24 Oct 2026, after the AI-read test of release 0.5.0;
    `oan/outcomes.py`, tested by `tests/test_phase5.py`).
 
-## 2. Notes (data versions 21OCT26b.6 and 21OCT26b.7)
+## 2. Notes (data versions 21OCT26b.6 to 21OCT26b.8)
 
 The checker's notes describe the checker, not the spreadsheet (steward, 23 Oct 2026). In every
 adapted note:
@@ -178,8 +191,38 @@ An adapted note's origin reads "Adapted from DDS template Version 21OCT26b, <tab
 - n278, n279, n289: Values calculated from the minimums (the folate note, the carbohydrate maximum) also follow the energy factor (rule 3).
 - n223, n224, n226, n227, n238: Ratios calculated from other rows: the template's notes said they reflect any raise of the minimums, and that a calculated Ca:P maximum falls as the restriction rises; the checker computes them from the minimums before any raise, so they do not change (rule 8).
 
+Data version 21OCT26b.8 changed 15 notes to the new row names only (section 3): n010, n012,
+n131, n132, n133, n135, n136, n137, n250, n262, n263, n264, n265, n266, n267.
+
 The steward read n175, n192 and n183 in full and approved them (23 Oct 2026). On 24 Oct 2026 n181, n182, n183, n192, n214, n223, n224, n226, n227 and n238 changed to follow that day's decisions (rules 2, 4 and 8; data version 21OCT26b.7).
 
 ### Wording only
 
 The other adapted notes changed in wording only, by the conventions above: n001, n002, n005, n007, n011, n013, n015, n017, n018, n019, n021, n022, n026, n028, n036, n037, n038, n039, n040, n041, n042, n043, n044, n045, n046, n047, n048, n050, n051, n052, n053, n054, n057, n058, n059, n060, n066, n069, n074, n078, n080, n081, n082, n083, n084, n086, n087, n088, n089, n090, n095, n096, n097, n099, n100, n101, n102, n103, n104, n105, n106, n111, n112, n122, n123, n127, n128, n131, n132, n133, n134, n135, n136, n137, n143, n144, n145, n152, n153, n154, n156, n158, n159, n160, n161, n162, n163, n170, n171, n172, n173, n177, n178, n179, n180, n187, n188, n189, n190, n191, n193, n195, n196, n197, n198, n199, n200, n201, n202, n205, n207, n209, n211, n213, n215, n216, n217, n218, n220, n221, n222, n231, n232, n233, n234, n235, n236, n237, n239, n240, n242, n244, n245, n246, n247, n248, n249, n250, n251, n252, n253, n254, n255, n256, n257, n258, n259, n260, n261, n262, n263, n264, n265, n266, n268, n269, n270, n271, n272, n273, n274, n275, n276, n277, n280, n281, n283, n288, n291, n293, n295, n297, n298, n299.
+
+## 3. Row names (data version 21OCT26b.8)
+
+The template's row names carried data-entry instructions for the spreadsheet's user. The
+checker's names say what each row is; an instruction that carries meaning is a condition on
+the row, which every result shows (steward, 24 Oct 2026, after the AI-read test of release
+0.5.1). The template's names are kept in the frozen baseline (`tests/parity/`).
+
+| Row | Template name | Checker name |
+|---|---|---|
+| taurine, taurine-mbw | Taurine, Tau (MBW) | Taurine, Tau (For 12% or Less Moisture Foods) (MBW) |
+| copper | Copper, Cu | Copper, Cu (For 12% or Less Moisture Foods) |
+| selenium | Selenium, Se | Selenium, Se (For 12% or Less Moisture Foods) |
+| vitamin-d, vitamin-d-mbw | Vitamin D (D2 +D3) \| Cats: 1.43X if Vit D2 (MBW) | Vitamin D (dogs: D2 + D3; cats: D3) (MBW) |
+| vitamin-d2, vitamin-d2-mbw | Vitamin D2 (ergocalciferol) \| Cats Only (MBW) | Vitamin D2 (ergocalciferol), cats only (MBW) |
+| arginine, arginine-mbw | Arginine, Arg \| Also Enter Protein if NRC/FEDIAF (MBW) | Arginine, Arg (MBW) |
+| vitamin-e, vitamin-e-mbw | Vitamin E, Alpha-tocopherol \| [PUFA] or fish oil may affect / [PUFA] may affect MBW | Vitamin E, Alpha-tocopherol (MBW) |
+
+The copper and selenium MBW rows keep their names: they apply to foods of any moisture (notes
+n250, n257). The conditions that replace the instructions: `vitamin-d-form-cats` and
+`vitamin-d-form-cats-mbw` (enter D3 on the vitamin D row and D2 on the D2 row, whose minimum
+is 1.43 times; never multiply an entry), `arginine-protein-not-entered` (NRC and FEDIAF, shown
+when protein is not entered); vitamin E's was already `not-calculated-vitamin-e`. The single
+moisture condition became four: `moisture-dry` and `moisture-wet` where the two rows' limits
+differ under the requirement, `moisture-same` where they do not (with the alert that some
+standards set different copper, selenium and taurine limits by moisture or format), and
+`moisture-any` on the copper and selenium MBW rows.

@@ -1,4 +1,4 @@
-"""The Result: what the checker returns, as one JSON object (schema "oan-check-result/1",
+"""The Result: what the checker returns, as one JSON object (schema "oan-check-result/2",
 docs/result.schema.json).
 
 check() is the only path from a request to a result; the GUI and the MCP server only render
@@ -20,8 +20,8 @@ rejected in the input report and never computed with.
 from . import (caveats, conditions, energy, inputs, interpret, limits, numbers, outcomes,
                release, table)
 
-SCHEMA = "oan-check-result/1"
-CODE_RELEASE = "0.5.1"
+SCHEMA = "oan-check-result/2"
+CODE_RELEASE = "0.6.0"
 SUBJECTS = ("diet", "requirement range")
 REQUEST_FIELDS = ("requirement", "animal", "entries", "subject")
 ENERGY_NAME, ENERGY_UNIT = "Energy", "kcal/day"
@@ -370,7 +370,7 @@ def _nutrient(data, check, nid, entries):
     no_limits = lim.minimum is None and lim.maximum is None
     out = {"id": nid, "name": name, "unit": unit, "basis": basis, "ig_code": ig_code,
            "minimum": _number_or_none(lim.minimum),
-           "standard_minimum": _number_or_none(standard_min),
+           "verdict_minimum": _number_or_none(standard_min),
            "minimum_raise": None if raise_ is None else raise_["field"],
            "maximum": _number_or_none(lim.maximum),
            "range_high": None if no_limits else lim.range_high,
@@ -600,7 +600,8 @@ def _root_notes(data, req):
 
 
 def _limitations(data, nutrients):
-    items = sorted({c["limitation"] for n in nutrients for c in n["conditions"]})
+    items = sorted({c["limitation"] for n in nutrients for c in n["conditions"]
+                    if c["limitation"] is not None})
     return [{"item": i, "text": data.limitations[i]["text"],
              "notes": data.limitations[i]["notes"].split()} for i in items]
 

@@ -15,7 +15,7 @@ from mcp.server.lowlevel import Server
 
 from oan import caveats, inputs, result
 
-JSON_MARKER = "RESULT (JSON, schema oan-check-result/1):"
+JSON_MARKER = "RESULT (JSON, schema oan-check-result/2):"
 MAX_DEPTH = 4
 SCHEMA_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                            "docs", "result.schema.json")

@@ -458,7 +458,7 @@ class RaisedMinimum(Close):
         raise_ = n["minimum_raise"]
         self.close(raise_["standard_minimum_before_raise"], 65 * 4 / 3.6)
         self.close(raise_["factor"], res["factors"]["energy_factor"])
-        self.close(n["standard_minimum"], raise_["standard_minimum_before_raise"] *
+        self.close(n["verdict_minimum"], raise_["standard_minimum_before_raise"] *
                    raise_["factor"])
         self.assertEqual(raise_["reason"], limits.RAISE_ENERGY)
         self.assertEqual(n["low"]["verdict"], "deficient")

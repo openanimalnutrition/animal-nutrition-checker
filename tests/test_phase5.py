@@ -1,4 +1,4 @@
-"""Phase 5 tests: the Result (schema oan-check-result/1), the verdicts, the conditions and the
+"""Phase 5 tests: the Result (schema oan-check-result/2), the verdicts, the conditions and the
 data of version 21OCT26b.5 (the Standards tab's notes, the standard-derived minimums, the
 known limitations, the conditions and the open minimums).
 
@@ -85,11 +85,11 @@ def nutrient(res, nid):
     return next(n for n in res["nutrients"] if n["id"] == nid)
 
 
-class Data21OCT26b7(unittest.TestCase):
+class Data21OCT26b8(unittest.TestCase):
     def test_release(self):
         from oan import release
         r = release.read_release(DATA_DIR)
-        self.assertEqual(r["data_version"], "21OCT26b.7")
+        self.assertEqual(r["data_version"], "21OCT26b.8")
         self.assertEqual(r["content_sha256"], release.content_hash(DATA_DIR))
 
     def test_validator_clean(self):
@@ -160,9 +160,14 @@ class Data21OCT26b7(unittest.TestCase):
         self.assertEqual(len(D.tables["limitations"]), 10)
 
     def test_every_condition_and_open_minimum_is_used(self):
-        self.assertEqual(len(D.tables["conditions"]), 26)
+        self.assertEqual(len(D.tables["conditions"]), 32)
         self.assertEqual(len(D.tables["open_minimums"]), 15)
-        self.assertEqual({int(c["item"]) for c in D.tables["conditions"]}, set(range(1, 11)))
+        self.assertEqual({int(c["item"]) for c in D.tables["conditions"] if c["item"]},
+                         set(range(1, 11)))
+        # Outside the template's ten known limitations (steward, 24 Oct 2026).
+        self.assertEqual(sorted(c["id"] for c in D.tables["conditions"] if not c["item"]),
+                         ["arginine-protein-not-entered", "vitamin-d-form-cats",
+                          "vitamin-d-form-cats-mbw"])
 
     def test_validator_rejects_bad_conditions(self):
         import shutil
@@ -374,11 +379,63 @@ class Conditions(unittest.TestCase):
 
     def test_moisture_split(self):
         res = run("fediaf-dog-adult-mer95", {"copper": 3, "selenium": 60})
-        self.assertIn("moisture", self.ids(res, "copper"))
+        self.assertIn("moisture-same", self.ids(res, "copper"))
+        self.assertIn("moisture-dry", self.ids(res, "selenium"))
         self.assertNotIn("moisture-selenium-fediaf", self.ids(res, "copper"))
         self.assertIn("moisture-selenium-fediaf", self.ids(res, "selenium"))
         self.assertNotIn("moisture-selenium-fediaf",
                          self.ids(run("nrc-dog-adult", {"selenium": 90}), "selenium"))
+
+    def test_moisture_rows(self):
+        # Each row says which foods it is for, and whether the wet and dry limits differ under
+        # the requirement (steward, 24 Oct 2026, after the AI-read test of release 0.5.1).
+        res = run("aafco-cat-adult", {"taurine": 0.6, "taurine-wet": 0.6, "copper": 3})
+        self.assertIn("moisture-dry", self.ids(res, "taurine"))
+        self.assertIn("moisture-wet", self.ids(res, "taurine-wet"))
+        self.assertIn("moisture-same", self.ids(res, "copper"))
+        nrc = run("nrc-cat-adult", {"copper-mbw": 0.2, "selenium-mbw": 7})
+        self.assertIn("moisture-any", self.ids(nrc, "copper-mbw"))
+        self.assertIn("moisture-any", self.ids(nrc, "selenium-mbw"))
+        same = next(c for c in nutrient(res, "copper")["conditions"] if c["id"] == "moisture-same")
+        self.assertIn("Some standards set different copper, selenium and taurine limits",
+                      same["depends_on"])
+        # "whose minimum differs" holds wherever moisture-dry is shown.
+        for rid in REQS:
+            r = limits.Request(D.tables, rid, animal_for(rid), {})
+            for dry, wet in (("taurine", "taurine-wet"), ("taurine-mbw", "taurine-wet-mbw"),
+                             ("copper", "copper-wet"), ("selenium", "selenium-wet")):
+                if any(r.std(dry, b) != r.std(wet, b) for b in ("min", "max")):
+                    self.assertNotEqual(r.std(dry, "min"), r.std(wet, "min"), (rid, dry))
+        for nid in ("taurine", "taurine-mbw", "copper", "selenium"):
+            self.assertIn("(For 12% or Less Moisture Foods)", nutrient(
+                result.get_limits(D, {"requirement": "aafco-cat-adult"}), nid)["name"])
+        for nid in ("copper-mbw", "selenium-mbw"):
+            self.assertNotIn("Moisture", nutrient(
+                result.get_limits(D, {"requirement": "aafco-cat-adult"}), nid)["name"])
+
+    def test_vitamin_d_form_cats(self):
+        cat = self.ids(run("aafco-cat-adult", {"vitamin-d": 400}), "vitamin-d")
+        self.assertIn("vitamin-d-form-cats", cat)
+        dog = self.ids(run("aafco-dog-adult", {"vitamin-d": 400}), "vitamin-d")
+        self.assertNotIn("vitamin-d-form-cats", dog)
+
+    def test_arginine_protein_not_entered(self):
+        nid = "arginine"
+        self.assertIn("arginine-protein-not-entered",
+                      self.ids(run("nrc-dog-adult", {nid: 2}), nid))
+        self.assertNotIn("arginine-protein-not-entered",
+                         self.ids(run("nrc-dog-adult", {nid: 2, "protein": 50}), nid))
+        self.assertNotIn("arginine-protein-not-entered",
+                         self.ids(run("aafco-dog-adult", {nid: 2}), nid))
+        c = next(c for c in nutrient(run("nrc-dog-adult", {nid: 2}), nid)["conditions"]
+                 if c["id"] == "arginine-protein-not-entered")
+        self.assertIsNone(c["limitation"])
+
+    def test_no_template_instructions_in_names(self):
+        # Template data-entry instructions are conditions, not part of a name (steward, 24 Oct
+        # 2026: "Cats: 1.43X if Vit D2" read as "multiply a D2 entry by 1.43").
+        res = result.describe_inputs(D)
+        self.assertEqual([e["name"] for e in res["entries"] if "|" in e["name"]], [])
 
     def test_legal_maximum(self):
         res = run("fediaf-dog-adult-mer95", {"copper": 3, "calcium": 3})
@@ -735,7 +792,7 @@ class Contract(unittest.TestCase):
         b = result.to_json(run(rid, copy.deepcopy(entries)))
         self.assertEqual(a, b)
         self.assertNotIn("NaN", a)
-        self.assertEqual(json.loads(a)["schema"], "oan-check-result/1")
+        self.assertEqual(json.loads(a)["schema"], "oan-check-result/2")
 
 
 class Wording(unittest.TestCase):
