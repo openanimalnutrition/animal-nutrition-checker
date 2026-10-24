@@ -21,6 +21,18 @@ version; every result states both (`code_release`, `data_version`).
   Data version 21OCT26b.7; the rules in section 1. Results before it said `0.5.0.dev0`
   whichever rules computed them; their data version tells them apart: 21OCT26b.5, the
   template's rules (22 Oct 2026); 21OCT26b.6, the rules of 23 Oct; 21OCT26b.7, those of 24 Oct.
+- 0.5.1 (24 Oct 2026): data version 21OCT26b.7; the verdicts are unchanged. Three fixes from
+  an AI-read test of 0.5.0 (steward, 24 Oct 2026):
+  - A minimum this checker raises for a caloric restriction or by the energy factor is no
+    longer reported as the standard's own. The status line names the standard's minimum before
+    the raise, the factor and the reason, and says whether the value is below the standard's
+    minimum itself; a new field, `minimum_raise`, gives the same on every raised row. The test
+    found "Below the AAFCO minimum" on a protein value 66% above AAFCO's own minimum for the
+    food (120 g/Mcal against 72.22, raised to 122.8); the raise is the provisional steward's
+    rule, which adds to the standards and does not change them.
+  - NRC's fatty acid advice checks no longer count a nutrient that is not entered as 0 (rule 9).
+  - The energy rules text in every result says when each computed range high applies (rules 4
+    and 7); it named the NRC dog choline maximum as computed where it was NRC's 500 mg/Mcal.
 
 ## Where the template's own text is kept
 
@@ -34,7 +46,8 @@ version; every result states both (`code_release`, `data_version`).
 
 ## 1. Rules
 
-From 23 Oct 2026 (rules 2 and 8 completed on 24 Oct 2026) the checker's own rules differ from
+From 23 Oct 2026 (rules 2 and 8 completed on 24 Oct 2026, rule 9 from release 0.5.1) the
+checker's own rules differ from
 the template's (`oan/energy.py`,
 `oan/limits.py`; tested by `tests/test_phase5_energy.py`). The parity check still compares the
 template's computation: the code keeps the template's rules for that check only
@@ -109,6 +122,17 @@ tests).
    narrowed the range: at a 30% restriction, NRC adult dogs' LA + AA : ALA + EPA + DHA range went
    from 0.31-74 to 0.44-52, and NRC puppies' Ca:P maximum from 1.8 to 1.26. Ratios a standard
    states itself never changed.
+9. NRC's fatty acid advice checks (LA:ALA, and EPA's share of EPA + DHA) never count a nutrient
+   that is not entered as 0: a check that needs one says it is not checked and names the
+   nutrient. An entered 0 is still 0. A nutrient entered as one value counts on both sides of
+   a check; one entered as a range counts low with low and high with high. The template read
+   the low entries together and the high entries together, with nothing entered counting as 0,
+   and so did this checker before release 0.5.1: LA entered without ALA read as outside NRC's
+   ratio, and since the placement rule (the template's heading "If No Req't Min, Put In
+   Range") puts a lone EPA value on the high side and EPA + DHA on the low, a diet entered as
+   one value each was never compared, EPA at 20% of EPA + DHA reading as "EPA is not included"
+   for adult cats (steward, 24 Oct 2026, after the AI-read test of release 0.5.0;
+   `oan/outcomes.py`, tested by `tests/test_phase5.py`).
 
 ## 2. Notes (data versions 21OCT26b.6 and 21OCT26b.7)
 

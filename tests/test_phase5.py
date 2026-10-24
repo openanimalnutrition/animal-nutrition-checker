@@ -553,11 +553,69 @@ class TextChecks(unittest.TestCase):
         self.assertEqual(c["low"]["result"], "outside")
         self.assertIn("NRC's advised ratio", c["low"]["text"])
         self.assertIn("not a verdict", c["status"])
-        self.assertEqual(c["high"], {"result": "not-entered", "text": None})
+        # Each entered as one value: read on both sides (steward, 24 Oct 2026).
+        self.assertEqual(c["high"], c["low"])
         res = run("nrc-cat-late-gestation", {"epa-dha": 0.02, "epa": {"high": 0.019}})
         c = next(c for c in res["checks"] if c["id"] == "epa-share-max")
         self.assertEqual(c["high"]["text"],
                          "EPA is above 60% of EPA + DHA, NRC's advised maximum share.")
+
+    def test_not_entered_is_not_checked(self):
+        # The AI-read test of release 0.5.0: a nutrient not entered was counted as 0 (steward,
+        # 24 Oct 2026: not checked, and the nutrient named). An entered 0 is still 0.
+        cases = (("nrc-dog-adult", {"linoleic-acid": 3.0}, "la-ala-ratio", "ALA",
+                  "LA:ALA with NRC's advised ratio."),
+                 ("nrc-dog-adult", {"alpha-linolenic-acid": 0.2}, "la-ala-ratio", "LA",
+                  "LA:ALA with NRC's advised ratio."),
+                 ("nrc-puppy-4-14-wk", {"epa-dha": 0.2}, "epa-share-max", "EPA",
+                  "EPA's share of EPA + DHA with NRC's advice."),
+                 ("nrc-cat-adult", {"epa": 0.01}, "epa-share-max-dha-only", "EPA + DHA",
+                  "EPA's share of EPA + DHA with NRC's advice."))
+        for rid, entries, cid, missing, what in cases:
+            c = next(c for c in run(rid, entries)["checks"] if c["id"] == cid)
+            for side in ("low", "high"):
+                self.assertEqual(c[side], {"result": "not-entered", "text": (
+                    "Not checked: %s is not entered. Enter it to compare %s" % (missing, what))},
+                    (rid, entries, side))
+        res = run("nrc-dog-adult", {"linoleic-acid": 3.0, "alpha-linolenic-acid": 0})
+        c = next(c for c in res["checks"] if c["id"] == "la-ala-ratio")
+        self.assertEqual(c["low"]["result"], "outside")
+        # A range and one value: the one value pairs with both ends.
+        res = run("nrc-dog-adult", {"linoleic-acid": {"low": 3.0, "high": 4.0},
+                                    "alpha-linolenic-acid": {"low": 0.2}})
+        c = next(c for c in res["checks"] if c["id"] == "la-ala-ratio")
+        self.assertEqual((c["low"]["result"], c["high"]["result"]), ("ok", "ok"))
+        self.assertEqual(schema_check.errors(res, SCHEMA), [])
+
+    def test_rules_in_outcomes(self):
+        # The checker's rules in outcomes.checks; the template's keep 0 (parity).
+        entries = {"linoleic-acid": {"low": 3.0}, "epa-dha": {"low": 0.1},
+                   "epa": {"high": 0.055}}
+        facts = animal_for("nrc-dog-adult")
+        for template_rules, expected in ((False, (outcomes.NOT_ENTERED, "ok", "ok")),
+                                         (True, ("outside", "outside", "outside"))):
+            got = outcomes.checks(limits.Request(D.tables, "nrc-dog-adult", facts, entries,
+                                                 template_rules=template_rules))
+            self.assertEqual((got["la-ala-ratio"]["low"].result,
+                              got["epa-share-range"]["low"].result,
+                              got["epa-share-range"]["high"].result), expected, template_rules)
+
+    def test_one_value_counts_on_both_sides(self):
+        # One value each: the placement rule puts EPA (no minimum) on the high side and
+        # EPA + DHA on the low; the check still pairs them (EPA 20% of EPA + DHA).
+        for rid, cid, expected in (("nrc-cat-adult", "epa-share-max-dha-only", "ok"),
+                                   ("nrc-puppy-4-14-wk", "epa-share-max", "ok"),
+                                   ("nrc-dog-adult", "epa-share-range", "outside")):
+            res = run(rid, {"epa-dha": 0.1, "epa": 0.02})
+            self.assertEqual(res["inputs"]["normalized"]["entries"]["epa"], {"high": 0.02})
+            c = next(c for c in res["checks"] if c["id"] == cid)
+            self.assertEqual((c["low"]["result"], c["high"]["result"]), (expected, expected),
+                             rid)
+        # A range still pairs low with low and high with high.
+        res = run("nrc-dog-adult", {"epa-dha": {"low": 0.1, "high": 0.2},
+                                    "epa": {"low": 0.055, "high": 0.06}})
+        c = next(c for c in res["checks"] if c["id"] == "epa-share-range")
+        self.assertEqual((c["low"]["result"], c["high"]["result"]), ("ok", "outside"))
 
     def test_dha_not_compared_caveat(self):
         data = copy.deepcopy(D.tables)

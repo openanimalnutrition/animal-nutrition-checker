@@ -20,7 +20,7 @@ low sets the AAFCO dry matter factor).
 
 from collections import namedtuple
 
-from . import energy, table
+from . import energy, numbers, table
 
 # The figures of data/template.csv: id -> the unit the code reads it in ("" for a plain
 # number: a share, a ratio or a factor).
@@ -183,6 +183,11 @@ def _n(x):
 # One nutrient's limits. range_high and max_code are None when unavailable; max_code is the
 # type of the range high (a template code, TPL or K).
 Limits = namedtuple("Limits", "minimum maximum range_high max_code")
+# A raised standard's minimum (Request.minimum_raise): the minimum before the raise, the factor
+# (None where the raise is not one factor) and the reason.
+MinimumRaise = namedtuple("MinimumRaise", "before factor reason")
+RAISE_RESTRICTION = "caloric-restriction"
+RAISE_ENERGY = "energy-fed-below-reference"
 
 
 def provenance(code, aafco_factor):
@@ -326,9 +331,16 @@ class Request:
         denominator rise together); under the template's rules, this request."""
         if self.template_rules or not self.scale_minimums:
             return self
+        return self.unscaled()
+
+    def unscaled(self):
+        """This request with no restriction or energy factor on the minimums (the AAFCO dry
+        matter factor, a standard's own rule, still applies)."""
+        if not self.scale_minimums:
+            return self
         if self._unscaled is None:
             self._unscaled = Request(self.data, self.requirement["id"], self.facts,
-                                     self.entries)
+                                     self.entries, template_rules=self.template_rules)
             self._unscaled.scale_minimums = False
         return self._unscaled
 
@@ -459,6 +471,26 @@ class Request:
         if self.data["limits"][self.requirement["id"]][nid]["min_rule"] == "template":
             return None
         return m
+
+    def minimum_raise(self, nid):
+        """How this checker raises the standard's minimum (standard_minimum) for a caloric
+        restriction or the energy factor, or None when it does not: a MinimumRaise of the
+        standard's minimum before the raise, the factor and its reason. The raise is the
+        provisional steward's rule, counted as the standard's for the verdict but never
+        credited to the standard (steward, 24 Oct 2026, after the AI-read test of release
+        0.5.0: a raised minimum was reported as the standard's own)."""
+        if self.requirement is None:
+            return None
+        raised = self.standard_minimum(nid)
+        if not number(raised):
+            return None
+        before = self.unscaled().standard_minimum(nid)
+        if not number(before) or not raised > before or numbers.close(raised, before):
+            return None
+        f = self.minimum_factor(nid)
+        reason = RAISE_RESTRICTION if f == self.restriction_factor else RAISE_ENERGY
+        # The arginine minimum's protein increase does not scale with the factor.
+        return MinimumRaise(before, f if numbers.close(raised, before * f) else None, reason)
 
     def aafco_raises(self, nid):
         """Whether the AAFCO dry matter factor raises this nutrient's minimum under this

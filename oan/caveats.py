@@ -46,6 +46,13 @@ def caveats(data_version):
             for cid, text in CAVEATS]
 
 
+def fill(text, values):
+    """A text with each {key} replaced by its value."""
+    for key, value in values.items():
+        text = text.replace("{%s}" % key, value)
+    return text
+
+
 # The status line of one entry. {standard}, {kind}, {k} and {reason} are filled in.
 STATUS = {
     "deficient": "Below the {standard} minimum for this requirement: deficient (proposed, "
@@ -75,6 +82,57 @@ STATUS = {
     "unavailable": "Not computed: {reason}",
     "below-zero-no-minimum": "Below zero on a row with no minimum: no verdict (Implementation "
                              "Guide open point 3).",
+    # A standard's minimum that this checker raises (MINIMUM_RAISE_TEXT); {minimum}, {before},
+    # {unit}, {factor}, {for_food} and {why} are filled in.
+    "deficient-raised": "Below {minimum} {unit}: the {standard} minimum{for_food}, {before} "
+                        "{unit}, raised{factor} {why} (the provisional steward's proposed rule, "
+                        "which adds to the standard and does not change it). Deficient "
+                        "(proposed, pending ratification).",
+    "below-aafco-open-minimum-raised": "Below {minimum} {unit}: the AAFCO minimum as raised for "
+                                       "this food's energy density, {before} {unit}, which for "
+                                       "this nutrient is not AAFCO's printed dry matter value, "
+                                       "raised{factor} {why} (the provisional steward's "
+                                       "proposed rule, which adds to the standard and does not "
+                                       "change it). No verdict (Implementation Guide open point "
+                                       "6).",
+    "raise-not-below-deficient": "The value is not below the {standard} minimum before the "
+                                 "raise ({before} {unit}); only the raise makes it deficient.",
+    "raise-not-below": "The value is not below the {standard} minimum before the raise "
+                       "({before} {unit}).",
+    "raise-also-below": "The value is also below the {standard} minimum before the raise "
+                        "({before} {unit}).",
+}
+
+# A standard's minimum raised for a caloric restriction or by the energy factor
+# (limits.Request.minimum_raise). The raise counts as the standard's part for the verdict
+# (steward, 18 and 22 Oct 2026), but the minimum is never credited to the standard alone: the
+# AI-read test of release 0.5.0 found "Below the AAFCO minimum" on a value 66% above AAFCO's
+# own minimum (steward, 24 Oct 2026: the raise is a layer that adds to the standards).
+# {standard}, {for_food}, {before}, {unit}, {factor}, {minimum}, {why} and {supplies} are
+# filled in.
+MINIMUM_RAISE_TEXT = ("{standard}'s minimum{for_food} is {before} {unit}. This checker raises "
+                      "it{factor} to {minimum} {unit} {why}{supplies}. This is the provisional "
+                      "steward's proposed rule, pending ratification: it adds to the standard "
+                      "and does not change it. The bands and any verdict use the raised "
+                      "minimum.")
+RAISE_FOR_FOOD = " at this food's energy density"
+RAISE_FACTOR = " × {factor}"
+# The reason, short (in a status) and long (in MINIMUM_RAISE_TEXT); {restriction}, {fed} and
+# {ref} are filled in.
+RAISE_WHY = {
+    "caloric-restriction": "for the caloric restriction of {restriction}%",
+    "energy-fed-below-reference": "because the energy fed is below the reference energy",
+}
+RAISE_WHY_LONG = {
+    "caloric-restriction": "for the caloric restriction of {restriction}%",
+    "energy-fed-below-reference": "because the energy fed ({fed} kcal/day) is below the "
+                                  "reference energy ({ref} kcal/day)",
+}
+RAISE_SUPPLIES = {
+    "caloric-restriction": ", so that the diet still supplies the daily amount it would with no "
+                           "restriction",
+    "energy-fed-below-reference": ", so that the diet still supplies the daily amount that "
+                                  "{standard}'s figure gives at the reference energy",
 }
 
 # A maximum's kind, by its type (the template's codes); AAFCO while the AAFCO dry matter factor
@@ -109,6 +167,16 @@ CHECKS = {
                                                      "NRC states as DHA.",
 }
 DHA_NOT_COMPARED = "DHA not compared: this requirement's data has no EPA + DHA minimum."
+# A check that needs a nutrient not entered (outcomes.check_entry; steward, 24 Oct 2026: not
+# counted as 0, as the template did). {missing} is filled in from CHECK_NAMES.
+CHECK_NOT_ENTERED = {
+    "la-ala-ratio": "Not checked: {missing} is not entered. Enter it to compare LA:ALA with "
+                    "NRC's advised ratio.",
+    "epa": "Not checked: {missing} is not entered. Enter it to compare EPA's share of EPA + "
+           "DHA with NRC's advice.",
+}
+CHECK_NAMES = {"linoleic-acid": "LA", "alpha-linolenic-acid": "ALA", "epa": "EPA",
+               "epa-dha": "EPA + DHA"}
 
 # How the entries are read (check_diet's description, describe_inputs).
 ENTRIES_TEXT = ("low and high are the Min and Max entries: for a diet, one value (placed by "
@@ -153,7 +221,8 @@ MBW_ENTRY_TEXT = ("the diet's amount per Mcal, as on the per-Mcal row; the limit
 # was approved the same day, with the steward's wording for growth, gestation and lactation
 # ("fed more energy than it needs to keep its weight stable ..."). On 24 Oct 2026 the steward
 # approved "(fat's and the ratios' excepted)" and the named exceptions to "Maximums do not
-# change per Mcal" (choline, the large-breed puppy calcium row, carbohydrate).
+# change per Mcal" (choline, the large-breed puppy calcium row, carbohydrate), and, the same day
+# after the AI-read test of release 0.5.0, when each of them applies.
 ENERGY_RULES_TEXT = (
     "How energy sets the limits (the provisional steward's rules, proposed, pending "
     "ratification). The reference energy is the energy the standard's per-Mcal figures assume, "
@@ -169,10 +238,12 @@ ENERGY_RULES_TEXT = (
     "the animal is fed more energy than it needs to keep its weight stable and the extra goes "
     "to growth, a pregnancy or milk, nutrient needs rise and fall with the energy fed: per-Mcal "
     "minimums hold at any intake and only a restriction raises them. Maximums do not change "
-    "per Mcal, except the range highs this checker computes from a minimum (the NRC dog "
-    "choline maximum, NRC's large-breed puppy calcium row and the carbohydrate maximum): MBW "
-    "maximums are converted at the reference energy, and a ratio's computed range uses the "
-    "minimums before any restriction or energy factor.")
+    "per Mcal, except three range highs this checker computes from a minimum, which follow it: "
+    "the NRC dog choline maximum, only when 1.1 times the higher choline minimum (per Mcal or "
+    "MBW) is above NRC's 500 mg/Mcal; the range high of NRC's large-breed puppy calcium row, "
+    "only when that row's minimum is above NRC's 4.5 g/Mcal; and the carbohydrate maximum, "
+    "where the standard sets none. MBW maximums are converted at the reference energy, and a "
+    "ratio's computed range uses the minimums before any restriction or energy factor.")
 # The reference energy's basis; the steward approved this wording on 24 Oct 2026. {figure},
 # {exponent}, {species} and {who} are filled in.
 REFERENCE_BASIS = {

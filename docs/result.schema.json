@@ -146,7 +146,8 @@
         "basis": {"type": "string"},
         "ig_code": {"type": ["string", "null"]},
         "minimum": {"$ref": "#/$defs/number_or_null"},
-        "standard_minimum": {"$ref": "#/$defs/number_or_null"},
+        "standard_minimum": {"description": "The part of the minimum counted as the applied standard's for the verdict deficient. It includes any raise this checker applies for a caloric restriction or the energy factor (the provisional steward's rule); minimum_raise then gives the standard's minimum before the raise.", "$ref": "#/$defs/number_or_null"},
+        "minimum_raise": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/minimum_raise"}]},
         "maximum": {"$ref": "#/$defs/number_or_null"},
         "range_high": {"$ref": "#/$defs/number_or_null"},
         "max_type": {"type": ["string", "null"]},
@@ -165,6 +166,18 @@
         "summary": {"type": ["string", "null"]},
         "conditions": {"type": "array", "items": {"$ref": "#/$defs/condition"}},
         "notes": {"$ref": "#/$defs/note_ids"}
+      }
+    },
+    "minimum_raise": {
+      "description": "Added in release 0.5.1. This checker raises the standard's minimum for a caloric restriction or by the energy factor (the provisional steward's proposed rule, which adds to the standard and does not change it): the standard's minimum before the raise, the factor (null where the raise is not one factor, as for arginine's protein increase), the reason and a sentence. Null when the minimum is not raised.",
+      "type": "object",
+      "required": ["standard_minimum_before_raise", "factor", "reason", "text"],
+      "additionalProperties": false,
+      "properties": {
+        "standard_minimum_before_raise": {"type": "number"},
+        "factor": {"type": ["number", "null"]},
+        "reason": {"enum": ["caloric-restriction", "energy-fed-below-reference"]},
+        "text": {"type": "string"}
       }
     },
     "mbw": {

@@ -274,6 +274,8 @@ def result_page(data, request, res):
             "<tr><td>%s<br><small>%s</small>%s</td><td>%s</td><td>%s</td><td>%s</td>%s%s"
             "<td><ul>%s</ul>%s</td></tr>" % (
                 e(n["name"]), e(n["unit"]),
+                ("<br><small>%s</small>" % e(n["minimum_raise"]["text"])
+                 if n["minimum_raise"] else "") +
                 ("<br><small>%s</small>" % e(n["mbw"]["text"]) if n["mbw"] else "") + (
                     "<br><small>%s</small>" % e(n["requirement_maximum"]["text"])
                     if n["requirement_maximum"] and not n["requirement_maximum"]["set"]
@@ -296,7 +298,7 @@ def result_page(data, request, res):
         '</button> <button type="submit" formaction="/edit">Change the inputs</button></form>'
         '%s<section><h3>Input report</h3><ul>%s</ul></section>'
         '<table class="result"><thead><tr><th>Nutrient</th><th>Minimum</th>'
-        '<th>Standard\'s minimum</th><th>Range high (type, kind)</th><th>Low</th>'
+        '<th>Minimum for a verdict</th><th>Range high (type, kind)</th><th>Low</th>'
         '<th>Band</th><th>Verdict</th><th>High</th><th>Band</th><th>Verdict</th>'
         '<th>Conditions, notes</th></tr></thead><tbody>%s</tbody></table>'
         '<section><h3>NRC fatty acid checks</h3><ul>%s</ul></section>'

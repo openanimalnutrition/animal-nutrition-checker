@@ -5,7 +5,9 @@ Written from the IG's band computation page ("Bands and the adequacy interpretat
 "Maximum types") with the steward's answers of 22 Oct 2026 to its open points 6 and 7:
 - `deficient` below the part of the minimum the applied standard sets
   (limits.Request.standard_minimum); below a minimum the template sets itself there is no
-  verdict, and open point 6 is named;
+  verdict, and open point 6 is named; a minimum this checker raises for a caloric restriction
+  or by the energy factor is named as raised, with the standard's minimum before the raise,
+  never credited to the standard alone (steward, 24 Oct 2026);
 - `excess` above an authoritative range high, and not below the standard's minimum; above any
   other range high the value is not excess;
 - both tests compare at 7 decimal places, rounded as the template rounds, so a verdict always
@@ -45,7 +47,8 @@ def kind(code, provenance):
 
 
 def entry(value, outcome, lim, standard_minimum, provenance, open_minimum, standard, k,
-          reason_text, energy_row=False, restricted=False, optimal_weight=False):
+          reason_text, energy_row=False, restricted=False, optimal_weight=False,
+          minimum_raise=None):
     """The interpretation of one entry, as a dict in the Result's order.
 
     value: the entry (a number); outcome: outcomes.Outcome; lim: limits.Limits;
@@ -54,7 +57,9 @@ def entry(value, outcome, lim, standard_minimum, provenance, open_minimum, stand
     the requirement's standard (NRC, AAFCO, FEDIAF); k: the multiplier of a K range high;
     reason_text: the plain words of an unavailable outcome's reason; energy_row: the energy
     row, whose minimum is an estimate; restricted: a caloric restriction is entered;
-    optimal_weight: the energy fed is the energy at the optimal body weight."""
+    optimal_weight: the energy fed is the energy at the optimal body weight; minimum_raise:
+    None, or {"before": the standard's minimum before the raise, "fill": the status texts'
+    fill-ins} when this checker raises the standard's minimum (limits.Request.minimum_raise)."""
     out = {"value": value, "outcome": outcome.code, "outcome_reason": outcome.reason,
            "comparison_to_min": None, "comparison_to_max": None, "verdict": None,
            "verdict_status": caveats.VERDICT_STATUS, "open_reason": None, "status": None}
@@ -84,7 +89,21 @@ def entry(value, outcome, lim, standard_minimum, provenance, open_minimum, stand
                                     ABOVE_NON_AUTHORITATIVE_MAX) if above else NOT_ABOVE_MAX
 
     lines = []
-    if below_standard:
+    if minimum_raise is not None and (below_standard or below_open):
+        # The raise is named, never credited to the standard (caveats.MINIMUM_RAISE_TEXT).
+        also_below = v < _r(minimum_raise["before"])
+        fill = dict(minimum_raise["fill"], standard=standard)
+        if below_standard:
+            out["verdict"] = DEFICIENT
+            lines.append(caveats.fill(caveats.STATUS["deficient-raised"], fill))
+            lines.append(caveats.fill(caveats.STATUS["raise-also-below" if also_below else
+                                              "raise-not-below-deficient"], fill))
+        else:
+            out["open_reason"] = OPEN_POINT_6_AAFCO
+            lines.append(caveats.fill(caveats.STATUS["below-aafco-open-minimum-raised"], fill))
+            lines.append(caveats.fill(caveats.STATUS["raise-also-below" if also_below else
+                                              "raise-not-below"], fill))
+    elif below_standard:
         out["verdict"] = DEFICIENT
         lines.append(caveats.STATUS["deficient"].replace("{standard}", standard))
     elif below_open:

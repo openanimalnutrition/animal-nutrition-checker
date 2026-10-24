@@ -399,8 +399,18 @@ class FatAndRatios(Close):
 
     def test_rules_text(self):
         self.assertIn("(fat's and the ratios' excepted)", caveats.ENERGY_RULES_TEXT)
-        self.assertIn("the NRC dog choline maximum, NRC's large-breed puppy calcium row and the "
-                      "carbohydrate maximum", caveats.ENERGY_RULES_TEXT)
+        # When each computed range high applies (steward, 24 Oct 2026: the AI-read test of
+        # release 0.5.0 found the choline maximum named as computed where it was NRC's 500).
+        self.assertIn("the NRC dog choline maximum, only when 1.1 times the higher choline "
+                      "minimum (per Mcal or MBW) is above NRC's 500 mg/Mcal; the range high of "
+                      "NRC's large-breed puppy calcium row, only when that row's minimum is "
+                      "above NRC's 4.5 g/Mcal; and the carbohydrate maximum, where the standard "
+                      "sets none.", caveats.ENERGY_RULES_TEXT)
+        self.assertEqual(limits.CHOLINE_MAX_OVER_MIN, 1.1)
+        r = request("nrc-dog-adult")
+        self.assertEqual(r.std("choline", "max"), 500.0)
+        self.assertEqual((r.figure("large-breed-puppy-calcium-max"),
+                          r.figure("large-breed-puppy-calcium-max-over-min")), (4.5, 1.1))
 
 
 class Floor(unittest.TestCase):
@@ -430,6 +440,98 @@ class Floor(unittest.TestCase):
         item = next(i for i in res["input_report"] if i["reason"] == "energy-fed-below-floor")
         self.assertEqual(item["input"], "animal.optimal_body_weight_kg")
         self.assertIsNone(res["factors"]["optimal_body_weight"])
+
+
+class RaisedMinimum(Close):
+    """A standard's minimum raised for a caloric restriction or by the energy factor counts as
+    the standard's for the verdict, but is never credited to the standard alone (steward, 24
+    Oct 2026, after the AI-read test of release 0.5.0)."""
+
+    CAT = {"body_weight_kg": 6.5, "caloric_restriction_percent": 25}
+
+    def test_ai_read_case(self):
+        # The AI-read test's case B: 120 g/Mcal is above AAFCO's 72.22 (65 x 4 / 3.6) and below
+        # the raised 122.8; the status names the raise and the minimum before it.
+        res = run("aafco-cat-adult", {"protein": 120, "energy-density": 3.6},
+                  adult_cat_type=CAT["overweight"], **self.CAT)
+        n = nutrient(res, "protein")
+        raise_ = n["minimum_raise"]
+        self.close(raise_["standard_minimum_before_raise"], 65 * 4 / 3.6)
+        self.close(raise_["factor"], res["factors"]["energy_factor"])
+        self.close(n["standard_minimum"], raise_["standard_minimum_before_raise"] *
+                   raise_["factor"])
+        self.assertEqual(raise_["reason"], limits.RAISE_ENERGY)
+        self.assertEqual(n["low"]["verdict"], "deficient")
+        status = n["low"]["status"]
+        self.assertNotIn("Below the AAFCO minimum", status)
+        self.assertTrue(status.startswith("Below 122.8 g/Mcal: the AAFCO minimum at this "
+                                          "food's energy density, 72.22 g/Mcal, raised × 1.7 "
+                                          "because the energy fed is below the reference "
+                                          "energy"), status)
+        self.assertTrue(status.endswith("only the raise makes it deficient."), status)
+        self.assertIn("AAFCO's minimum at this food's energy density is 72.22 g/Mcal. This "
+                      "checker raises it × 1.7 to 122.8 g/Mcal because the energy fed (206 "
+                      "kcal/day) is below the reference energy (350 kcal/day)", raise_["text"])
+        self.assertEqual(schema_check.errors(res, SCHEMA), [])
+
+    def test_also_below_the_standard(self):
+        res = run("aafco-cat-adult", {"protein": 70, "energy-density": 3.6},
+                  adult_cat_type=CAT["overweight"], **self.CAT)
+        status = nutrient(res, "protein")["low"]["status"]
+        self.assertTrue(status.endswith("The value is also below the AAFCO minimum before the "
+                                        "raise (72.22 g/Mcal)."), status)
+
+    def test_restriction(self):
+        # NRC's average adult dog: the need is the reference, so the restriction is the factor.
+        res = run("nrc-dog-adult", {"linoleic-acid": 3.0}, body_weight_kg=20.0,
+                  adult_dog_type=DOG["average"], caloric_restriction_percent=20)
+        n = nutrient(res, "linoleic-acid")
+        self.assertEqual(n["minimum_raise"]["reason"], limits.RAISE_RESTRICTION)
+        self.close(n["minimum_raise"]["factor"], 1.25)
+        self.assertEqual(n["low"]["status"].split(" (")[0],
+                         "Below 3.5 g/Mcal: the NRC minimum, 2.8 g/Mcal, raised × 1.25 for the "
+                         "caloric restriction of 20%")
+
+    def test_not_raised(self):
+        # No restriction or energy factor; an MBW row (the standard's daily amount); fat.
+        res = run("nrc-dog-adult", {"linoleic-acid": 2.0, "protein-mbw": 20, "fat": 30},
+                  body_weight_kg=20.0, adult_dog_type=DOG["average"])
+        for nid in ("linoleic-acid", "protein-mbw", "fat"):
+            self.assertIsNone(nutrient(res, nid)["minimum_raise"], nid)
+        self.assertEqual(nutrient(res, "linoleic-acid")["low"]["status"],
+                         caveats.STATUS["deficient"].replace("{standard}", "NRC"))
+        res = run("nrc-dog-adult", {"protein-mbw": 20, "fat": 30}, body_weight_kg=20.0,
+                  adult_dog_type=DOG["average"], caloric_restriction_percent=20)
+        for nid in ("protein-mbw", "fat"):
+            self.assertIsNone(nutrient(res, nid)["minimum_raise"], nid)
+
+    def test_arginine_not_one_factor(self):
+        # The protein increase does not scale: no factor, and no "x" in the texts.
+        r = request("nrc-dog-adult", {"protein": {"low": 45.0}}, body_weight_kg=20.0,
+                    adult_dog_type=DOG["average"], caloric_restriction_percent=20)
+        raise_ = r.minimum_raise("arginine")
+        self.assertIsNone(raise_.factor)
+        self.assertLess(raise_.before, r.standard_minimum("arginine"))
+
+    def test_aafco_open_minimum(self):
+        res = run("aafco-cat-adult", {"linoleic-acid": 1.7, "energy-density": 3.6},
+                  adult_cat_type=CAT["overweight"], **self.CAT)
+        low = nutrient(res, "linoleic-acid")["low"]
+        self.assertIsNone(low["verdict"])
+        self.assertEqual(low["open_reason"], "ig-open-point-6-aafco-dry-matter")
+        self.assertIn("raised × 1.7 because the energy fed is below the reference energy",
+                      low["status"])
+        self.assertTrue(low["status"].endswith("The value is not below the AAFCO minimum "
+                                               "before the raise (1.556 g/Mcal)."))
+
+    def test_template_rules(self):
+        r = request("aafco-cat-adult", {"energy-density": {"low": 3.6}}, template_rules=True,
+                    adult_cat_type=CAT["lean"], body_weight_kg=4.0,
+                    caloric_restriction_percent=20)
+        raise_ = r.minimum_raise("protein")
+        self.close(raise_.before, 65 * 4 / 3.6)
+        self.close(raise_.factor, 1.25)
+        self.assertEqual(raise_.reason, limits.RAISE_RESTRICTION)
 
 
 if __name__ == "__main__":
