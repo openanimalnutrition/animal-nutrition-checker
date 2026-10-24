@@ -60,7 +60,8 @@ def entry(value, outcome, lim, standard_minimum, provenance, open_minimum, stand
     optimal_weight: the energy fed is the energy at the optimal body weight; minimum_raise:
     None, or {"before": the standard's minimum before the raise, "fill": the status texts'
     fill-ins} when this checker raises the standard's minimum (limits.Request.minimum_raise)."""
-    out = {"value": value, "outcome": outcome.code, "outcome_reason": outcome.reason,
+    out = {"value": value, "outcome": outcome.code,
+           "outcome_text": bands.DISPLAY.get(outcome.code), "outcome_reason": outcome.reason,
            "comparison_to_min": None, "comparison_to_max": None, "verdict": None,
            "verdict_status": caveats.VERDICT_STATUS, "open_reason": None, "status": None}
     if outcome.code in (outcomes.UNAVAILABLE, outcomes.NOT_BANDED, outcomes.NOT_ENTERED):

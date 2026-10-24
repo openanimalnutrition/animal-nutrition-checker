@@ -216,9 +216,10 @@ def _entry_cells(entry):
     if entry is None:
         return "<td></td><td></td><td></td>"
     verdict = entry["verdict"] or ""
+    band = e(entry["outcome"]) + (
+        "<br><small>%s</small>" % e(entry["outcome_text"]) if entry["outcome_text"] else "")
     return '<td>%s</td><td>%s</td><td class="%s">%s<br><small>%s</small></td>' % (
-        _num(entry["value"]), e(entry["outcome"]), e(verdict), e(verdict.upper()),
-        e(entry["status"]))
+        _num(entry["value"]), band, e(verdict), e(verdict.upper()), e(entry["status"]))
 
 
 def notes_fold(data, ids):
@@ -283,8 +284,9 @@ def result_page(data, request, res):
                     else ""),
                 _num(n["minimum"]) or ("none" if not unavailable else e(unavailable["text"])),
                 _num(n["verdict_minimum"]),
-                "none" if n["range_high"] is None else "%s<br><small>%s, %s</small>" % (
-                    _num(n["range_high"]), e(n["max_type"]), e(n["max_provenance"])),
+                "none" if n["range_high"] is None else "%s<br><small>%s, %s: %s</small>" % (
+                    _num(n["range_high"]), e(n["max_type"]), e(n["max_provenance"]),
+                    e(n["max_type_text"] or "")),
                 _entry_cells(n["low"]), _entry_cells(n["high"]),
                 conds, notes_fold(data, n["notes"])))
     checks = "".join("<li>%s: low %s, high %s%s</li>" % (

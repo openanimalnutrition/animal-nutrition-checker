@@ -2,9 +2,9 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://openanimalnutrition.org/schema/oan-check-result/2",
   "title": "oan-check-result/2",
-  "description": "The result of the Open Animal Nutrition reference checker (every tool: check_diet, get_limits, list_requirements, describe_inputs, get_notes). Within version 2 a change only adds fields; a breaking change is version 3. Version 2 (release 0.6.0) renamed standard_minimum to verdict_minimum and lets a condition have no limitation (null). The caveats come first and are in every result. Verdicts are proposed, pending ratification.",
+  "description": "The result of the Open Animal Nutrition reference checker (every tool: check_diet, get_limits, list_requirements, describe_inputs, get_notes). Within version 2 a change only adds fields; a breaking change is version 3. Version 2 (release 0.6.0) renamed standard_minimum to verdict_minimum, lets a condition have no limitation (null), and added verdict_text, entries_text, max_type_text, outcome_text, energies_text and the notes block's text. The caveats come first and are in every result. Verdicts are proposed, pending ratification.",
   "type": "object",
-  "required": ["schema", "caveats", "tool", "code_release", "data_version", "data_sha256", "template_version", "verdict_status"],
+  "required": ["schema", "caveats", "tool", "code_release", "data_version", "data_sha256", "template_version", "verdict_status", "verdict_text"],
   "properties": {
     "schema": {"const": "oan-check-result/2"},
     "caveats": {
@@ -26,6 +26,8 @@
     "data_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
     "template_version": {"type": "string"},
     "verdict_status": {"const": "proposed, pending ratification"},
+    "verdict_text": {"description": "What the verdict field can hold, and that null is not an approval.", "type": "string"},
+    "entries_text": {"description": "check_diet: what the entries' low and high are (the template's two entry columns).", "type": "string"},
     "requirement": {"$ref": "#/$defs/requirement"},
     "subject": {"enum": ["diet", "requirement range"]},
     "inputs": {"type": "object", "required": ["submitted", "normalized"]},
@@ -48,10 +50,11 @@
     },
     "notes": {
       "type": "object",
-      "required": ["file", "general", "requirement"],
+      "required": ["file", "text", "general", "requirement"],
       "additionalProperties": false,
       "properties": {
         "file": {"type": "string"},
+        "text": {"type": "string"},
         "general": {"$ref": "#/$defs/note_ids"},
         "requirement": {"$ref": "#/$defs/note_ids"}
       }
@@ -104,7 +107,7 @@
     },
     "factors": {
       "type": "object",
-      "required": ["caloric_restriction_percent", "restriction_factor", "aafco_dry_matter_factor", "energy_requirement_kcal_per_day", "energy_used_kcal_per_day", "energy_used_is", "energy_reason", "intake_shortfall", "reference_energy_kcal_per_day", "reference_energy_basis", "energy_fed_kcal_per_day", "energy_fed_is", "energy_factor", "optimal_body_weight", "energy_rules"],
+      "required": ["caloric_restriction_percent", "restriction_factor", "aafco_dry_matter_factor", "energy_requirement_kcal_per_day", "energy_used_kcal_per_day", "energy_used_is", "energy_reason", "intake_shortfall", "reference_energy_kcal_per_day", "reference_energy_basis", "energy_fed_kcal_per_day", "energy_fed_is", "energy_factor", "optimal_body_weight", "energies_text", "energy_rules"],
       "additionalProperties": false,
       "properties": {
         "caloric_restriction_percent": {"$ref": "#/$defs/number_or_null"},
@@ -126,6 +129,7 @@
           "additionalProperties": false,
           "properties": {"status": {"enum": ["used", "not-adult", "intake-entered", "no-current-weight", "not-below-current"]}, "text": {"type": "string"}}
         }]},
+        "energies_text": {"description": "What each energy above is, and what uses it.", "type": "string"},
         "energy_rules": {"type": "string"}
       }
     },
@@ -137,7 +141,7 @@
     },
     "nutrient": {
       "type": "object",
-      "required": ["id", "name", "unit", "basis", "ig_code", "minimum", "verdict_minimum", "maximum", "range_high", "max_type", "max_provenance", "limits_unavailable", "mbw", "requirement_maximum", "conditions", "notes"],
+      "required": ["id", "name", "unit", "basis", "ig_code", "minimum", "verdict_minimum", "maximum", "range_high", "max_type", "max_provenance", "max_type_text", "limits_unavailable", "mbw", "requirement_maximum", "conditions", "notes"],
       "additionalProperties": false,
       "properties": {
         "id": {"type": "string"},
@@ -152,6 +156,7 @@
         "range_high": {"$ref": "#/$defs/number_or_null"},
         "max_type": {"type": ["string", "null"]},
         "max_provenance": {"enum": ["authoritative", "conditional", "template-set", "derived-provisional", null]},
+        "max_type_text": {"description": "The kind of the range high in words.", "type": ["string", "null"]},
         "limits_unavailable": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/reason"}]},
         "mbw": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/mbw"}]},
         "requirement_maximum": {"oneOf": [{"type": "null"}, {
@@ -197,11 +202,12 @@
     },
     "entry": {
       "type": "object",
-      "required": ["value", "outcome", "outcome_reason", "comparison_to_min", "comparison_to_max", "verdict", "verdict_status", "open_reason", "status"],
+      "required": ["value", "outcome", "outcome_text", "outcome_reason", "comparison_to_min", "comparison_to_max", "verdict", "verdict_status", "open_reason", "status"],
       "additionalProperties": false,
       "properties": {
         "value": {"type": "number"},
         "outcome": {"enum": ["below-min-lt25", "below-min-25-50", "below-min-50-75", "below-min-75-100", "range-d1", "range-d2", "range-d3", "range-d4", "range-d5", "range-d6", "range-d7", "range-d8", "range-d9", "range-d10", "no-range", "no-minimum", "not-entered", "unavailable", "not-banded"]},
+        "outcome_text": {"description": "The band's display name in the Dynamic Decile System (the IG's Nutrient Decile Bands); null for an outcome other than a band.", "type": ["string", "null"]},
         "outcome_reason": {"type": ["string", "null"]},
         "comparison_to_min": {"enum": ["below_min", "below_template_min", "at_or_above_min", null]},
         "comparison_to_max": {"enum": ["above_max", "above_non_authoritative_max", "not_above_max", null]},

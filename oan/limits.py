@@ -78,6 +78,12 @@ NOT_BANDED = ("epa",)
 REQUIREMENT_NEEDED = "requirement-needed"
 NEEDS_MINIMUMS = "calculation-needs-a-missing-minimum"
 NEEDS_NUMBER = "rule-needs-a-number"
+# The large-breed puppy calcium row under the checker's rules: it applies only over this expected
+# mature body weight, NRC 2006 Table 15-3 footnote h, p. 358 ("of expected mature body weight
+# >25 kg"); the template applied it whenever its optional puppy body weight was entered
+# (steward, 24 Oct 2026).
+LARGE_BREED_PUPPY_MATURE_WEIGHT_KG = 25.0
+LARGE_BREED_PUPPY_ONLY = "large-breed-puppy-only"
 
 # Minimums the template sets or keeps whatever the request (no lookup): None is "none".
 FIXED_MINIMUMS = {
@@ -190,12 +196,14 @@ RAISE_RESTRICTION = "caloric-restriction"
 RAISE_ENERGY = "energy-fed-below-reference"
 
 
-def provenance(code, aafco_factor):
-    """The IG's maxProvenance of a range high's type for this request: AAFCO's maximums are
-    conditional while the AAFCO dry matter factor is above 1."""
+def provenance(code, aafco_factor, template_rules=False):
+    """The IG's maxProvenance of a range high's type for this request. Under the template's
+    rules AAFCO's maximums are conditional while the AAFCO dry matter factor is above 1, as
+    they stay per Mcal; under the checker's own they are AAFCO's dry matter maximums for the
+    food (Request._from_standard), so authoritative (steward, 24 Oct 2026)."""
     if code is None:
         return None
-    if code == "AAFCO" and number(aafco_factor) and aafco_factor > 1:
+    if template_rules and code == "AAFCO" and number(aafco_factor) and aafco_factor > 1:
         return "conditional"
     return PROVENANCE[code]
 
@@ -594,21 +602,33 @@ class Request:
     def _large_breed_puppy_calcium(self):
         """The larger of the calcium figure and the body weight term (g per kg BW a day,
         converted with the energy used), each raised by the restriction; the body weight
-        term not when an intake is entered (spec 5.5). Under the steward's rules the figure
-        takes the minimum factor (the row has no MBW figure) and the term is converted at the
-        energy fed, which gives the template's term."""
+        term not when an intake is entered (spec 5.5). Under the steward's rules (24 Oct
+        2026) the row applies only to an expected mature weight over 25 kg (NRC's footnote
+        h), the term uses the current body weight, which is the puppy's (the template read a
+        separate puppy body weight), the figure takes the minimum factor (the row has no MBW
+        figure) and the term is converted at the energy fed, which gives the template's
+        term."""
         if not applies(self.template["calcium-large-breed-puppy"], self.requirement):
             return None
         f = self.minimum_factor("calcium-large-breed-puppy")
         least = self.figure("large-breed-puppy-calcium-min") * f
+        if not self.template_rules:
+            mature = self.facts.get("mature_weight_kg")
+            if mature is None:
+                return Unavailable("mature-weight-needed")
+            if not mature > LARGE_BREED_PUPPY_MATURE_WEIGHT_KG:
+                return Unavailable(LARGE_BREED_PUPPY_ONLY)
+            puppy = self.facts.get("body_weight_kg")
+            if puppy is None or not puppy > 0:
+                return least
+            if self.energy_fed.kcal is None:
+                return Unavailable(self.energy_fed.reason)
+            per_day = self.figure("large-breed-puppy-calcium-per-kg-body-weight") * puppy
+            return max(least, per_day / (self.energy_fed.kcal / 1000))
         puppy = self.facts.get("puppy_body_weight_kg")
         if puppy is None or not puppy > 0:
             return least
         per_day = self.figure("large-breed-puppy-calcium-per-kg-body-weight") * puppy
-        if not self.template_rules:
-            if self.energy_fed.kcal is None:
-                return Unavailable(self.energy_fed.reason)
-            return max(least, per_day / (self.energy_fed.kcal / 1000))
         if self.energy.kcal is None:
             return Unavailable(self.energy.reason)
         g = 1.0 if self.facts.get("energy_intake_kcal_per_day") is not None else f
@@ -638,9 +658,19 @@ class Request:
         return self.figure(fid), self.template[fid]["max_type"]
 
     def _from_standard(self, v, nid):
+        """A standard's maximum and its type. Under the checker's own rules an AAFCO maximum
+        per Mcal of a food below 4 kcal/g DM is AAFCO's dry matter maximum for the food, as
+        its minimums are (the AAFCO dry matter factor; ratios excepted): AAFCO compares such
+        a food on dry matter (steward, 24 Oct 2026, after the AI-read test of release
+        0.5.1)."""
         if v is None or unavailable(v):
             return v, None
-        return v, self.std_code(nid)
+        code = self.std_code(nid)
+        a = self.aafco_factor
+        if code == "AAFCO" and not self.template_rules and number(v) and number(a) and \
+                a > 1 and self.nutrients.get(nid, {}).get("basis") == "per-mcal":
+            return v * a, code
+        return v, code
 
     def _maximum(self, nid):
         if nid in FIXED_MAXIMUMS:

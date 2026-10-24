@@ -153,21 +153,31 @@ class Data21OCT26b8(unittest.TestCase):
                              table.compute_limits(base, rid), rid)
 
     def test_limitations_are_the_status_block(self):
+        # The template's ten known limitations, adapted to the checker (cells to note ids, "this
+        # sheet" to "this checker", item 8 to the dry matter maximums; steward, 24 Oct 2026);
+        # the template's own text stays in the export.
         export = real_sheets_check.load_export()["cells"]["s01"]
         for row in D.tables["limitations"]:
             cell = "A%d" % (139 + int(row["item"]))
-            self.assertEqual(row["text"], export[cell][2], cell)
+            template = export[cell][2]
+            self.assertEqual(row["text"].split(".")[0], template.split(".")[0], cell)
+            self.assertEqual(row["source"].startswith("Adapted from "), row["text"] != template,
+                             cell)
+            self.assertIsNone(re.search(r"\([^)]*\b[A-Z]{1,2}\d{1,3}\b[^)]*\)|this sheet",
+                                        row["text"]), cell)
+            for nid in re.findall(r"n\d{3}", row["text"]):
+                self.assertIn(nid, row["notes"].split(), cell)
         self.assertEqual(len(D.tables["limitations"]), 10)
 
     def test_every_condition_and_open_minimum_is_used(self):
-        self.assertEqual(len(D.tables["conditions"]), 32)
+        self.assertEqual(len(D.tables["conditions"]), 33)
         self.assertEqual(len(D.tables["open_minimums"]), 15)
         self.assertEqual({int(c["item"]) for c in D.tables["conditions"] if c["item"]},
                          set(range(1, 11)))
         # Outside the template's ten known limitations (steward, 24 Oct 2026).
         self.assertEqual(sorted(c["id"] for c in D.tables["conditions"] if not c["item"]),
-                         ["arginine-protein-not-entered", "vitamin-d-form-cats",
-                          "vitamin-d-form-cats-mbw"])
+                         ["arginine-protein-not-entered", "large-breed-puppy-calcium",
+                          "vitamin-d-form-cats", "vitamin-d-form-cats-mbw"])
 
     def test_validator_rejects_bad_conditions(self):
         import shutil
@@ -273,15 +283,27 @@ class Verdicts(unittest.TestCase):
             self.assertEqual(e["comparison_to_max"], "above_non_authoritative_max", nid)
         self.assertIn("not excess", self.entry(res, "vitamin-e")["status"])
 
-    def test_aafco_maximum_conditional_with_the_factor(self):
+    def test_aafco_maximum_on_dry_matter(self):
+        # Below 4 kcal/g DM, AAFCO's maximums are its dry matter maximums for the food, and
+        # authoritative (steward, 24 Oct 2026); ratios are not raised. The template kept them
+        # per Mcal, conditional.
         rid = "aafco-dog-growth-reproduction"
         e = self.entry(run(rid, {"calcium": {"high": 7.0}}), "calcium", "high")
         self.assertEqual(e["verdict"], "excess")
-        res = run(rid, {"calcium": {"high": 7.0}, "energy-density": 3.5})
-        e = self.entry(res, "calcium", "high")
-        self.assertIsNone(e["verdict"])
-        self.assertEqual(nutrient(res, "calcium")["max_provenance"], "conditional")
-        self.assertIn("dry-matter-basis", [c["id"] for c in nutrient(res, "calcium")["conditions"]])
+        res = run(rid, {"calcium": {"high": 7.0}, "energy-density": 3.5, "ca-p-ratio": 1.5})
+        n = nutrient(res, "calcium")
+        self.assertAlmostEqual(n["maximum"], 6.25 * 4 / 3.5)
+        self.assertEqual(n["max_provenance"], "authoritative")
+        self.assertIsNone(self.entry(res, "calcium", "high")["verdict"])
+        self.assertIn("dry-matter-basis", [c["id"] for c in n["conditions"]])
+        self.assertEqual(nutrient(res, "ca-p-ratio")["maximum"], 2.0)
+        e = self.entry(run(rid, {"calcium": {"high": 7.5}, "energy-density": 3.5}),
+                       "calcium", "high")
+        self.assertEqual(e["verdict"], "excess")
+        t = limits.Request(D.tables, rid, animal_for(rid), {"energy-density": {"low": 3.5}},
+                           template_rules=True)
+        self.assertEqual(t.maximum("calcium"), 6.25)
+        self.assertEqual(limits.provenance("AAFCO", t.aafco_factor, True), "conditional")
 
     def test_open_point_6(self):
         e = self.entry(run("nrc-dog-adult", {"carbohydrate": 10}), "carbohydrate")
@@ -688,6 +710,80 @@ class TextChecks(unittest.TestCase):
                                "entries": {"epa-dha": 0.05, "epa": 0.005}})
         c = next(c for c in res["checks"] if c["id"] == "epa-share-max-dha-only")
         self.assertEqual(c["caveat"], caveats.DHA_NOT_COMPARED)
+
+
+class AIReadRound3(unittest.TestCase):
+    """The fixes after the AI-read test of release 0.6.0's branch, round 3 (steward, 24 Oct
+    2026)."""
+
+    DOG_A = {"body_weight_kg": 20.0, "optimal_body_weight_kg": 16.0, "adult_dog_type": DOG_TYPE}
+
+    def report(self, res, reason):
+        return {i["input"]: i["text"] for i in res["input_report"] if i["reason"] == reason}
+
+    def test_one_entry_checks_both_rows(self):
+        res = run("nrc-dog-adult", {"calcium": 1.1}, **self.DOG_A)
+        self.assertEqual(nutrient(res, "calcium")["low"]["verdict"], None)
+        self.assertEqual(nutrient(res, "calcium-mbw")["low"]["verdict"], "deficient")
+        self.assertEqual(self.report(res, "checked-with-twin"), {
+            "entries.calcium-mbw": "Checked with the calcium entry, 1.1 g/Mcal: both rows take "
+                                   "the diet's g/Mcal."})
+        # The other way, a range, and an MBW entry of its own kept.
+        res = run("nrc-dog-adult", {"zinc-mbw": {"low": 20, "high": 30}}, **self.DOG_A)
+        self.assertEqual(nutrient(res, "zinc")["high"]["value"], 30)
+        self.assertIn("20 to 30 mg/Mcal", self.report(res, "checked-with-twin")["entries.zinc"])
+        res = run("nrc-dog-adult", {"calcium": 1.1, "calcium-mbw": 1.3}, **self.DOG_A)
+        self.assertEqual(nutrient(res, "calcium-mbw")["low"]["value"], 1.3)
+        self.assertEqual(self.report(res, "checked-with-twin"), {})
+        # No MBW rows (AAFCO): nothing added.
+        res = run("aafco-dog-adult", {"calcium": 1.5}, body_weight_kg=20.0,
+                  adult_dog_type=DOG_TYPE)
+        self.assertEqual([n["id"] for n in res["nutrients"]], ["calcium"])
+
+    def test_large_breed_puppy_calcium(self):
+        rid = "nrc-puppy-4-14-wk"
+        big = run(rid, {"calcium": 3.2}, body_weight_kg=8.0, mature_weight_kg=35.0)
+        self.assertIn("large-breed-puppy-calcium",
+                      [c["id"] for c in nutrient(big, "calcium")["conditions"]])
+        small = run(rid, {"calcium": 3.2, "calcium-large-breed-puppy": 3.2}, body_weight_kg=3.0,
+                    mature_weight_kg=8.0, puppy_body_weight_kg=3.0)
+        self.assertNotIn("large-breed-puppy-calcium",
+                         [c["id"] for c in nutrient(small, "calcium")["conditions"]])
+        row = nutrient(small, "calcium-large-breed-puppy")
+        self.assertEqual(row["low"]["status"], caveats.REASONS["large-breed-puppy-only"])
+        self.assertEqual(self.report(small, "not-used"), {
+            "animal.puppy_body_weight_kg": caveats.PUPPY_BODY_WEIGHT_NOT_USED})
+        self.assertEqual(row["name"], "Calcium, Ca (NRC puppies 4 to 14 weeks, expected adult "
+                                      "weight over 25 kg)")
+        reads = next(r for r in result.list_requirements(D)["requirements"] if r["id"] == rid)
+        self.assertNotIn("puppy_body_weight_kg", reads["reads"])
+        self.assertIn("mature_weight_kg", reads["reads"])
+
+    def test_codes_explained(self):
+        res = run("nrc-dog-adult", {"choline": 560, "zinc": 20, "carbohydrate": 10},
+                  **self.DOG_A)
+        self.assertEqual(res["verdict_text"], caveats.VERDICT_TEXT)
+        self.assertEqual(res["entries_text"], caveats.ENTRIES_TEXT + " They name where a value "
+                         "was entered (the template's two entry columns), not whether it is low "
+                         "or high.")
+        self.assertEqual(res["factors"]["energies_text"], caveats.ENERGIES_TEXT)
+        self.assertEqual(res["notes"]["text"], caveats.NOTES_TEXT)
+        choline = nutrient(res, "choline")
+        self.assertEqual(choline["low"]["outcome_text"], "Highest (90% of Range or Greater)")
+        self.assertTrue(choline["max_type_text"].startswith("NRC's presumed safe maximum"))
+        zinc = nutrient(res, "zinc")
+        self.assertEqual(zinc["max_type_text"], "no maximum: the range high is the minimum × 4, "
+                                                "a banding choice, not a limit")
+        self.assertEqual(zinc["low"]["outcome_text"], bands.DISPLAY[zinc["low"]["outcome"]])
+        self.assertEqual(len(bands.DISPLAY), 14)
+        self.assertEqual(set(bands.DISPLAY), set(bands.BANDS))
+        self.assertEqual(schema_check.errors(res, SCHEMA), [])
+        cat = run("aafco-cat-adult", {"protein": 120}, body_weight_kg=6.5,
+                  adult_cat_type=CAT_TYPE)
+        self.assertTrue(cat["factors"]["reference_energy_basis"].endswith(
+            caveats.CAT_REFERENCE_TEXT))
+        self.assertNotIn(caveats.CAT_REFERENCE_TEXT,
+                         res["factors"]["reference_energy_basis"])
 
 
 def grid_requests():

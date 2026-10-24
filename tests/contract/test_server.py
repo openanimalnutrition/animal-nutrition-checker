@@ -226,7 +226,9 @@ class Server(unittest.TestCase):
     def test_steps(self):
         self.assertIn("Choose a requirement", self.http.get("/").text)
         page = self.http.get("/", params={"requirement": "nrc-puppy-4-14-wk"}).text
-        self.assertIn("animal.puppy_body_weight_kg", page)
+        # The large-breed puppy calcium row uses the current body weight (steward, 24 Oct 2026).
+        self.assertIn("animal.mature_weight_kg", page)
+        self.assertNotIn("animal.puppy_body_weight_kg", page)
         self.assertNotIn("animal.adult_cat_type", page)
         r = self.http.post("/parse", data={"requirement": "nrc-dog-adult",
                                            "paste": "Calcium, Ca, 1.2, 3\nprotein,30,\n"

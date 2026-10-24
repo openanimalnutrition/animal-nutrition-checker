@@ -178,11 +178,51 @@ CHECK_NOT_ENTERED = {
 CHECK_NAMES = {"linoleic-acid": "LA", "alpha-linolenic-acid": "ALA", "epa": "EPA",
                "epa-dha": "EPA + DHA"}
 
+# The verdict field, in every result (steward, 24 Oct 2026, after the AI-read test of release
+# 0.5.1: a blank verdict was read several ways).
+VERDICT_TEXT = ("verdict is deficient, excess or null; null is not an approval: the status line "
+                "says why (within the range, conditional, or an open point).")
+# The kind of each range high (max_type_text): KINDS where the status lines use them, and the
+# IG's Maximum types for the others (steward, 24 Oct 2026). {k} is filled in.
+MAX_TYPE_TEXTS = {
+    "PSM": "NRC's presumed safe maximum for choline, given in NRC's text rather than its tables "
+           "(2006 NRC page 233)",
+    "EST": "this checker's own estimate",
+    "CALC": "calculated by this checker from other limits",
+    "TPL": "set or computed by this checker",
+    "K": "no maximum: the range high is the minimum × {k}, a banding choice, not a limit",
+}
+# The energies of the factors block (steward, 24 Oct 2026: "energy used" and "energy fed" were
+# confused in every AI-read test).
+ENERGIES_TEXT = ("requirement: the requirement's energy at the current body weight; used: that, "
+                 "or the intake entered (the energy row's minimum uses it); reference: the energy "
+                 "the standard's per-Mcal figures assume; fed: what the animal is fed (MBW "
+                 "minimums are converted at it).")
+# The notes block (steward, 24 Oct 2026).
+NOTES_TEXT = ("Note ids name the checker's notes (data/notes.csv); the get_notes tool returns "
+              "their text.")
+# The reference energy of NRC's and AAFCO's adult cats, after REFERENCE_BASIS (steward, 24 Oct
+# 2026, after the AI-read test of release 0.5.1).
+CAT_REFERENCE_TEXT = ("For an overweight cat, this is the energy a lean cat of the same weight "
+                      "would need, so the daily nutrient amounts stay those for the current body "
+                      "weight (the provisional steward's rule); an optimal body weight, if "
+                      "entered, changes only the energy fed.")
+
 # How the entries are read (check_diet's description, describe_inputs).
 ENTRIES_TEXT = ("low and high are the Min and Max entries: for a diet, one value (placed by "
                 "this checker's rule) or both ends of a range such as an analysed "
                 "minimum and maximum; for a requirement range, its two ends. Each is described "
                 "separately.")
+# In every check_diet result, next to the entries (steward, 24 Oct 2026: low and high name the
+# template's two entry columns, a context the result did not carry).
+ENTRIES_RESULT_TEXT = ENTRIES_TEXT + (" They name where a value was entered (the template's two "
+                                      "entry columns), not whether it is low or high.")
+# An entry checked on a nutrient's other row (steward, 24 Oct 2026: a value entered on one of a
+# nutrient's per-Mcal and MBW rows is checked on both). {source}, {value} and {unit} are filled.
+TWIN_ENTRY_TEXT = ("Checked with the {source} entry, {value} {unit}: both rows take the diet's "
+                   "{unit}.")
+PUPPY_BODY_WEIGHT_NOT_USED = ("Not used: the large-breed puppy calcium row uses the current body "
+                              "weight, which is the puppy's.")
 ENERGY_ENTRY_TEXT = ("the energy the diet supplies, kcal per day; to replace the requirement's "
                      "energy with the animal's known intake, use "
                      "animal.energy_intake_kcal_per_day.")
@@ -310,4 +350,6 @@ REASONS = {
     "calculation-needs-a-missing-minimum": "Not computed: the rule needs a limit this "
                                            "requirement does not set.",
     "rule-needs-a-number": "Not computed: the rule needs a limit this requirement does not set.",
+    "large-breed-puppy-only": "Not computed: this row is for NRC puppies 4 to 14 weeks old with "
+                              "an expected adult weight over 25 kg.",
 }

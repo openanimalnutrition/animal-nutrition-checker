@@ -22,6 +22,7 @@ WHEN = (
     "protein-not-entered",
     "moisture-rows-differ",
     "moisture-rows-same",
+    "mature-weight-over-large-breed",
 )
 # A row for foods of 12% moisture or less and its row for wetter foods (steward, 24 Oct 2026:
 # say on each row which foods it is for, and whether the two differ under the requirement).
@@ -67,6 +68,9 @@ def _when(text, request, nid, lim):
         twin = MOISTURE_TWINS[nid]
         same = all(request.std(nid, b) == request.std(twin, b) for b in ("min", "max"))
         return same == (text == "moisture-rows-same")
+    if text == "mature-weight-over-large-breed":
+        mw = request.facts.get("mature_weight_kg")
+        return mw is not None and mw > limits.LARGE_BREED_PUPPY_MATURE_WEIGHT_KG
     if text == "protein-not-entered":
         # The arginine minimum's protein increase reads the protein entered as low.
         protein = "protein-mbw" if nid.endswith("-mbw") else "protein"

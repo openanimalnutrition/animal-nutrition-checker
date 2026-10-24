@@ -66,7 +66,7 @@ def _envelope(data, tool):
     return {"schema": SCHEMA, "caveats": caveats.caveats(data.version), "tool": tool,
             "code_release": CODE_RELEASE, "data_version": data.version,
             "data_sha256": data.sha256, "template_version": caveats.TEMPLATE_VERSION,
-            "verdict_status": caveats.VERDICT_STATUS}
+            "verdict_status": caveats.VERDICT_STATUS, "verdict_text": caveats.VERDICT_TEXT}
 
 
 def _reason_text(code):
@@ -208,6 +208,39 @@ def _place_bare(check, entries, bare, report):
                                    "entry (the template's heading rule)."})
 
 
+def _twin_entries(data, check, entries, bare, report):
+    """A value entered on one of a nutrient's per-Mcal and MBW rows is also checked on the other
+    when that one is not entered and has a limit under the requirement: both rows take the
+    diet's per-Mcal value (steward, 24 Oct 2026, after the AI-read test of release 0.5.1: an
+    entry on the per-Mcal row alone missed the energy-fed check on the MBW row). A single
+    value is placed on the other row by the heading rule."""
+    rows = {n["id"]: n for n in data.tables["nutrients"]}
+    twins = {}
+    for n in rows.values():
+        if n["basis"] == "per-mbw" and n["mbw_of"] and n["enterable"] == "yes":
+            twins[n["mbw_of"]] = n["id"]
+            twins[n["id"]] = n["mbw_of"]
+    for nid in sorted(entries):
+        twin = twins.get(nid)
+        if twin is None or twin in entries:
+            continue
+        lim, _ = check.limits_of(twin)
+        if lim.minimum is None and lim.maximum is None:
+            continue
+        sides = entries[nid]
+        if nid in bare:
+            value = next(iter(sides.values()))
+            entries[twin] = {"high" if lim.minimum is None else "low": value}
+        else:
+            entries[twin] = dict(sides)
+        shown = " to ".join(numbers.to_text(sides[s]) for s in ("low", "high") if s in sides)
+        per_mcal = twin if rows[nid]["basis"] == "per-mbw" else nid
+        report.append({"input": "entries." + twin, "status": "defaulted",
+                       "reason": "checked-with-twin",
+                       "text": caveats.fill(caveats.TWIN_ENTRY_TEXT, {
+                           "source": nid, "value": shown, "unit": rows[per_mcal]["unit"]})})
+
+
 def _row_info(data, nid):
     """(name, unit, basis, ig_code, notes) of a nutrient, a template row or the energy row."""
     if nid == inputs.ENERGY_ENTRY:
@@ -334,6 +367,16 @@ def _minimum_raise(request, nid, standard_min, unit):
             "fill": dict(fill, why=caveats.fill(caveats.RAISE_WHY[r.reason], values))}
 
 
+def _max_type_text(code, k, provenance):
+    """The kind of a range high in words (steward, 24 Oct 2026: the codes were not explained)."""
+    if code is None:
+        return None
+    if code in caveats.MAX_TYPE_TEXTS:
+        return caveats.fill(caveats.MAX_TYPE_TEXTS[code],
+                            {"k": numbers.to_text(k) if k is not None else "K"})
+    return interpret.kind(code, provenance) or None
+
+
 def _kcal_text(kcal):
     """kcal/day in a sentence: a whole number (steward, 24 Oct 2026); the result's
     *_kcal_per_day fields keep the full figure."""
@@ -349,7 +392,7 @@ def _nutrient(data, check, nid, entries):
         standard_min = None if not limits.unavailable(lim.minimum) else lim.minimum
     else:
         standard_min = request.standard_minimum(nid)
-    provenance = limits.provenance(lim.max_code, request.aafco_factor) \
+    provenance = limits.provenance(lim.max_code, request.aafco_factor, request.template_rules) \
         if lim.max_code else None
     if request.requirement is not None and nid in request.data["limits"].get(
             request.requirement["id"], {}):
@@ -376,6 +419,7 @@ def _nutrient(data, check, nid, entries):
            "range_high": None if no_limits else lim.range_high,
            "max_type": None if no_limits else lim.max_code,
            "max_provenance": None if no_limits else provenance,
+           "max_type_text": None if no_limits else _max_type_text(lim.max_code, k, provenance),
            "limits_unavailable": None if unavailable is None else {
                "reason": unavailable.reason, "text": _reason_text(unavailable.reason)},
            "mbw": _mbw(data, request, nid, None if unavailable else lim, unit),
@@ -506,6 +550,7 @@ def _factors(check):
         "optimal_body_weight": None if request.optimal_status is None else {
             "status": request.optimal_status,
             "text": caveats.OPTIMAL_WEIGHT_STATUS[request.optimal_status]},
+        "energies_text": caveats.ENERGIES_TEXT,
         "energy_rules": caveats.ENERGY_RULES_TEXT,
     }
 
@@ -522,9 +567,10 @@ def _reference_basis_text(check):
     standard, figure, exponent = basis
     key = standard if standard == req["standard"] else "%s-for-%s" % (standard, req["standard"])
     dog = req["species"] == "canine"
-    return caveats.REFERENCE_BASIS[key].format(
+    text = caveats.REFERENCE_BASIS[key].format(
         figure=numbers.to_text(figure), exponent=numbers.to_text(exponent),
         species="dog" if dog else "cat", who="average adult dog" if dog else "lean adult cat")
+    return text if dog else text + " " + caveats.CAT_REFERENCE_TEXT
 
 
 # The energy fed may not be below this share of the reference energy (steward, 23 Oct 2026).
@@ -593,7 +639,8 @@ def _requirement_block(req, requested):
 
 def _root_notes(data, req):
     general = [n["id"] for n in data.tables["notes"] if n["scope"] == "table"]
-    out = {"file": "data/notes.csv", "general": general, "requirement": []}
+    out = {"file": "data/notes.csv", "text": caveats.NOTES_TEXT, "general": general,
+           "requirement": []}
     if req is not None:
         out["requirement"] = _dedupe(req["notes"].split() + req["energy_notes"].split())
     return out
@@ -613,6 +660,10 @@ def check(data, request):
     entries, bare = _accept_entries(data, raw, report)
     c = _Check(data, req, facts, {})
     _place_bare(c, entries, bare, report)
+    _twin_entries(data, c, entries, bare, report)
+    if "puppy_body_weight_kg" in facts:
+        report.append({"input": "animal.puppy_body_weight_kg", "status": "warning",
+                       "reason": "not-used", "text": caveats.PUPPY_BODY_WEIGHT_NOT_USED})
     c = _Check(data, req, facts, entries)
     for nid, sides in entries.items():
         if "low" in sides and "high" in sides and sides["low"] > sides["high"]:
@@ -632,6 +683,7 @@ def check(data, request):
                                   "animal": facts, "entries": entries, "subject": subject}},
         "input_report": report,
         "factors": _factors(c),
+        "entries_text": caveats.ENTRIES_RESULT_TEXT,
         "nutrients": nutrients,
         "checks": _checks(data, c, entries),
         "limitations": _limitations(data, nutrients),
@@ -694,8 +746,6 @@ def facts_read(data, rid):
             less.pop(f)
             if energy.requirement_energy(tables, rid, less) != whole:
                 read.add(f)
-    if limits.applies(tables["template"]["calcium-large-breed-puppy"], req):
-        read.add("puppy_body_weight_kg")
     if energy.RULES[rid] in energy.ADULT_RULES:
         read.add("optimal_body_weight_kg")
     if any(row["min_rule"] == "fediaf-late-growth-by-mature-weight" or

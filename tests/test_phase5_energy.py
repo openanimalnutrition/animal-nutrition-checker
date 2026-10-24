@@ -258,10 +258,23 @@ class EnergyFactor(Close):
             t = request("nrc-puppy-4-14-wk", template_rules=True, **dict(facts, **extra))
             self.close(s.minimum("calcium-large-breed-puppy"),
                        t.minimum("calcium-large-breed-puppy"))
+        # The checker's rules use the current body weight, which is the puppy's; the template
+        # read its separate puppy body weight (steward, 24 Oct 2026).
         s = request("nrc-puppy-4-14-wk", energy_intake_kcal_per_day=300.0,
                     **dict(facts, puppy_body_weight_kg=None))
         self.assertEqual(s.energy_factor, 1.0)
-        self.assertEqual(s.minimum("calcium-large-breed-puppy"), 3.0)
+        self.close(s.minimum("calcium-large-breed-puppy"), 0.54 * 8.0 / 0.3)
+        t = request("nrc-puppy-4-14-wk", template_rules=True, energy_intake_kcal_per_day=300.0,
+                    **dict(facts, puppy_body_weight_kg=None))
+        self.assertEqual(t.minimum("calcium-large-breed-puppy"), 3.0)
+        # Over 25 kg expected mature weight only (NRC footnote h).
+        small = request("nrc-puppy-4-14-wk", **dict(facts, mature_weight_kg=25.0))
+        self.assertEqual(small.minimum("calcium-large-breed-puppy"),
+                         limits.Unavailable(limits.LARGE_BREED_PUPPY_ONLY))
+        # The template applied the row whenever its puppy body weight was entered.
+        self.assertTrue(limits.number(request("nrc-puppy-4-14-wk", template_rules=True,
+                                              **dict(facts, mature_weight_kg=25.0))
+                                      .minimum("calcium-large-breed-puppy")))
 
     def test_adult_maintenance_only(self):
         # Growth, gestation and lactation keep their per-Mcal minimums at any intake; a
