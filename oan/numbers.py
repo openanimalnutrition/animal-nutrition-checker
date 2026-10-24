@@ -1,7 +1,7 @@
 """Number handling, in one place: the template's (Google Sheets') number rules.
 
-The rules are those of the template's evaluation semantics (ai1/README.md, "Evaluation
-semantics"; Sean's batch 8f answers and his follow-up of 19 Oct 2026):
+The rules are those of the template's spreadsheet application, as the steward checked them on
+19 Oct 2026 (the IG's band computation page, "Comparing at 7 decimal places" and open point 8):
 
 - Arithmetic is IEEE 754 double precision (Python floats), in the order the specifications
   write it. Nothing is rounded except by sheet_round() and the text functions below.

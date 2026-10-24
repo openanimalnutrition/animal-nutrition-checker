@@ -36,7 +36,7 @@ the Open Animal Nutrition organisation.
 | `docs/parity-21OCT26b.md` | The parity gate: what was compared with the template, and every difference with its reason |
 | `docs/changes-from-21OCT26b.md` | Where the checker's rules and notes now differ from the template, and why |
 | `docs/template-21OCT26b-notes.csv` | The template's 301 notes word for word (the record the adapted notes are checked against) |
-| `tests/parity/` | The frozen 21OCT26b baseline: a copy of the data, the test vectors, the export's cell values, `SHA256SUMS` |
+| `tests/parity/` | The frozen 21OCT26b baseline: a copy of the data, the test vectors, the export's cell values, `SHA256SUMS` (the vector files' metadata names the build workspace they were made in, which is not published) |
 | `tests/run_vectors.py` | Runs every test vector against the baseline (both orders) and counts them per file |
 | `tests/real_sheets_check.py` | The one check against Google Sheets' own values: the released template's export |
 | `tests/sheet_map.py`, `tests/sheet_view.py` | Test side only: the template's cells, and those cells computed from the code's results |

@@ -1,12 +1,12 @@
 """The limits of one request: each nutrient's minimum, maximum and range high, and the type of
 its range high.
 
-Written from the formulas specification (ig-build impl/formulas/spec.md, sections 3-6 and 9),
-the values specification (ai1/spec-values.md, sections 4 and 7) and the IG's band
-computation page ("Caloric restriction", "The AAFCO dry matter factor", "Limits the
-template sets or computes", "Maximum types"), in nutrition terms. The standards' limits come
-from oan/table.py; the template's own figures and its four extra rows from data/template.csv
-by their ids (FIGURES and ROWS below). The shape of each rule is here.
+The rules are on the IG's band computation page ("Inputs for one nutrient", "Caloric
+restriction", "Energy rules proposed for the code version", "The AAFCO dry matter factor",
+"Limits the template sets or computes", "Maximum types") and, where the code differs from the
+template, in docs/changes-from-21OCT26b.md. Written in nutrition terms. The standards' limits
+come from oan/table.py; the template's own figures and its four extra rows from
+data/template.csv by their ids (FIGURES and ROWS below). The shape of each rule is here.
 
 A limit is a number, None (the template's "none": no limit) or Unavailable, with a reason:
 no requirement is chosen ("requirement-needed"), or the energy an MBW conversion needs is

@@ -1,9 +1,9 @@
 """The input rules: what the checker accepts, in nutrition terms.
 
-These are the template's input rules (ai1/README.md, "Inputs and their allowed ranges"). A
-value outside its rule is rejected with a reason and never computed with (Sean, 21 Oct 2026,
-decision 1 A). None means "not entered": it is never rejected here, and whether a requirement
-needs the value is decided where the value is used.
+These are the template's input rules (the allowed range or list of each input cell). A value
+outside its rule is rejected with a reason and never computed with (approved 21 Oct 2026,
+decision 1 A: docs/parity-21OCT26b.md, difference 1). None means "not entered": it is never
+rejected here, and whether a requirement needs the value is decided where the value is used.
 
 The template reads a life stage with TRIM and compares it without case, so a life stage typed
 with other capitals or extra spaces is accepted and normalised to its list item. Every other

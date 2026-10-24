@@ -1,13 +1,12 @@
 """The Result's fixed texts: the caveats on every result, the status line of each entry, the
 kinds of maximum, the text checks and the reasons in plain words.
 
-The steward approved this wording on 22 Oct 2026 (ig-build caveat-wording-draft-20261022.md;
-sean-answers, "Code phase 5"), with four fixes after the AI-read test the same day
-(sean-answers, "Code phase 5: wording fixes after the AI-read test"). The steward approved the
-23 Oct drafts, the notice's pointer to the changes document and "this checker" for "this
-template" on 24 Oct 2026. Change it only with the steward's approval: a contract test
-fails if a caveat is missing from any result. The conditions' texts are data
-(data/conditions.csv, data/limitations.csv).
+The steward approved this wording on 22 Oct 2026, with four fixes the same day after an AI-read
+test (other AI models read sample results as an AI user would). The steward approved the 23 Oct
+drafts, the notice's pointer to the changes document and "this checker" for "this template" on
+24 Oct 2026. Change it only with the steward's approval: a contract test fails if a caveat is
+missing from any result. The conditions' texts are data (data/conditions.csv,
+data/limitations.csv).
 """
 
 TEMPLATE_VERSION = "21OCT26b"

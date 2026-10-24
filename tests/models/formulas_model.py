@@ -1,13 +1,13 @@
-"""Independent model of the minimum rules of the formulas specification (impl/formulas/spec.md).
+"""Independent model of the minimum rules of the template's formulas.
 
-Copied from ig-build impl/formulas/model.py (19-20 Oct 2026), its rules for 21OCT26 only (the
-18OCT26 comparisons are left out). Phase 3 gave it a data driver: use(data) reads the figures
-its rules use from data/template.csv (AAFCO's presumed energy density, the large-breed puppy
-calcium figures, NRC's highest LA:ALA ratios, the EPA share of adult cats, the carbohydrate
-energy factors), and build_model(data) builds the tables it reads from a data folder (the
-values oan/table.py computes from the printed figures), so the impact report can re-run it
-on changed data. Its rules are unchanged and independent of oan/limits.py; it uses no formula
-text and no evaluator.
+Written as an independent check during the template's 21OCT26 build (19-20 Oct 2026) and copied
+here, its rules for 21OCT26 only (the 18OCT26 comparisons are left out). Phase 3 gave it a data
+driver: use(data) reads the figures its rules use from data/template.csv (AAFCO's presumed
+energy density, the large-breed puppy calcium figures, NRC's highest LA:ALA ratios, the EPA
+share of adult cats, the carbohydrate energy factors), and build_model(data) builds the tables
+it reads from a data folder (the values oan/table.py computes from the printed figures), so the
+impact report can re-run it on changed data. Its rules are unchanged and independent of
+oan/limits.py; it uses no formula text and no evaluator.
 
 Values: float, str, bool, None (blank) or ("#ERR", code) for an error. The model checks, per
 case, the cells of TARGETS; the energy (s02 row 4), C11 and C53 it reads are the case's own

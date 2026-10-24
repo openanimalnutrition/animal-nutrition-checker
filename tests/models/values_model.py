@@ -1,15 +1,15 @@
-"""Independent model of the values specification (ai1/spec-values.md) on the Standards tab.
+"""Independent model of the template's value rules on the Standards tab.
 
-Copied from ig-build ai1/tools/values_model.py (19-20 Oct 2026). Phase 3 gave it a data driver:
-use(data) reads the template's figures it needs (data/template.csv: the vitamin D2 efficiency,
-the taurine default maximum, the MCT maximum) and FEDIAF late growth's two pairs of figures,
-and table_from_data(data) builds the requirement table it reads from a data folder (the
-values oan/table.py computes from the printed figures, checked against the released table
-in phase 1a), so the impact report can re-run it on changed data. Its rules are unchanged and
-independent of oan/limits.py; its original 8a/4d rules for formula cells are not needed,
-because the data folder's derived cells arrive computed.
+Written as an independent check during the template's 21OCT26 build (19-20 Oct 2026) and copied
+here. Phase 3 gave it a data driver: use(data) reads the template's figures it needs
+(data/template.csv: the vitamin D2 efficiency, the taurine default maximum, the MCT maximum)
+and FEDIAF late growth's two pairs of figures, and table_from_data(data) builds the requirement
+table it reads from a data folder (the values oan/table.py computes from the printed figures,
+checked against the released table in phase 1a), so the impact report can re-run it on changed
+data. Its rules are unchanged and independent of oan/limits.py; its original 8a/4d rules for
+formula cells are not needed, because the data folder's derived cells arrive computed.
 
-Not modelled (taken from the case's own outputs as data): G4 (the energy specification), C14
+Not modelled (taken from the case's own outputs as data): G4 (the daily energy), C14
 and C15 (arginine), C48/E48 (ALA MBW) and the AR sentences.
 """
 

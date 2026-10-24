@@ -2,8 +2,7 @@
 the range high, the open point that leaves it without a verdict, and its status line.
 
 Written from the IG's band computation page ("Bands and the adequacy interpretation",
-"Maximum types") with the steward's answers of 22 Oct 2026 to open points 6 and 7
-(sean-answers, "Code phase 5"):
+"Maximum types") with the steward's answers of 22 Oct 2026 to its open points 6 and 7:
 - `deficient` below the part of the minimum the applied standard sets
   (limits.Request.standard_minimum); below a minimum the template sets itself there is no
   verdict, and open point 6 is named;

@@ -1,8 +1,9 @@
 """Independent model of the daily energy minimum (s02 row 4) after the energy batches 1 and 2.
 
-Copied from ig-build impl/energy/tools/model.py (19 Oct 2026); phase 2 re-pointed its figures
-at a data folder's energy.csv (use(data) before energy()), so the impact report can re-run
-it on changed data. Its structure is unchanged and independent of oan/energy.py.
+Written as an independent check during the template's energy work (19 Oct 2026) and copied
+here; phase 2 re-pointed its figures at a data folder's energy.csv (use(data) before energy()),
+so the impact report can re-run it on changed data. Its structure is unchanged and independent
+of oan/energy.py.
 
 Written from the sources and from Sean's decisions (batches 1 and 2, 19 Oct 2026), not from the formula text:
   - AVCN 2nd ed. Box 3.1 (pp. 46-47): RER = 70 * BW^0.75; puppies 3 x RER weaning-4 months, then 2 x RER until adult
