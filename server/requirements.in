@@ -1,0 +1,4 @@
+# The server's one direct dependency (plan: the official MCP SDK; it brings Starlette and
+# uvicorn). Locked with hashes in requirements.lock (pip-compile --generate-hashes, run in a
+# throwaway container); the image installs only the lock.
+mcp

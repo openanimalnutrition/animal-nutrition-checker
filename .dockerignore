@@ -1,0 +1,9 @@
+.git
+.github
+**/__pycache__
+tests/parity
+tests/vectors-extra
+tests/models
+tools
+*.md
+!docs/result.schema.json

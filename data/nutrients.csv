@@ -1,9 +1,9 @@
 id,name,unit,amount,basis,k,mbw_of,enterable,ig_code,notes
-protein,Protein,g/Mcal,g,per-mcal,4,,yes,protein,
+protein,Protein,g/Mcal,g,per-mcal,4,,yes,protein,n196
 protein-mbw,Protein MBW,Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,protein,yes,,
 protein-dm,Protein,g/100 g DM,g,per-100g-dm,,,no,,n052 n053
-arginine,"Arginine, Arg | Also Enter Protein if NRC/FEDIAF",g/Mcal,g,per-mcal,4,,yes,,
-arginine-mbw,"Arginine, Arg | Also Enter Protein if NRC/FEDIAF MBW",Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,arginine,yes,,
+arginine,"Arginine, Arg | Also Enter Protein if NRC/FEDIAF",g/Mcal,g,per-mcal,4,,yes,,n197
+arginine-mbw,"Arginine, Arg | Also Enter Protein if NRC/FEDIAF MBW",Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,arginine,yes,,n198
 histidine,"Histidine, His",g/Mcal,g,per-mcal,4,,yes,,
 histidine-mbw,"Histidine, His MBW",Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,histidine,yes,,
 isoleucine,"Isoleucine, Ile",g/Mcal,g,per-mcal,4,,yes,,
@@ -12,105 +12,105 @@ leucine,"Leucine, Leu",g/Mcal,g,per-mcal,4,,yes,,
 leucine-mbw,"Leucine, Leu MBW",Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,leucine,yes,,
 lysine,"Lysine, Lys",g/Mcal,g,per-mcal,4,,yes,,
 lysine-mbw,"Lysine, Lys MBW",Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,lysine,yes,,
-methionine,Methionine,g/Mcal,g,per-mcal,4,,yes,,
-methionine-mbw,Methionine MBW,Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,methionine,yes,,
-methionine-cystine,Methionine-cystine,g/Mcal,g,per-mcal,4,,yes,,
-methionine-cystine-mbw,Methionine-cystine MBW,Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,methionine-cystine,yes,,
+methionine,Methionine,g/Mcal,g,per-mcal,4,,yes,,n199
+methionine-mbw,Methionine MBW,Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,methionine,yes,,n200
+methionine-cystine,Methionine-cystine,g/Mcal,g,per-mcal,4,,yes,,n201
+methionine-cystine-mbw,Methionine-cystine MBW,Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,methionine-cystine,yes,,n202
 phenylalanine,"Phenylalanine, Phe",g/Mcal,g,per-mcal,4,,yes,,
 phenylalanine-mbw,"Phenylalanine, Phe MBW",Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,phenylalanine,yes,,
-phenylalanine-tyrosine,"Phenylalanine-tyrosine, Phe+tyr",g/Mcal,g,per-mcal,4,,yes,,
-phenylalanine-tyrosine-mbw,"Phenylalanine-tyrosine, Phe+tyr MBW",Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,phenylalanine-tyrosine,yes,,
+phenylalanine-tyrosine,"Phenylalanine-tyrosine, Phe+tyr",g/Mcal,g,per-mcal,4,,yes,,n203
+phenylalanine-tyrosine-mbw,"Phenylalanine-tyrosine, Phe+tyr MBW",Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,phenylalanine-tyrosine,yes,,n204
 threonine,"Threonine, Thr",g/Mcal,g,per-mcal,4,,yes,,
 threonine-mbw,"Threonine, Thr MBW",Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,threonine,yes,,
 tryptophan,"Tryptophan, Trp",g/Mcal,g,per-mcal,4,,yes,,
 tryptophan-mbw,"Tryptophan, Trp MBW",Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,tryptophan,yes,,
 valine,"Valine, Val",g/Mcal,g,per-mcal,4,,yes,,
 valine-mbw,"Valine, Val MBW",Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,valine,yes,,
-taurine,"Taurine, Tau",g/Mcal,g,per-mcal,4,,yes,,
-taurine-mbw,"Taurine, Tau MBW",Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,taurine,yes,,
-taurine-wet,"Taurine, Tau (For >12% Moisture Foods)",g/Mcal,g,per-mcal,4,,yes,,n069
-taurine-wet-mbw,"Taurine, Tau (For >12% Moisture Foods) MBW",Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,taurine-wet,yes,,n074
-fat,"Fat, Total Lipid",g/Mcal,g,per-mcal,4,,yes,,
-fat-mbw,"Fat, Total Lipid MBW",Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,fat,yes,,
+taurine,"Taurine, Tau",g/Mcal,g,per-mcal,4,,yes,,n205 n206
+taurine-mbw,"Taurine, Tau MBW",Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,taurine,yes,,n207 n208
+taurine-wet,"Taurine, Tau (For >12% Moisture Foods)",g/Mcal,g,per-mcal,4,,yes,,n069 n209 n210
+taurine-wet-mbw,"Taurine, Tau (For >12% Moisture Foods) MBW",Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,taurine-wet,yes,,n074 n211 n212
+fat,"Fat, Total Lipid",g/Mcal,g,per-mcal,4,,yes,,n213 n214
+fat-mbw,"Fat, Total Lipid MBW",Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,fat,yes,,n215
 linoleic-acid,Linoleic acid (LA),g/Mcal,g,per-mcal,4,,yes,,
 linoleic-acid-mbw,Linoleic acid (LA) MBW,Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,linoleic-acid,yes,,
-alpha-linolenic-acid,alpha-Linolenic acid (ALA),g/Mcal,g,per-mcal,4,,yes,,
-alpha-linolenic-acid-mbw,alpha-Linolenic acid (ALA) MBW,Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,alpha-linolenic-acid,yes,,
+alpha-linolenic-acid,alpha-Linolenic acid (ALA),g/Mcal,g,per-mcal,4,,yes,,n216 n217 n218
+alpha-linolenic-acid-mbw,alpha-Linolenic acid (ALA) MBW,Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,alpha-linolenic-acid,yes,,n219 n220
 arachidonic-acid,Arachidonic acid (AA),g/Mcal,g,per-mcal,4,,yes,,
 arachidonic-acid-mbw,Arachidonic acid (AA) MBW,Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,arachidonic-acid,yes,,
-epa-dha,EPA + DHA,g/Mcal,g,per-mcal,4,,yes,,
+epa-dha,EPA + DHA,g/Mcal,g,per-mcal,4,,yes,,n222
 epa-dha-mbw,EPA + DHA MBW,Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,epa-dha,yes,,
-la-aa-to-ala-epa-dha-ratio,LA + AA : ALA + EPA + DHA,no units,,ratio,1,,yes,,
+la-aa-to-ala-epa-dha-ratio,LA + AA : ALA + EPA + DHA,no units,,ratio,1,,yes,,n223 n224 n225
 la-aa-to-ala-epa-dha-ratio-mbw,LA + AA : ALA + EPA + DHA MBW,no units,,ratio,,la-aa-to-ala-epa-dha-ratio,no,,n096
-la-aa-to-epa-dha-ratio,LA + AA : EPA + DHA,no units,,ratio,1,,yes,,
+la-aa-to-epa-dha-ratio,LA + AA : EPA + DHA,no units,,ratio,1,,yes,,n226 n227 n228
 la-aa-to-epa-dha-ratio-mbw,LA + AA : EPA + DHA MBW,no units,,ratio,,la-aa-to-epa-dha-ratio,no,,n097
-mct,"Medium-chain triglycerides, MCTs",g/Mcal,g,per-mcal,4,,yes,,
-mct-mbw,"Medium-chain triglycerides, MCTs MBW",Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,blank,mct,yes,,
-calcium,"Calcium, Ca",g/Mcal,g,per-mcal,4,,yes,calcium,
-calcium-mbw,"Calcium, Ca MBW",Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,calcium,yes,,
-phosphorus,"Phosphorus, P",g/Mcal,g,per-mcal,4,,yes,phosphorus,
-phosphorus-mbw,"Phosphorus, P MBW",Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,phosphorus,yes,,
-ca-p-ratio,Ca : P ratio,no units,,ratio,2,,yes,ca-p-ratio,
+mct,"Medium-chain triglycerides, MCTs",g/Mcal,g,per-mcal,4,,yes,,n229
+mct-mbw,"Medium-chain triglycerides, MCTs MBW",Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,blank,mct,yes,,n230
+calcium,"Calcium, Ca",g/Mcal,g,per-mcal,4,,yes,calcium,n231
+calcium-mbw,"Calcium, Ca MBW",Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,calcium,yes,,n232
+phosphorus,"Phosphorus, P",g/Mcal,g,per-mcal,4,,yes,phosphorus,n235
+phosphorus-mbw,"Phosphorus, P MBW",Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,phosphorus,yes,,n236
+ca-p-ratio,Ca : P ratio,no units,,ratio,2,,yes,ca-p-ratio,n237 n238 n239
 ca-p-ratio-mbw,Ca : P ratio MBW,no units,,ratio,,ca-p-ratio,no,,n106
 potassium,"Potassium, K",g/Mcal,g,per-mcal,4,,yes,potassium,
 potassium-mbw,"Potassium, K MBW",Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,4,potassium,yes,,
-sodium,"Sodium, Na",g/Mcal,g,per-mcal,7,,yes,,
-sodium-mbw,"Sodium, Na MBW",Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,7,sodium,yes,,
+sodium,"Sodium, Na",g/Mcal,g,per-mcal,7,,yes,,n240 n241
+sodium-mbw,"Sodium, Na MBW",Dogs: g/kg BW^0.75 Cats: g/kg BW^0.67,g,per-mbw,7,sodium,yes,,n242 n243
 chloride,"Chloride, Cl",mg/Mcal,mg,per-mcal,4,,yes,,
 chloride-mbw,"Chloride, Cl MBW",Dogs: mg/kg BW^0.75 Cats: mg/kg BW^0.67,mg,per-mbw,4,chloride,yes,,
-magnesium,"Magnesium, Mg",mg/Mcal,mg,per-mcal,4,,yes,,
-magnesium-mbw,"Magnesium, Mg MBW",Dogs: mg/kg BW^0.75 Cats: mg/kg BW^0.67,mg,per-mbw,4,magnesium,yes,,
-iron,"Iron, Fe",mg/Mcal,mg,per-mcal,4,,yes,,
-iron-mbw,"Iron, Fe MBW",Dogs: mg/kg BW^0.75 Cats: mg/kg BW^0.67,mg,per-mbw,4,iron,yes,,
-copper,"Copper, Cu",mg/Mcal,mg,per-mcal,4,,yes,,
-copper-mbw,"Copper, Cu MBW",Dogs: mg/kg BW^0.75 Cats: mg/kg BW^0.67,mg,per-mbw,4,copper,yes,,
-copper-wet,"Copper, Cu (For >12% Moisture Foods)",mg/Mcal,mg,per-mcal,4,,yes,,n127
+magnesium,"Magnesium, Mg",mg/Mcal,mg,per-mcal,4,,yes,,n244
+magnesium-mbw,"Magnesium, Mg MBW",Dogs: mg/kg BW^0.75 Cats: mg/kg BW^0.67,mg,per-mbw,4,magnesium,yes,,n245
+iron,"Iron, Fe",mg/Mcal,mg,per-mcal,4,,yes,,n246
+iron-mbw,"Iron, Fe MBW",Dogs: mg/kg BW^0.75 Cats: mg/kg BW^0.67,mg,per-mbw,4,iron,yes,,n247
+copper,"Copper, Cu",mg/Mcal,mg,per-mcal,4,,yes,,n248
+copper-mbw,"Copper, Cu MBW",Dogs: mg/kg BW^0.75 Cats: mg/kg BW^0.67,mg,per-mbw,4,copper,yes,,n249
+copper-wet,"Copper, Cu (For >12% Moisture Foods)",mg/Mcal,mg,per-mcal,4,,yes,,n127 n250
 copper-wet-mbw,"Copper, Cu (For >12% Moisture Foods) MBW",Dogs: mg/kg BW^0.75 Cats: mg/kg BW^0.67,mg,per-mbw,,copper-wet,no,,n128
 manganese,"Manganese, Mn",mg/Mcal,mg,per-mcal,4,,yes,,
 manganese-mbw,"Manganese, Mn MBW",Dogs: mg/kg BW^0.75 Cats: mg/kg BW^0.67,mg,per-mbw,4,manganese,yes,,
-zinc,"Zinc, Zn",mg/Mcal,mg,per-mcal,4,,yes,,
-zinc-mbw,"Zinc, Zn MBW",Dogs: mg/kg BW^0.75 Cats: mg/kg BW^0.67,mg,per-mbw,4,zinc,yes,,
-iodine,"Iodine, I",mg/Mcal,mg,per-mcal,4,,yes,,
-iodine-mbw,"Iodine, I MBW",Dogs: mg/kg BW^0.75 Cats: mg/kg BW^0.67,mg,per-mbw,4,iodine,yes,,
-selenium,"Selenium, Se",mcg/Mcal,mcg,per-mcal,4,,yes,,
-selenium-mbw,"Selenium, Se MBW",Dogs: mcg/kg BW^0.75 Cats: mcg/kg BW^0.67,mcg,per-mbw,4,selenium,yes,,
-selenium-wet,"Selenium, Se (For >12% Moisture Foods)",mcg/Mcal,mcg,per-mcal,4,,yes,,n134
+zinc,"Zinc, Zn",mg/Mcal,mg,per-mcal,4,,yes,,n251
+zinc-mbw,"Zinc, Zn MBW",Dogs: mg/kg BW^0.75 Cats: mg/kg BW^0.67,mg,per-mbw,4,zinc,yes,,n252
+iodine,"Iodine, I",mg/Mcal,mg,per-mcal,4,,yes,,n253
+iodine-mbw,"Iodine, I MBW",Dogs: mg/kg BW^0.75 Cats: mg/kg BW^0.67,mg,per-mbw,4,iodine,yes,,n254
+selenium,"Selenium, Se",mcg/Mcal,mcg,per-mcal,4,,yes,,n255
+selenium-mbw,"Selenium, Se MBW",Dogs: mcg/kg BW^0.75 Cats: mcg/kg BW^0.67,mcg,per-mbw,4,selenium,yes,,n256
+selenium-wet,"Selenium, Se (For >12% Moisture Foods)",mcg/Mcal,mcg,per-mcal,4,,yes,,n134 n257
 selenium-wet-mbw,"Selenium, Se (For >12% Moisture Foods) MBW",Dogs: mcg/kg BW^0.75 Cats: mcg/kg BW^0.67,mcg,per-mbw,,selenium-wet,no,,n138
-retinol,Retinol (for cats),mcg retinol/Mcal,mcg,per-mcal,4,,yes,,
-retinol-mbw,Retinol (for cats) MBW,Dogs: mcg retinol/kg BW^0.75 Cats: mcg retinol/kg BW^0.67,mcg,per-mbw,4,retinol,yes,,
-vitamin-a,Vitamin A (for dogs),"IU, Vit A/Mcal",IU,per-mcal,4,,yes,,n139
-vitamin-a-mbw,Vitamin A (for dogs) MBW,Dogs: IU/kg BW^0.75 Cats: IU/kg BW^0.67,IU,per-mbw,4,vitamin-a,yes,,n140
-vitamin-d,Vitamin D (D2 +D3) | Cats: 1.43X if Vit D2,"IU, Vit D/Mcal",IU,per-mcal,4,,yes,vitamin-d,n141
-vitamin-d-mbw,Vitamin D (D2 +D3) | Cats: 1.43X if Vit D2 MBW,Dogs: IU/kg BW^0.75 Cats: IU/kg BW^0.67,IU,per-mbw,4,vitamin-d,yes,,n142
-vitamin-e,"Vitamin E, Alpha-tocopherol | [PUFA] or fish oil may affect","IU, Vit E/Mcal",IU,per-mcal,4,,yes,,n143
-vitamin-e-mbw,"Vitamin E, Alpha-tocopherol | [PUFA] may affect MBW",Dogs: IU/kg BW^0.75 Cats: IU/kg BW^0.67,IU,per-mbw,4,vitamin-e,yes,,n144
-vitamin-k1,"Vitamin K1, Phylloquinone",mg/Mcal,mg,per-mcal,4,,yes,,n145
-vitamin-k1-mbw,"Vitamin K1, Phylloquinone MBW",Dogs: mg/kg BW^0.75 Cats: mg/kg BW^0.67,mg,per-mbw,4,vitamin-k1,yes,,n154
-thiamine,"Thiamin(e), Vitamin B1",mg/Mcal,mg,per-mcal,4,,yes,,
-thiamine-mbw,"Thiamin(e), Vitamin B1 MBW",Dogs: mg/kg BW^0.75 Cats: mg/kg BW^0.67,mg,per-mbw,4,thiamine,yes,,
+retinol,Retinol (for cats),mcg retinol/Mcal,mcg,per-mcal,4,,yes,,n258
+retinol-mbw,Retinol (for cats) MBW,Dogs: mcg retinol/kg BW^0.75 Cats: mcg retinol/kg BW^0.67,mcg,per-mbw,4,retinol,yes,,n259
+vitamin-a,Vitamin A (for dogs),"IU, Vit A/Mcal",IU,per-mcal,4,,yes,,n139 n260
+vitamin-a-mbw,Vitamin A (for dogs) MBW,Dogs: IU/kg BW^0.75 Cats: IU/kg BW^0.67,IU,per-mbw,4,vitamin-a,yes,,n140 n261
+vitamin-d,Vitamin D (D2 +D3) | Cats: 1.43X if Vit D2,"IU, Vit D/Mcal",IU,per-mcal,4,,yes,vitamin-d,n141 n262
+vitamin-d-mbw,Vitamin D (D2 +D3) | Cats: 1.43X if Vit D2 MBW,Dogs: IU/kg BW^0.75 Cats: IU/kg BW^0.67,IU,per-mbw,4,vitamin-d,yes,,n142 n263
+vitamin-e,"Vitamin E, Alpha-tocopherol | [PUFA] or fish oil may affect","IU, Vit E/Mcal",IU,per-mcal,4,,yes,,n143 n268 n269
+vitamin-e-mbw,"Vitamin E, Alpha-tocopherol | [PUFA] may affect MBW",Dogs: IU/kg BW^0.75 Cats: IU/kg BW^0.67,IU,per-mbw,4,vitamin-e,yes,,n144 n270 n271
+vitamin-k1,"Vitamin K1, Phylloquinone",mg/Mcal,mg,per-mcal,4,,yes,,n145 n272
+vitamin-k1-mbw,"Vitamin K1, Phylloquinone MBW",Dogs: mg/kg BW^0.75 Cats: mg/kg BW^0.67,mg,per-mbw,4,vitamin-k1,yes,,n154 n273
+thiamine,"Thiamin(e), Vitamin B1",mg/Mcal,mg,per-mcal,4,,yes,,n274
+thiamine-mbw,"Thiamin(e), Vitamin B1 MBW",Dogs: mg/kg BW^0.75 Cats: mg/kg BW^0.67,mg,per-mbw,4,thiamine,yes,,n275
 riboflavin,"Riboflavin, Vitamin B2",mg/Mcal,mg,per-mcal,4,,yes,,
 riboflavin-mbw,"Riboflavin, Vitamin B2 MBW",Dogs: mg/kg BW^0.75 Cats: mg/kg BW^0.67,mg,per-mbw,4,riboflavin,yes,,
 pantothenic-acid,"Pantothenic acid, Vitamin B5",mg/Mcal,mg,per-mcal,4,,yes,,
 pantothenic-acid-mbw,"Pantothenic acid, Vitamin B5 MBW",Dogs: mg/kg BW^0.75 Cats: mg/kg BW^0.67,mg,per-mbw,4,pantothenic-acid,yes,,
 niacin,"Niacin, Vitamin B3",mg/Mcal,mg,per-mcal,4,,yes,,
 niacin-mbw,"Niacin, Vitamin B3 MBW",Dogs: mg/kg BW^0.75 Cats: mg/kg BW^0.67,mg,per-mbw,4,niacin,yes,,
-pyridoxine,Pyridoxine/Vitamin B6,mg/Mcal,mg,per-mcal,4,,yes,,
-pyridoxine-mbw,Pyridoxine/Vitamin B6 MBW,Dogs: mg/kg BW^0.75 Cats: mg/kg BW^0.67,mg,per-mbw,4,pyridoxine,yes,,
-folate,"Folate, DFE, Vitamin B9",mcg_DFE/Mcal,mcg,per-mcal,4,,yes,,n161
-folate-mbw,"Folate, DFE, Vitamin B9 MBW",Dogs: mcg_DFE/kg BW^0.75 Cats: mcg_DFE/kg BW^0.67,mcg,per-mbw,4,folate,yes,,n162
-biotin,"Biotin, Vitamin B7",mcg/Mcal,mcg,per-mcal,4,,yes,,
-biotin-mbw,"Biotin, Vitamin B7 MBW",Dogs: mcg/kg BW^0.75 Cats: mcg/kg BW^0.67,mcg,per-mbw,4,biotin,yes,,
+pyridoxine,Pyridoxine/Vitamin B6,mg/Mcal,mg,per-mcal,4,,yes,,n276
+pyridoxine-mbw,Pyridoxine/Vitamin B6 MBW,Dogs: mg/kg BW^0.75 Cats: mg/kg BW^0.67,mg,per-mbw,4,pyridoxine,yes,,n277
+folate,"Folate, DFE, Vitamin B9",mcg_DFE/Mcal,mcg,per-mcal,4,,yes,,n161 n278
+folate-mbw,"Folate, DFE, Vitamin B9 MBW",Dogs: mcg_DFE/kg BW^0.75 Cats: mcg_DFE/kg BW^0.67,mcg,per-mbw,4,folate,yes,,n162 n279
+biotin,"Biotin, Vitamin B7",mcg/Mcal,mcg,per-mcal,4,,yes,,n280
+biotin-mbw,"Biotin, Vitamin B7 MBW",Dogs: mcg/kg BW^0.75 Cats: mcg/kg BW^0.67,mcg,per-mbw,4,biotin,yes,,n281
 cobalamin,"Cobalamin, Vitamin B12",mg/Mcal,mg,per-mcal,4,,yes,,
 cobalamin-mbw,"Cobalamin, Vitamin B12 MBW",Dogs: mg/kg BW^0.75 Cats: mg/kg BW^0.67,mg,per-mbw,4,cobalamin,yes,,
-choline,"Choline, total",mg/Mcal,mg,per-mcal,4,,yes,,
+choline,"Choline, total",mg/Mcal,mg,per-mcal,4,,yes,,n282
 choline-mbw,"Choline, total MBW",Dogs: mg/kg BW^0.75 Cats: mg/kg BW^0.67,mg,per-mbw,4,choline,yes,,
-vitamin-c,"Vitamin C, total ascorbic acid",mg/Mcal,mg,per-mcal,4,,yes,,
-water,Water,g/Mcal,g,per-mcal,1,,yes,,
-carbohydrate,"Carbohydrate, by difference",g/Mcal,g,per-mcal,N/A,,yes,,
-fiber-total,"Fiber, total dietary (TDF)",g/Mcal,g,per-mcal,6,,yes,,
-fiber-insoluble,"Fiber, insoluble",g/Mcal,g,per-mcal,6,,yes,,
-fiber-soluble,"Fiber, soluble",g/Mcal,g,per-mcal,6,,yes,,
-oxalate,Oxalate,mg/Mcal,mg,per-mcal,4,,yes,,
-purine,Purine,mg/Mcal,mg,per-mcal,4,,yes,,
-energy-density,Energy Density,kcal/g DM,,energy-density,1.5,,yes,,
+vitamin-c,"Vitamin C, total ascorbic acid",mg/Mcal,mg,per-mcal,4,,yes,,n283
+water,Water,g/Mcal,g,per-mcal,1,,yes,,n284 n285 n286
+carbohydrate,"Carbohydrate, by difference",g/Mcal,g,per-mcal,N/A,,yes,,n287 n288 n289 n290
+fiber-total,"Fiber, total dietary (TDF)",g/Mcal,g,per-mcal,6,,yes,,n291 n292
+fiber-insoluble,"Fiber, insoluble",g/Mcal,g,per-mcal,6,,yes,,n293 n294
+fiber-soluble,"Fiber, soluble",g/Mcal,g,per-mcal,6,,yes,,n295 n296
+oxalate,Oxalate,mg/Mcal,mg,per-mcal,4,,yes,,n297
+purine,Purine,mg/Mcal,mg,per-mcal,4,,yes,,n298
+energy-density,Energy Density,kcal/g DM,,energy-density,1.5,,yes,,n299 n300 n301
 glutamic-acid,Glutamic Acid,g/Mcal,g,per-mcal,4,,yes,,

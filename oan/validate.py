@@ -12,7 +12,7 @@ import os
 import re
 import sys
 
-from oan import energy, limits, release, table
+from oan import conditions, energy, limits, release, table
 
 NUTRIENTS_HEADER = ["id", "name", "unit", "amount", "basis", "k", "mbw_of", "enterable",
                     "ig_code", "notes"]
@@ -25,6 +25,10 @@ NOTES_HEADER = ["id", "scope", "text", "origin"]
 ENERGY_HEADER = ["id", "figure", "unit", "label", "source", "notes"]
 TEMPLATE_HEADER = ["id", "kind", "name", "figure", "unit", "k", "applies_to", "max_type",
                    "source", "notes"]
+LIMITATIONS_HEADER = ["item", "text", "source", "notes"]
+CONDITIONS_HEADER = ["id", "item", "applies_to", "nutrients", "when", "depends_on", "notes"]
+OPEN_MINIMUMS_HEADER = ["requirement", "nutrient", "when", "reason", "notes"]
+OPEN_MINIMUM_CASES = ["aafco-factor-above-1"]
 # A type's label ends with the figure and exponent it prints: "(95 * kg BW^0.75)".
 TYPE_LABEL = re.compile(r".*\((\S+) \* [^()]*\^(\S+)\)")
 
@@ -198,6 +202,7 @@ def validate(data_dir, against=None):
 
     check_energy(data_dir, note_ids, requirements, report)
     check_template(data_dir, note_ids, nutrient_ids, requirements, report)
+    check_conditions(data_dir, note_ids, nutrient_ids, requirements, report)
 
     # Every requirement has exactly one limits file, and there are no others.
     expected_files = {os.path.join(r["edition"], r["id"] + ".csv") for _, r in requirements}
@@ -482,6 +487,96 @@ def check_template(data_dir, note_ids, nutrient_ids, requirements, report):
             report.warn("template.csv %s" % high, "is not above %s" % low)
 
 
+def check_conditions(data_dir, note_ids, nutrient_ids, requirements, report):
+    """limitations.csv, conditions.csv and open-minimums.csv, when present (the frozen
+    21OCT26b baseline predates them): known ids, the closed list of cases, texts with only the
+    placeholders the code fills, notes that exist."""
+    present = [n for n in table.OPTIONAL_FILES if os.path.exists(os.path.join(data_dir, n))]
+    if not present:
+        return
+    for name in table.OPTIONAL_FILES:
+        if name not in present:
+            report.error(name, "missing: %s are present, so this file is needed too" % (
+                ", ".join(present)))
+    if report.errors:
+        return
+    reqs = {r["id"]: r for _, r in requirements}
+    rows_known = set(nutrient_ids) | set(limits.ROWS) | {"energy"}
+    tokens_known = {"*"} | set(SPECIES) | set(STANDARDS) | set(reqs)
+    types_known = set(MAX_TYPES) | {limits.COMPUTED, limits.NO_MAXIMUM, "SULm>"}
+
+    items = set()
+    for line, r in read(os.path.join(data_dir, "limitations.csv"), LIMITATIONS_HEADER, report):
+        where = "limitations.csv line %d" % line
+        if not re.fullmatch(r"[1-9]\d*", r["item"]) or int(r["item"]) in items:
+            report.error(where + " item", "items are 1, 2, 3 ... with no repeats")
+        else:
+            items.add(int(r["item"]))
+        for field in ("text", "source"):
+            if not r[field].strip():
+                report.error(where + " " + field, "the %s is empty" % field)
+        check_note_refs(r["notes"], where + " notes", note_ids, report)
+
+    seen = set()
+    for line, r in read(os.path.join(data_dir, "conditions.csv"), CONDITIONS_HEADER, report):
+        where = "conditions.csv line %d" % line
+        if not ID.fullmatch(r["id"]) or r["id"] in seen:
+            report.error(where + " id", "ids are lower-case words joined by -, with no repeats")
+        seen.add(r["id"])
+        if not r["item"].isdigit() or int(r["item"]) not in items:
+            report.error(where + " item", "not an item of limitations.csv")
+        for token in r["applies_to"].split() or [""]:
+            if token not in tokens_known:
+                report.error(where + " applies_to", 'unknown %r: write "*", a species, a '
+                             "standard (NRC, AAFCO, FEDIAF) or requirement ids" % token)
+        if r["nutrients"] != "*":
+            for nid in r["nutrients"].split() or [""]:
+                if nid not in rows_known:
+                    report.error(where + " nutrients", "unknown nutrient %r" % nid)
+        when = r["when"]
+        if not conditions.valid_when(when):
+            report.error(where + " when", "%r is not one of: %s, %s<type>" % (
+                when, ", ".join(conditions.WHEN), conditions.RANGE_HIGH_TYPE))
+        elif when.startswith(conditions.RANGE_HIGH_TYPE) and \
+                when[len(conditions.RANGE_HIGH_TYPE):] not in types_known:
+            report.error(where + " when", "unknown range high type in %r" % when)
+        text = r["depends_on"]
+        if not text.strip():
+            report.error(where + " depends_on", "the text is empty")
+        for placeholder in re.findall(r"\{[^}]*\}", text):
+            if placeholder not in ("{k}", "{minimum}", "{maximum}"):
+                report.error(where + " depends_on", "%s: the code fills only {k}, {minimum} "
+                             "and {maximum}" % placeholder)
+        check_note_refs(r["notes"], where + " notes", note_ids, report)
+
+    pairs = set()
+    for line, r in read(os.path.join(data_dir, "open-minimums.csv"), OPEN_MINIMUMS_HEADER,
+                        report):
+        where = "open-minimums.csv line %d" % line
+        rid, nid = r["requirement"], r["nutrient"]
+        if rid not in reqs:
+            report.error(where + " requirement", "unknown requirement %r" % rid)
+            continue
+        if nid not in nutrient_ids:
+            report.error(where + " nutrient", "unknown nutrient %r" % nid)
+            continue
+        if (rid, nid) in pairs:
+            report.error(where, "%s %s appears twice" % (rid, nid))
+        pairs.add((rid, nid))
+        if r["when"] not in OPEN_MINIMUM_CASES:
+            report.error(where + " when", "one of: " + ", ".join(OPEN_MINIMUM_CASES))
+        if not r["reason"].strip():
+            report.error(where + " reason", "say why the verdict stays open")
+        check_note_refs(r["notes"], where + " notes", note_ids, report)
+        path = os.path.join(data_dir, "standards", reqs[rid]["edition"], rid + ".csv")
+        quiet = Report()  # the limits files are checked, and reported, above
+        quiet.root = data_dir
+        row = next((x for _, x in read(path, LIMITS_HEADER, quiet) if x["nutrient"] == nid),
+                   None)
+        if row is None or row["min"] in ("none", ""):
+            report.error(where, "%s has no minimum of its own under %s" % (nid, rid))
+
+
 def check_limit(r, bound, where, req, nutrient, report):
     text = r[bound]
     rule = r[bound + "_rule"]
@@ -493,6 +588,9 @@ def check_limit(r, bound, where, req, nutrient, report):
     kind = table.RULES[rule][0]
     if rule == "mbw-from-per-mcal" and not req["mer_kcal_per_mbw"]:
         report.error(field + "_rule", "this requirement has no MER in requirements.csv")
+    if rule == "standard-derived" and bound != "min":
+        report.error(field + "_rule", "standard-derived is for minimums; a maximum's kind is "
+                     "its max_type")
     unit = r[bound + "_unit"]
     if text in ("none", "") and unit:
         report.error(field + "_unit", "only a figure has a printed unit")
