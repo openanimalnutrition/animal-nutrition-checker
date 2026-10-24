@@ -152,7 +152,9 @@ MBW_ENTRY_TEXT = ("the diet's amount per Mcal, as on the per-Mcal row; the limit
 # and the fat exception ("except fat's ... optimal body weight", decision D1) the same day.
 # The adult-maintenance-only sentence ("Under adult maintenance ... raises them", decision D3)
 # was approved the same day, with the steward's wording for growth, gestation and lactation
-# ("fed more energy than it needs to keep its weight stable ...").
+# ("fed more energy than it needs to keep its weight stable ..."). On 24 Oct 2026 the steward
+# approved "(fat's and the ratios' excepted)" and the named exceptions to "Maximums do not
+# change per Mcal" (choline, the large-breed puppy calcium row, carbohydrate).
 ENERGY_RULES_TEXT = (
     "How energy sets the limits (the provisional steward's rules, proposed, pending "
     "ratification). The reference energy is the energy the standard's per-Mcal figures assume, "
@@ -161,13 +163,17 @@ ENERGY_RULES_TEXT = (
     "restriction. MBW minimums are converted to per Mcal at the energy fed, so the diet still "
     "supplies the daily amount per kg BW^0.75 (dogs) or BW^0.67 (cats), except fat's: fat per "
     "se is not essential, so neither fat row takes a restriction or an optimal body weight. "
-    "Under adult maintenance requirements, on a row with no MBW minimum, the per-Mcal minimum "
-    "is multiplied by the energy factor, the reference energy divided by the energy fed (at "
-    "least 1, and at least the restriction's factor); in growth, gestation and lactation, where "
+    "Under adult maintenance requirements, on a row with no MBW minimum (fat's and the ratios' "
+    "excepted), the per-Mcal minimum is multiplied by the energy factor, the reference energy "
+    "divided by the energy fed (at least 1, and at least the restriction's factor); in growth, "
+    "gestation and lactation, where "
     "the animal is fed more energy than it needs to keep its weight stable and the extra goes "
     "to growth, a pregnancy or milk, nutrient needs rise and fall with the energy fed: per-Mcal "
     "minimums hold at any intake and only a restriction raises them. Maximums do not change "
-    "per Mcal: MBW maximums are converted at the reference energy.")
+    "per Mcal, except the range highs this checker computes from a minimum (the NRC dog "
+    "choline maximum, NRC's large-breed puppy calcium row and the carbohydrate maximum): MBW "
+    "maximums are converted at the reference energy, and a ratio's computed range uses the "
+    "minimums before any restriction or energy factor.")
 # The reference energy's basis; the steward approved this wording on 24 Oct 2026. {figure},
 # {exponent}, {species} and {who} are filled in.
 REFERENCE_BASIS = {
