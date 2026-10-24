@@ -4,12 +4,23 @@ The steward approved this page's wording on 24 Oct 2026; the rules in section 1 
 provisional steward's decisions, proposed, pending ratification.
 
 The Dynamic Decile System template (the Google Sheet), Version 21OCT26b, is frozen and is to be
-retired; this checker is its successor (steward, 21 to 23 Oct 2026). The parity check
+retired; this checker is its successor (steward, 21 to 23 Oct 2026) and, from release 0.5.0,
+the reference (declared by the IG on 24 Oct 2026). The parity check
 ([parity-21OCT26b.md](parity-21OCT26b.md)) shows that the code reproduces the template's
 computation. This page lists where the checker now differs from the template, and why, so the
 template's notes need not be read beside the checker's. The three differences approved at
 parity (inputs outside the template's input rules, and two NRC cat items) are listed on the
 parity page.
+
+## Releases
+
+A change to the code's rules gets a new release number, and a change to the data a new data
+version; every result states both (`code_release`, `data_version`).
+
+- 0.5.0 (24 Oct 2026): the first numbered release, and the one the IG declared the reference.
+  Data version 21OCT26b.7; the rules in section 1. Results before it said `0.5.0.dev0`
+  whichever rules computed them; their data version tells them apart: 21OCT26b.5, the
+  template's rules (22 Oct 2026); 21OCT26b.6, the rules of 23 Oct; 21OCT26b.7, those of 24 Oct.
 
 ## Where the template's own text is kept
 

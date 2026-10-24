@@ -3,9 +3,11 @@
 **Status: approved by the steward on 22 Oct 2026** (the parity gate, phase 4 of the plan):
 the three differences below, and parity with Version 21OCT26b.
 
-The code becomes the reference for the Dynamic Decile System once it reproduces the
-released template, Version 21OCT26b, and the steward approves every difference. This page
-lists what was compared, the result, and every difference with its reason. The counts are
+The code was to become the reference for the Dynamic Decile System once it reproduced the
+released template, Version 21OCT26b, and the steward approved every difference. Both were
+done on 22 Oct 2026, and the IG declared the checker the reference on 24 Oct 2026, from
+release 0.5.0. This page lists what was compared, the result, and every difference with its
+reason. The counts are
 checked by `tests/test_phase4.py`, so this page cannot fall out of date without a test
 failing.
 

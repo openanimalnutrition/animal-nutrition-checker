@@ -14,18 +14,24 @@ and not veterinary advice; every result says so first.
 
 ## Status: proposed, not ratified
 
-- This is a non-normative reference implementation of the computation proposed by Open
-  Animal Nutrition. Its rules, and the verdicts `deficient` and `excess`, are the
-  provisional steward's proposal, pending ratification by a governance body that has not
-  yet been formed. It becomes the reference when the Implementation Guide (IG) declares it
-  so.
+- This is the reference implementation of the computation proposed by Open Animal
+  Nutrition: the Implementation Guide (IG) declared it the reference, in place of the
+  template, on 24 Oct 2026, from release 0.5.0. Run with the template's rules, which it
+  keeps for that check, it reproduces the template, Version 21OCT26b (parity approved by the
+  steward on 22 Oct 2026); every difference is recorded with its reason. It is
+  non-normative: its rules, and the verdicts `deficient` and `excess`, are the provisional
+  steward's proposal, pending ratification by a governance body that has not yet been
+  formed. The rules that differ from the template date from 23 and 24 Oct 2026; the groups
+  that reviewed the template have not reviewed them.
 - The provisional steward is DVM Consulting, Inc., a California Certified B Corporation. It
   sells nutritional supplements and offers diet formulation software that implements this
   standard ([disclosure of interest](https://github.com/openanimalnutrition/animal-nutrition-ig/blob/main/GOVERNANCE.md)).
   The computation references no product, ingredient, supplement or vendor.
 - The steward keeps working on the checker. Every change goes through a pull request, is
   recorded with its reason in `docs/changes-from-21OCT26b.md`, and gets a new data version
-  (`data/RELEASE`; now 21OCT26b.7).
+  when the data change (`data/RELEASE`; now 21OCT26b.7) and a new release number when the
+  code's rules change (`oan/result.py`; now 0.5.0). Every result states both
+  (`code_release`, `data_version`).
 
 ## Where the reasoning is
 
@@ -342,5 +348,4 @@ inputs and its "download JSON" gives the same bytes.
 
 To run it, see [Run it](#run-it) above.
 
-Next: hosting at openanimalnutrition.org (phase 6), and the IG pull request that declares
-the code the reference.
+Next: hosting at openanimalnutrition.org (phase 6).
