@@ -151,14 +151,15 @@ class CheckDhaDivergence(Copy):
     def test_no_epa_dha_minimum(self):
         entries = {"epa-dha": {"low": 0.028}, "epa": {"low": 0.004}}
         facts = {"body_weight_kg": 4.0, "adult_cat_type": "Lean domestic (100 * kgBW^0.67)"}
-        r = limits.Request(DATA, "nrc-cat-adult", facts, entries)
+        r = limits.Request(DATA, "nrc-cat-adult", facts, entries, template_rules=True)
         self.assertEqual(outcomes.checks(r)["epa-share-max-dha-only"]["low"].result,
                          outcomes.DHA_BELOW_MINIMUM)
         self.remove_minimum()
         for field, value in (("max", "none"), ("max_rule", "printed"), ("max_type", "")):
             self.set_field(self.CAT, "la-aa-to-epa-dha-ratio", field, value)
         self.assertEqual(validate.validate(self.new).errors, [])
-        r = limits.Request(table.load(self.new), "nrc-cat-adult", facts, entries)
+        r = limits.Request(table.load(self.new), "nrc-cat-adult", facts, entries,
+                           template_rules=True)
         self.assertIsNone(r.minimum("epa-dha"))
         self.assertEqual(outcomes.checks(r)["epa-share-max-dha-only"]["low"].result,
                          outcomes.OK)

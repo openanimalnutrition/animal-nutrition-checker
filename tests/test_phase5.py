@@ -14,6 +14,7 @@ import copy
 import csv
 import json
 import os
+import re
 import sys
 import unittest
 
@@ -32,6 +33,15 @@ SCHEMA = json.load(open(os.path.join(ROOT, "docs", "result.schema.json"), encodi
 REQS = {r["id"]: r for r in D.tables["requirements"]}
 DOG_TYPE = energy.dog_type_labels(D.tables)[3]  # average laboratory or active
 CAT_TYPE = energy.cat_type_labels(D.tables)[2]  # lean domestic
+# A note's origin: the template's tab and cell, as given ("DDS template Version 21OCT26b, <tab>
+# <cell>") or adapted for this checker ("Adapted from ... (docs/changes-from-21OCT26b.md)").
+NOTE_ORIGIN = re.compile(r"(Adapted from )?DDS template Version 21OCT26b, "
+                         r"(Healthy Dog Cat Reqt Data tab|Standards tab) ([A-Z]{1,2}\d{1,3})"
+                         r"(?(1) \(docs/changes-from-21OCT26b\.md\))")
+SHEET_WORDS = re.compile(r"(?i)\bsheet\b|\bcells?\b|\bcolumns? [A-Z]{1,2}\b|\brows? \d|\btab\b|"
+                         r"\bthis application\b|\bversion \d\d[A-Z]{3}\d\d|"
+                         r"\b(Very |Severely |Moderately |Slightly )Restricted\b|"
+                         r"\bHighest \(90%|separately protective")
 
 
 def animal_for(rid):
@@ -75,11 +85,11 @@ def nutrient(res, nid):
     return next(n for n in res["nutrients"] if n["id"] == nid)
 
 
-class Data21OCT26b5(unittest.TestCase):
+class Data21OCT26b6(unittest.TestCase):
     def test_release(self):
         from oan import release
         r = release.read_release(DATA_DIR)
-        self.assertEqual(r["data_version"], "21OCT26b.5")
+        self.assertEqual(r["data_version"], "21OCT26b.6")
         self.assertEqual(r["content_sha256"], release.content_hash(DATA_DIR))
 
     def test_validator_clean(self):
@@ -89,14 +99,38 @@ class Data21OCT26b5(unittest.TestCase):
 
     def test_notes(self):
         notes = D.tables["notes"]
-        self.assertEqual(len(notes), 301)
+        self.assertEqual(len(notes), 298)
         tabs = {"Healthy Dog Cat Reqt Data tab": 0, "Standards tab": 0}
         for n in notes:
-            prefix = "DDS template Version 21OCT26b, "
-            self.assertTrue(n["origin"].startswith(prefix), n["id"])
-            tab, cell = n["origin"][len(prefix):].rsplit(" ", 1)
-            tabs[tab] += 1
-        self.assertEqual(tabs, {"Healthy Dog Cat Reqt Data tab": 168, "Standards tab": 133})
+            m = NOTE_ORIGIN.fullmatch(n["origin"])
+            self.assertIsNotNone(m, n["id"])
+            tabs[m.group(2)] += 1
+        self.assertEqual(tabs, {"Healthy Dog Cat Reqt Data tab": 168, "Standards tab": 130})
+
+    def test_notes_against_the_template(self):
+        # A note whose text differs from the template's says so in its origin, and only then
+        # (the template's texts: docs/template-21OCT26b-notes.csv; steward, 23 Oct 2026).
+        path = os.path.join(ROOT, "docs", "template-21OCT26b-notes.csv")
+        with open(path, encoding="utf-8", newline="") as f:
+            template = {r["id"]: r for r in csv.DictReader(f)}
+        self.assertEqual(len(template), 301)
+        for n in D.tables["notes"]:
+            t = template[n["id"]]
+            adapted = n["origin"].startswith("Adapted from ")
+            self.assertEqual(adapted, n["text"] != t["text"], n["id"])
+            self.assertEqual(NOTE_ORIGIN.fullmatch(n["origin"]).group(3), t["origin"].rsplit(" ", 1)[1])
+
+    def test_notes_describe_the_checker(self):
+        # No note names a template cell, column, tab or sheet (steward, 23 Oct 2026: the code
+        # carries no vestigial sheet mechanics).
+        # Names that look like cells: vitamins, AAFCO's Model Regulation PF9, a paper's
+        # Supplementary Material S1.
+        names = {"D2", "D3", "K1", "B1", "B2", "B3", "B5", "B6", "B7", "B9", "B12", "PF9", "S1"}
+        for n in D.tables["notes"]:
+            text = re.sub(r"https?://\S+", "", n["text"])
+            cells = [c for c in re.findall(r"\b[A-Z]{1,2}\d{1,3}\b", text) if c not in names]
+            self.assertEqual(cells, [], n["id"])
+            self.assertIsNone(SHEET_WORDS.search(text), n["id"])
 
     def test_standard_derived_minimums(self):
         rules = {}
@@ -194,7 +228,7 @@ class StandardMinimum(unittest.TestCase):
                          caloric_restriction_percent=25)
         self.assertAlmostEqual(r.standard_minimum("calcium"), 4 / 3)
         self.assertEqual(r.standard_minimum("arginine"), r.minimum("arginine"))
-        self.assertGreater(r.minimum("arginine"), r.raised(r.std("arginine", "min")))
+        self.assertGreater(r.minimum("arginine"), r.raised(r.std("arginine", "min"), "arginine"))
         r = self.request("nrc-puppy-4-14-wk", puppy_body_weight_kg=10.0)
         self.assertEqual(r.standard_minimum("calcium-large-breed-puppy"),
                          r.minimum("calcium-large-breed-puppy"))
@@ -202,7 +236,7 @@ class StandardMinimum(unittest.TestCase):
     def test_ala_floor_is_the_templates(self):
         r = self.request("nrc-dog-adult")
         self.assertEqual(r.standard_minimum("alpha-linolenic-acid"),
-                         r.raised(r.std("alpha-linolenic-acid", "min")))
+                         r.raised(r.std("alpha-linolenic-acid", "min"), "alpha-linolenic-acid"))
         # With an LA minimum high enough, the floor LA / 26 is above the standard's ALA.
         data = copy.deepcopy(D.tables)
         data["limits"]["nrc-dog-adult"]["linoleic-acid"]["min"] = "10"
@@ -438,11 +472,17 @@ class MBWRows(unittest.TestCase):
         self.assertEqual(ca["mbw"]["unit"], "g/kg BW^0.75")
         self.assertEqual(ca["mbw"]["minimum"], 0.13)
         self.assertIsNone(ca["mbw"]["maximum"])
-        self.assertEqual((ca["mbw"]["energy_kcal_per_day"], ca["mbw"]["body_weight_kg"]),
-                         (950.0, 35.0))
+        self.assertEqual((ca["mbw"]["minimum_energy_kcal_per_day"],
+                          ca["mbw"]["maximum_energy_kcal_per_day"], ca["mbw"]["body_weight_kg"]),
+                         (950.0, None, 35.0))
         self.assertIn("0.13 g/kg BW^0.75 (1.96911363883933 g/Mcal)", ca["mbw"]["text"])
         fat = nutrient(res, "fat-mbw")
         self.assertEqual((fat["mbw"]["minimum"], fat["mbw"]["maximum"]), (1.8, 10.8))
+        # The minimum at the intake (the energy fed), the maximum at NRC's reference energy,
+        # 130 kcal x kg BW^0.75 (steward, 23 Oct 2026).
+        self.assertEqual((fat["mbw"]["minimum_energy_kcal_per_day"],
+                          fat["mbw"]["maximum_energy_kcal_per_day"]), (950.0, 130 * 35 ** 0.75))
+        self.assertIn("the minimum at the energy fed (950 kcal/day)", fat["mbw"]["text"])
         self.assertIsNone(nutrient(run("nrc-dog-adult", {"calcium": 1}), "calcium")["mbw"])
 
     def test_cats_and_describe_inputs(self):
@@ -492,7 +532,8 @@ class Notes(unittest.TestCase):
         res = result.get_notes(D, {"ids": ["n231", "n005", "n231"]})
         self.assertEqual(list(res)[:2], ["schema", "caveats"])
         self.assertEqual([n["id"] for n in res["note_texts"]], ["n231", "n005"])
-        self.assertTrue(res["note_texts"][0]["origin"].endswith("Standards tab B63"))
+        self.assertTrue(res["note_texts"][0]["origin"].startswith("Adapted from "))
+        self.assertIn("Standards tab B63", res["note_texts"][0]["origin"])
         self.assertEqual(schema_check.errors(res, SCHEMA), [])
         for bad in ({"ids": ["n999"]}, {"ids": []}, {"ids": ["n001"] * 51}, {"id": ["n001"]},
                     {"ids": "n001"}):

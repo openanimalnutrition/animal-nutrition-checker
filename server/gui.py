@@ -13,7 +13,7 @@ Every text from the data, the request or the result is HTML-escaped here.
 import re
 from html import escape
 
-from oan import inputs, limits, result
+from oan import caveats, inputs, limits, result
 
 NUMBER = re.compile(r"-?\d+(\.\d+)?")
 MAX_FIELD = 64
@@ -134,16 +134,20 @@ def step1(data, chosen=None):
 def _fact_box(data, fact, value):
     kind, rule = inputs.FACTS[fact]
     name = "animal." + fact
-    label = fact.replace("_", " ")
+    label, description = caveats.FACT_TEXTS.get(fact, (fact.replace("_", " "), None))
+    if description:
+        label = "%s <small>(%s)</small>" % (e(label), e(description))
+    else:
+        label = e(label)
     if kind in ("list", "life-stage"):
         items = rule(data.tables) if kind == "list" else rule
         opts = '<option value=""></option>' + "".join(
             '<option value="%s"%s>%s</option>' % (e(i), " selected" if i == value else "", e(i))
             for i in items)
-        return '<label>%s <select name="%s">%s</select></label>' % (e(label), e(name), opts)
+        return '<label>%s <select name="%s">%s</select></label>' % (label, e(name), opts)
     hint = "%s to %s" % rule if kind != "restriction" else "0, or %s to %s" % rule
     return '<label>%s <input name="%s" value="%s" size="8" inputmode="decimal"> ' \
-           '<small>%s</small></label>' % (e(label), e(name), e(value), e(hint))
+           '<small>%s</small></label>' % (label, e(name), e(value), e(hint))
 
 
 def step2(data, rid, request=None, message=""):
@@ -227,6 +231,11 @@ def notes_fold(data, ids):
 
 
 FACTOR_LABELS = (
+    ("reference_energy_kcal_per_day", "Reference energy, kcal/day"),
+    ("reference_energy_basis", "Reference energy is"),
+    ("energy_fed_kcal_per_day", "Energy fed, kcal/day"),
+    ("energy_fed_is", "Energy fed is"),
+    ("energy_factor", "Energy factor (rows with no MBW minimum)"),
     ("energy_used_kcal_per_day", "Energy used, kcal/day"),
     ("energy_used_is", "Energy used is"),
     ("energy_requirement_kcal_per_day", "The requirement's energy, kcal/day"),
@@ -238,13 +247,17 @@ FACTOR_LABELS = (
 
 def animal_section(res):
     """What the result was computed with: the animal facts as accepted, and the energy."""
-    facts = "".join("<li>%s: %s</li>" % (e(k.replace("_", " ")), _num(v))
-                    for k, v in res["inputs"]["normalized"]["animal"].items())
+    facts = "".join("<li>%s: %s</li>" % (
+        e(caveats.FACT_TEXTS.get(k, (k.replace("_", " "),))[0]), _num(v))
+        for k, v in res["inputs"]["normalized"]["animal"].items())
     f = res["factors"]
     factors = "".join("<li>%s: %s</li>" % (e(label), _num(f[key]))
                       for key, label in FACTOR_LABELS if f[key] is not None)
     if f["energy_reason"]:
         factors += "<li>Energy: %s</li>" % e(f["energy_reason"]["text"])
+    if f["optimal_body_weight"]:
+        factors += "<li>Optimal body weight: %s</li>" % e(f["optimal_body_weight"]["text"])
+    factors += "<li><small>%s</small></li>" % e(f["energy_rules"])
     return ("<section><h3>Animal and energy</h3><ul>%s</ul><ul>%s</ul></section>" % (
         facts or "<li>No animal facts entered</li>", factors))
 

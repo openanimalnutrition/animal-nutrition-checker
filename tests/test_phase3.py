@@ -33,7 +33,7 @@ def request(rid, data=DATA, entries=None, **facts):
     f = {"body_weight_kg": 15.0, "adult_dog_type": "Average laboratory or active (130 * kg BW^0.75)",
          "adult_cat_type": "Lean domestic (100 * kgBW^0.67)"}
     f.update(facts)
-    return limits.Request(data, rid, f, entries or {})
+    return limits.Request(data, rid, f, entries or {}, template_rules=True)
 
 
 def outcome(r, nid, side, value):
@@ -139,7 +139,7 @@ class Limits(unittest.TestCase):
             self.assertEqual(r.limits(nid)[1:], (0.67, 0.67, "TPL"), nid)
 
     def test_no_requirement(self):
-        r = limits.Request(DATA, None, {"body_weight_kg": 15.0}, {})
+        r = limits.Request(DATA, None, {"body_weight_kg": 15.0}, {}, template_rules=True)
         need = limits.Unavailable(limits.REQUIREMENT_NEEDED)
         self.assertEqual(r.minimum("protein"), need)
         self.assertEqual(r.aafco_factor, need)

@@ -104,7 +104,7 @@
     },
     "factors": {
       "type": "object",
-      "required": ["caloric_restriction_percent", "restriction_factor", "aafco_dry_matter_factor", "energy_requirement_kcal_per_day", "energy_used_kcal_per_day", "energy_used_is", "energy_reason", "intake_shortfall"],
+      "required": ["caloric_restriction_percent", "restriction_factor", "aafco_dry_matter_factor", "energy_requirement_kcal_per_day", "energy_used_kcal_per_day", "energy_used_is", "energy_reason", "intake_shortfall", "reference_energy_kcal_per_day", "reference_energy_basis", "energy_fed_kcal_per_day", "energy_fed_is", "energy_factor", "optimal_body_weight", "energy_rules"],
       "additionalProperties": false,
       "properties": {
         "caloric_restriction_percent": {"$ref": "#/$defs/number_or_null"},
@@ -114,7 +114,19 @@
         "energy_used_kcal_per_day": {"$ref": "#/$defs/number_or_null"},
         "energy_used_is": {"enum": ["the intake entered", "the requirement's energy", null]},
         "energy_reason": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/reason"}]},
-        "intake_shortfall": {"$ref": "#/$defs/number_or_null"}
+        "intake_shortfall": {"$ref": "#/$defs/number_or_null"},
+        "reference_energy_kcal_per_day": {"description": "The energy the standard's per-Mcal figures assume, at the current body weight (steward, 23 Oct 2026; proposed, pending ratification).", "$ref": "#/$defs/number_or_null"},
+        "reference_energy_basis": {"type": ["string", "null"]},
+        "energy_fed_kcal_per_day": {"$ref": "#/$defs/number_or_null"},
+        "energy_fed_is": {"enum": ["the intake entered", "the requirement's energy", "the requirement's energy less the restriction", "the energy at the optimal body weight", "the energy at the optimal body weight less the restriction", null]},
+        "energy_factor": {"description": "The reference energy divided by the energy fed, at least 1; null when either is not known (then counted as 1). Multiplies the per-Mcal minimums of rows with no MBW minimum.", "$ref": "#/$defs/number_or_null"},
+        "optimal_body_weight": {"oneOf": [{"type": "null"}, {
+          "type": "object",
+          "required": ["status", "text"],
+          "additionalProperties": false,
+          "properties": {"status": {"enum": ["used", "not-adult", "intake-entered", "not-below-current"]}, "text": {"type": "string"}}
+        }]},
+        "energy_rules": {"type": "string"}
       }
     },
     "reason": {
@@ -156,15 +168,16 @@
       }
     },
     "mbw": {
-      "description": "An MBW row: the requirement per kg BW^0.75 (dogs) or BW^0.67 (cats) a day, and the energy and body weight it is converted to per Mcal with. The row's minimum, maximum, range high and entries are per Mcal (unit).",
+      "description": "An MBW row: the requirement per kg BW^0.75 (dogs) or BW^0.67 (cats) a day, and the energies and current body weight it is converted to per Mcal with: the minimum at the energy fed, the maximum at the reference energy. The row's minimum, maximum, range high and entries are per Mcal (unit).",
       "type": "object",
-      "required": ["unit", "minimum", "maximum", "energy_kcal_per_day", "body_weight_kg", "text"],
+      "required": ["unit", "minimum", "maximum", "minimum_energy_kcal_per_day", "maximum_energy_kcal_per_day", "body_weight_kg", "text"],
       "additionalProperties": false,
       "properties": {
         "unit": {"type": "string"},
         "minimum": {"$ref": "#/$defs/number_or_null"},
         "maximum": {"$ref": "#/$defs/number_or_null"},
-        "energy_kcal_per_day": {"type": "number"},
+        "minimum_energy_kcal_per_day": {"$ref": "#/$defs/number_or_null"},
+        "maximum_energy_kcal_per_day": {"$ref": "#/$defs/number_or_null"},
         "body_weight_kg": {"type": "number"},
         "text": {"type": "string"}
       }

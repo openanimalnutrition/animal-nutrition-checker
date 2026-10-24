@@ -103,6 +103,15 @@ that maximum a figure of its own. `tests/test_phase4.py` tests both. The steward
 EPA share result over reporting the check as unavailable; the Result (phase 5) is to add a
 caveat that DHA was not compared.
 
+## After parity
+
+From 23 Oct 2026 the checker's own rules and notes differ from the template's, by the
+provisional steward's decisions: see [changes-from-21OCT26b.md](changes-from-21OCT26b.md).
+They are not among the three differences above. The parity check still compares the
+template's computation: the code keeps the template's rules for that check only
+(`limits.Request(..., template_rules=True)`, used by the sheet view and the phase 3 and 4
+tests), so every count on this page is unchanged.
+
 ## Corrections to the test side (not differences)
 
 The real-Sheets check found 19 cells that the sheet view drew wrongly, none of them in a
