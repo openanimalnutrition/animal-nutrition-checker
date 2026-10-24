@@ -106,9 +106,10 @@ DEFAULT_MINIMUMS = {
 # fixed and default ones above); fat takes the AAFCO factor only.
 NOT_RAISED = ("ca-p-ratio",)
 AAFCO_FACTOR_ONLY = ("fat",)
-# MBW minimums converted at the energy used, not the energy fed: as their per-Mcal row, they
-# take no caloric restriction or optimal body weight (steward, 23 Oct 2026: fat per se is
-# not essential).
+# MBW minimums converted at the energy before any caloric restriction or optimal body weight,
+# not the energy fed: as their per-Mcal row, they take neither (steward, 23 Oct 2026: fat per
+# se is not essential); an intake entered with a restriction is divided by (1 - the
+# restriction), the need it is a cut from (steward, 24 Oct 2026).
 MBW_NOT_RAISED = ("fat-mbw",)
 # The choline maximum is at least this times the higher of the choline minimum and the choline
 # MBW minimum (per Mcal): no standard sets a choline maximum from controlled safety data, so a
@@ -258,6 +259,10 @@ class Request:
         self.restriction_factor = 1 / (1 - (restriction / 100)) if self.restricted else 1.0
         self.aafco_factor = self._aafco_factor()
         self._min, self._max = {}, {}
+        # Ratio limits are computed from the minimums before any restriction or energy
+        # factor (steward, 24 Oct 2026); see ratio_source.
+        self.scale_minimums = True
+        self._unscaled = None
 
     # Figures and lookups.
 
@@ -293,14 +298,39 @@ class Request:
 
     def mbw_energy(self, bound, nid=None):
         """The energy an MBW limit is converted with: the minimum at the energy fed (the
-        rows of MBW_NOT_RAISED at the energy used), the maximum at the reference energy, or at
-        the energy used when the reference cannot be computed (steward, 23 Oct 2026); under
-        the template's rules, both at the energy used."""
+        rows of MBW_NOT_RAISED at the energy before the restriction), the maximum at the
+        reference energy, or at the energy used when the reference cannot be computed
+        (steward, 23 Oct 2026); under the template's rules, both at the energy used."""
         if bound == "minimum":
-            return self.energy if nid in MBW_NOT_RAISED else self.energy_fed
+            return self.energy_before_restriction() if nid in MBW_NOT_RAISED else \
+                self.energy_fed
         if self.energy_reference.kcal is None:
             return self.energy
         return self.energy_reference
+
+    def energy_before_restriction(self):
+        """The energy used (the requirement's energy, or the intake entered); under the
+        steward's rules, an intake entered with a caloric restriction divided by (1 - the
+        restriction), the need it is a cut from (steward, 24 Oct 2026: a restriction never
+        raises fat's minimum; an intake alone is the animal's need)."""
+        e = self.energy
+        if self.template_rules or not self.restricted or e.kcal is None or \
+                self.facts.get("energy_intake_kcal_per_day") is None:
+            return e
+        return energy.Energy(e.kcal * self.restriction_factor, None)
+
+    def ratio_source(self):
+        """The request a ratio's computed limits come from: under the steward's rules, this
+        request with no restriction or energy factor on the minimums, so that a ratio's range
+        does not change with the energy fed (steward, 24 Oct 2026: a ratio's numerator and
+        denominator rise together); under the template's rules, this request."""
+        if self.template_rules or not self.scale_minimums:
+            return self
+        if self._unscaled is None:
+            self._unscaled = Request(self.data, self.requirement["id"], self.facts,
+                                     self.entries)
+            self._unscaled.scale_minimums = False
+        return self._unscaled
 
     def mbw_factor(self, bound, nid=None):
         """((BW^n / the energy) x 1000): converts a limit per kg BW^n to per Mcal."""
@@ -348,6 +378,8 @@ class Request:
         restriction factor; on a row with no MBW minimum, the larger of it and the energy
         factor (steward, 23 Oct 2026; an energy factor not known counts as 1; the energy factor
         is 1 except under adult maintenance requirements)."""
+        if not self.scale_minimums:
+            return 1.0
         f = self.restriction_factor
         if self.template_rules or self.has_mbw_figure(nid):
             return f
@@ -496,12 +528,13 @@ class Request:
 
     def _ratio_min_all(self):
         """LA + AA : ALA + EPA + DHA: the standard's, else (LA + AA minimums) / (ALA + EPA +
-        DHA maximums), none when that divisor is 0 (spec 5.7)."""
+        DHA maximums) of ratio_source, none when that divisor is 0 (spec 5.7)."""
         v = self.std("la-aa-to-ala-epa-dha-ratio", "min")
         if v is not None:
             return v
-        terms = [self.maximum("alpha-linolenic-acid"), self.maximum("epa-dha"),
-                 self.minimum("linoleic-acid"), self.minimum("arachidonic-acid")]
+        src = self.ratio_source()
+        terms = [src.maximum("alpha-linolenic-acid"), src.maximum("epa-dha"),
+                 src.minimum("linoleic-acid"), src.minimum("arachidonic-acid")]
         bad = next((t for t in terms if unavailable(t)), None)
         if bad is not None:
             return bad
@@ -512,12 +545,13 @@ class Request:
 
     def _ratio_min_epa_dha(self):
         """LA + AA : EPA + DHA: the standard's, else (LA + AA minimums) / the EPA + DHA
-        maximum, none when that is 0."""
+        maximum of ratio_source, none when that is 0."""
         v = self.std("la-aa-to-epa-dha-ratio", "min")
         if v is not None:
             return v
-        terms = [self.maximum("epa-dha"), self.minimum("linoleic-acid"),
-                 self.minimum("arachidonic-acid")]
+        src = self.ratio_source()
+        terms = [src.maximum("epa-dha"), src.minimum("linoleic-acid"),
+                 src.minimum("arachidonic-acid")]
         bad = next((t for t in terms if unavailable(t)), None)
         if bad is not None:
             return bad
@@ -626,13 +660,14 @@ class Request:
 
     def _ratio_max_all(self):
         """LA + AA : ALA + EPA + DHA: the standard's, else (LA + AA maximums) / (ALA + EPA +
-        DHA minimums), the template's default when either sum is 0."""
+        DHA minimums) of ratio_source, the template's default when either sum is 0."""
         nid = "la-aa-to-ala-epa-dha-ratio"
         v = self.std(nid, "max")
         if v is not None:
             return self._from_standard(v, nid)
-        terms = [self.minimum("alpha-linolenic-acid"), self.minimum("epa-dha"),
-                 self.maximum("linoleic-acid"), self.maximum("arachidonic-acid")]
+        src = self.ratio_source()
+        terms = [src.minimum("alpha-linolenic-acid"), src.minimum("epa-dha"),
+                 src.maximum("linoleic-acid"), src.maximum("arachidonic-acid")]
         bad = next((t for t in terms if unavailable(t)), None)
         if bad is not None:
             return bad, None
@@ -644,13 +679,14 @@ class Request:
 
     def _ratio_max_epa_dha(self):
         """LA + AA : EPA + DHA: the standard's, else (LA + AA maximums) / the EPA + DHA
-        minimum, the template's default when that minimum or the ratio is 0."""
+        minimum of ratio_source, the template's default when that minimum or the ratio is 0."""
         nid = "la-aa-to-epa-dha-ratio"
         v = self.std(nid, "max")
         if v is not None:
             return self._from_standard(v, nid)
-        terms = [self.minimum("epa-dha"), self.maximum("linoleic-acid"),
-                 self.maximum("arachidonic-acid")]
+        src = self.ratio_source()
+        terms = [src.minimum("epa-dha"), src.maximum("linoleic-acid"),
+                 src.maximum("arachidonic-acid")]
         bad = next((t for t in terms if unavailable(t)), None)
         if bad is not None:
             return bad, None
@@ -662,12 +698,14 @@ class Request:
         return ratio, COMPUTED
 
     def _ca_p_max(self):
-        """Ca:P: the standard's, else the calcium maximum / the phosphorus minimum when both
-        are numbers and the minimum is above 0, else none (spec-values section 4.3)."""
+        """Ca:P: the standard's, else the calcium maximum / the phosphorus minimum of
+        ratio_source when both are numbers and the minimum is above 0, else none
+        (spec-values section 4.3)."""
         v = self.std("ca-p-ratio", "max")
         if unavailable(v) or number(v):
             return self._from_standard(v, "ca-p-ratio")
-        calcium, phosphorus = self.maximum("calcium"), self.minimum("phosphorus")
+        src = self.ratio_source()
+        calcium, phosphorus = src.maximum("calcium"), src.minimum("phosphorus")
         if number(calcium) and number(phosphorus):
             return (calcium / phosphorus, COMPUTED) if phosphorus > 0 else (None, None)
         return None, None

@@ -115,6 +115,7 @@ Version 21OCT26b. The frozen baseline in `tests/parity/` is never edited.
 | 21OCT26b.5 | The Standards tab's 133 notes (n169-n301), and every note's tab and cell; the 31 minimums the template takes from NRC's own figure by NRC's own rule get the rule `standard-derived` (the 29 NRC RA Cat Late Gestation MBW minimums by Table 15-14 footnote d, and pantothenic acid 1.44 mg/Mcal under both NRC queen selections); `limitations.csv`, `conditions.csv`, `open-minimums.csv` (steward, 22 Oct 2026). No value changed |
 | 21OCT26b.4 | `template.csv`: the template's own figures and its four extra rows, moved from the Standards tab's formulas into data with a source for each (steward, 21 Oct 2026). No value changed |
 | 21OCT26b.6 | `notes.csv`: the notes describe the checker, not the spreadsheet: 224 adapted (cells to field names, cross-references to note ids, the rules of 23 Oct 2026), 3 deleted (n169, n174, n186); each change and its reason in `docs/changes-from-21OCT26b.md` (steward, 23 Oct 2026). No value changed |
+| 21OCT26b.7 | `notes.csv`: ten notes (n181, n182, n183, n192, n214, n223, n224, n226, n227, n238) follow the rules of 24 Oct 2026: a restriction never raises fat, ratios do not change with a restriction or a low energy fed, and the range highs computed from a minimum are named (steward, 24 Oct 2026). No value changed |
 
 The frozen baseline gained the same `energy.csv` once, in phase 2, and the same
 `template.csv` once, in phase 3 (steward, 21 Oct 2026 both times), so the 21OCT26b cases

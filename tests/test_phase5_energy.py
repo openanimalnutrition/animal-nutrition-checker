@@ -343,6 +343,66 @@ class OptimalBodyWeight(Close):
         self.assertIn("at mating", facts["body_weight_kg"]["description"])
 
 
+class FatAndRatios(Close):
+    """The steward's rules of 24 Oct 2026: a caloric restriction never raises fat's minimum,
+    also when it is entered with an intake; ratios do not change with a restriction or a low
+    energy fed, as a ratio's numerator and denominator rise together."""
+
+    def test_fat_with_an_intake_and_a_restriction(self):
+        need = 130 * 30 ** 0.75
+        fat = {}
+        for name, extra in (("restriction", dict(caloric_restriction_percent=20)),
+                            ("intake", dict(energy_intake_kcal_per_day=0.8 * need)),
+                            ("both", dict(energy_intake_kcal_per_day=0.8 * need,
+                                          caloric_restriction_percent=20))):
+            r = request("nrc-dog-adult", body_weight_kg=30.0, adult_dog_type=DOG["average"],
+                        **extra)
+            fat[name] = r.minimum("fat-mbw")
+            self.assertEqual(r.minimum("fat"), 13.8)
+        # 1.8 g/kg BW^0.75 a day: at the need (the restriction, or the intake / (1 - 0.2)),
+        # and at an intake entered alone, which is the dog's need.
+        self.close(fat["restriction"], 1.8 * 1000 / 130)
+        self.close(fat["both"], fat["restriction"])
+        self.close(fat["intake"], 1.8 * 1000 / (130 * 0.8))
+        res = run("nrc-dog-adult", {"fat-mbw": 20}, body_weight_kg=30.0,
+                  adult_dog_type=DOG["average"], energy_intake_kcal_per_day=0.8 * need,
+                  caloric_restriction_percent=20)
+        self.close(nutrient(res, "fat-mbw")["mbw"]["minimum_energy_kcal_per_day"], need)
+        # The template converts at the intake.
+        t = request("nrc-dog-adult", template_rules=True, body_weight_kg=30.0,
+                    adult_dog_type=DOG["average"], energy_intake_kcal_per_day=0.8 * need,
+                    caloric_restriction_percent=20)
+        self.close(t.minimum("fat-mbw"), fat["intake"])
+
+    def test_ratios_do_not_change(self):
+        rows = ("la-aa-to-ala-epa-dha-ratio", "la-aa-to-epa-dha-ratio", "ca-p-ratio")
+        for rid, facts in (("nrc-dog-adult", dict(body_weight_kg=30.0,
+                                                  adult_dog_type=DOG["inactive"])),
+                           ("nrc-puppy-14-wk-plus", dict(body_weight_kg=10.0,
+                                                         mature_weight_kg=30.0)),
+                           ("fediaf-dog-early-growth-reproduction",
+                            dict(body_weight_kg=5.0, mature_weight_kg=30.0))):
+            base = request(rid, **facts)
+            for extra in (dict(caloric_restriction_percent=30),
+                          dict(energy_intake_kcal_per_day=base.energy.kcal * 0.6)):
+                r = request(rid, **dict(facts, **extra))
+                for nid in rows:
+                    self.assertEqual((r.minimum(nid), r.maximum(nid)),
+                                     (base.minimum(nid), base.maximum(nid)), (rid, extra, nid))
+        # NRC puppies' Ca:P maximum: NRC's calcium SUL / the phosphorus minimum, 4.5 / 2.5.
+        self.close(request("nrc-puppy-14-wk-plus", body_weight_kg=10.0, mature_weight_kg=30.0,
+                           caloric_restriction_percent=30).maximum("ca-p-ratio"), 1.8)
+        # The template's rules narrow them under a restriction (1.8 x 0.7).
+        t = request("nrc-puppy-14-wk-plus", template_rules=True, body_weight_kg=10.0,
+                    mature_weight_kg=30.0, caloric_restriction_percent=30)
+        self.close(t.maximum("ca-p-ratio"), 1.8 * 0.7)
+
+    def test_rules_text(self):
+        self.assertIn("(fat's and the ratios' excepted)", caveats.ENERGY_RULES_TEXT)
+        self.assertIn("the NRC dog choline maximum, NRC's large-breed puppy calcium row and the "
+                      "carbohydrate maximum", caveats.ENERGY_RULES_TEXT)
+
+
 class Floor(unittest.TestCase):
     """An energy fed below 10% of the reference is rejected."""
 
