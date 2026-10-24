@@ -91,7 +91,7 @@ print(result.to_json(res))
 `result.list_requirements(data)` lists the requirements, and `result.describe_inputs(data)`
 the inputs, their units and their rules.
 
-## Licence
+## License
 
 CC0 1.0 Universal ([`LICENSE`](LICENSE)): the code, the data, the notes and the documents.
 The standards and the other works the notes cite remain their publishers'; see
