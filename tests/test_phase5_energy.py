@@ -315,6 +315,12 @@ class OptimalBodyWeight(Close):
                                          adult_dog_type=DOG["average"]), **extra))
             self.assertEqual(r.optimal_status, status)
             self.assertNotEqual(r.energy_fed.kcal, 130 * 22 ** 0.75)
+        # No current body weight entered (steward, 24 Oct 2026).
+        res = run("nrc-dog-adult", {}, optimal_body_weight_kg=22.0, adult_dog_type=DOG["average"])
+        self.assertEqual(res["factors"]["optimal_body_weight"],
+                         {"status": "no-current-weight",
+                          "text": "Not used: no current body weight is entered."})
+        self.assertEqual(schema_check.errors(res, SCHEMA), [])
 
     def test_result_and_inputs(self):
         res = run("nrc-dog-adult", {"energy": 1321, "protein-mbw": 40}, body_weight_kg=30.0,
@@ -324,6 +330,10 @@ class OptimalBodyWeight(Close):
         self.assertEqual(f["energy_fed_is"], "the energy at the optimal body weight")
         self.assertIn(caveats.STATUS["energy-optimal-weight"],
                       nutrient(res, "energy")["low"]["status"])
+        # A row with one limit names its energy, in whole kcal/day (steward, 24 Oct 2026):
+        # 130 x 22^0.75 = 1320.6.
+        self.assertIn("converted to g/Mcal at the energy fed (1321 kcal/day) and a current body "
+                      "weight of 30 kg.", nutrient(res, "protein-mbw")["mbw"]["text"])
         self.assertEqual(schema_check.errors(res, SCHEMA), [])
         reads = {r["id"]: r["reads"] for r in result.list_requirements(D)["requirements"]}
         self.assertIn("optimal_body_weight_kg", reads["aafco-cat-adult"])
@@ -342,6 +352,9 @@ class Floor(unittest.TestCase):
         item = next(i for i in res["input_report"] if i["reason"] == "energy-fed-below-floor")
         self.assertEqual((item["input"], item["status"]),
                          ("animal.energy_intake_kcal_per_day", "rejected"))
+        # Whole kcal/day (steward, 24 Oct 2026): 130 x 30^0.75 = 1666.4.
+        self.assertEqual(item["text"], "Not used: the energy fed would be 100 kcal/day, below "
+                         "10% of the reference energy (1666 kcal/day). Check the entry.")
         self.assertNotIn("energy_intake_kcal_per_day", res["inputs"]["normalized"]["animal"])
         self.assertEqual(res["factors"]["energy_fed_is"], "the requirement's energy")
         self.assertEqual(schema_check.errors(res, SCHEMA), [])

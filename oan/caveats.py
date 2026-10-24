@@ -3,7 +3,9 @@ kinds of maximum, the text checks and the reasons in plain words.
 
 The steward approved this wording on 22 Oct 2026 (ig-build caveat-wording-draft-20261022.md;
 sean-answers, "Code phase 5"), with four fixes after the AI-read test the same day
-(sean-answers, "Code phase 5: wording fixes after the AI-read test"). Change it only with the steward's approval: a contract test
+(sean-answers, "Code phase 5: wording fixes after the AI-read test"). The steward approved the
+23 Oct drafts, the notice's pointer to the changes document and "this checker" for "this
+template" on 24 Oct 2026. Change it only with the steward's approval: a contract test
 fails if a caveat is missing from any result. The conditions' texts are data
 (data/conditions.csv, data/limitations.csv).
 """
@@ -18,7 +20,8 @@ CAVEATS = (
     ("non_normative_reference",
      "Reference implementation, not a ratified standard. This is a non-normative reference "
      "implementation of the computation proposed by Open Animal Nutrition (the Dynamic Decile "
-     "System, template Version " + TEMPLATE_VERSION + "; data version {data_version}). The "
+     "System, based on template Version " + TEMPLATE_VERSION + " with the changes in "
+     "docs/changes-from-" + TEMPLATE_VERSION + ".md; data version {data_version}). The "
      "verdicts deficient and excess are the provisional steward's proposal, pending "
      "ratification by a governance body that has not yet been formed."),
     ("steward_disclosed_interest",
@@ -48,7 +51,7 @@ def caveats(data_version):
 STATUS = {
     "deficient": "Below the {standard} minimum for this requirement: deficient (proposed, "
                  "pending ratification).",
-    "below-template-minimum": "Below a minimum this template sets itself, not a standard's: "
+    "below-template-minimum": "Below a minimum this checker sets itself, not a standard's: "
                               "no verdict (Implementation Guide open point 6).",
     "below-aafco-open-minimum": "Below the AAFCO minimum as raised for this food's energy "
                                 "density, which for this nutrient is not AAFCO's printed dry "
@@ -64,7 +67,7 @@ STATUS = {
     "within": "Within the range.",
     "excess": "Above {kind}: excess (proposed, pending ratification).",
     "above-conditional": "Above {kind}: conditional, not excess.",
-    "above-template-set": "Above a range high this template sets or computes: not excess.",
+    "above-template-set": "Above a range high this checker sets or computes: not excess.",
     "above-derived-provisional": "Above a range high derived from the minimum (the minimum × "
                                  "{k}), not a safe limit: not excess.",
     "also-above": "Also above {kind}.",
@@ -109,8 +112,8 @@ CHECKS = {
 DHA_NOT_COMPARED = "DHA not compared: this requirement's data has no EPA + DHA minimum."
 
 # How the entries are read (check_diet's description, describe_inputs).
-ENTRIES_TEXT = ("low and high are the template's Min and Max entries: for a diet, one value "
-                "(placed by the template's rule) or both ends of a range such as an analysed "
+ENTRIES_TEXT = ("low and high are the Min and Max entries: for a diet, one value (placed by "
+                "this checker's rule) or both ends of a range such as an analysed "
                 "minimum and maximum; for a requirement range, its two ends. Each is described "
                 "separately.")
 ENERGY_ENTRY_TEXT = ("the energy the diet supplies, kcal per day; to replace the requirement's "
@@ -121,9 +124,14 @@ ENERGY_ENTRY_TEXT = ("the energy the diet supplies, kcal per day; to replace the
 # per Mcal with the animal's energy and body weight; entries are per Mcal (steward, 22 Oct
 # 2026: the template's column D label "g/kg BW^0.75" misread as the entry's unit).
 MBW_TEXT = ("This row's requirement is per {mbw_unit} a day: {figures}, converted to {unit} at "
-            "{kcal} kcal/day and a current body weight of {bw} kg. Enter the diet's {unit}.")
-# Draft, 23 Oct 2026, pending the steward's approval: the minimum at the energy fed, the maximum
-# at the reference energy (ENERGY_RULES_TEXT).
+            "{energy} and a current body weight of {bw} kg. Enter the diet's {unit}.")
+# MBW_TEXT's {energy}: named on a row with one limit (steward, 24 Oct 2026); kcal/day in these
+# texts are whole numbers (steward, 24 Oct 2026).
+MBW_ENERGY = "{kcal} kcal/day"
+MBW_ENERGY_NAMED = "{name} ({kcal} kcal/day)"
+MBW_MAXIMUM_ENERGY = "the reference energy"
+# The minimum at the energy fed, the maximum at the reference energy (ENERGY_RULES_TEXT); the
+# steward approved this wording on 24 Oct 2026.
 MBW_TEXT_TWO_ENERGIES = ("This row's requirement is per {mbw_unit} a day: {figures}, converted "
                          "to {unit} at a current body weight of {bw} kg, the minimum at "
                          "{minimum_energy} ({minimum_kcal} kcal/day) and the maximum at the "
@@ -160,7 +168,7 @@ ENERGY_RULES_TEXT = (
     "to growth, a pregnancy or milk, nutrient needs rise and fall with the energy fed: per-Mcal "
     "minimums hold at any intake and only a restriction raises them. Maximums do not change "
     "per Mcal: MBW maximums are converted at the reference energy.")
-# Draft, 23 Oct 2026, pending the steward's approval: the reference energy's basis. {figure},
+# The reference energy's basis; the steward approved this wording on 24 Oct 2026. {figure},
 # {exponent}, {species} and {who} are filled in.
 REFERENCE_BASIS = {
     "NRC": "NRC's {who} energy, {figure} kcal x kg BW^{exponent} at the current body weight: "
@@ -176,19 +184,21 @@ REFERENCE_BASIS = {
                   "energy row's; see the requirement's energy notes), at the current body "
                   "weight; an adult dog or cat type, if chosen, is not used.",
 }
-# Draft, 23 Oct 2026, pending the steward's approval (also ENERGY_FED_FLOOR_TEXT).
+# The steward approved this wording on 24 Oct 2026 (also ENERGY_FED_FLOOR_TEXT), with
+# "no-current-weight" added that day.
 OPTIMAL_WEIGHT_STATUS = {
     "used": "Used: the energy fed is the requirement's energy at the optimal body weight (for "
             "NRC and AAFCO cats, NRC's lean equation), less any caloric restriction.",
     "not-adult": "Not used: an optimal body weight applies only to adult maintenance "
                  "requirements.",
     "intake-entered": "Not used: an intake is entered, and the intake is the energy fed.",
+    "no-current-weight": "Not used: no current body weight is entered.",
     "not-below-current": "Not used: it is not below the current body weight.",
 }
 ENERGY_FED_FLOOR_TEXT = ("Not used: the energy fed would be {fed} kcal/day, below {floor}% of the "
                          "reference energy ({ref} kcal/day). Check the entry.")
 # Labels and descriptions of animal facts (describe_inputs, the GUI). The steward approved the
-# optimal body weight wording on 23 Oct 2026; the current body weight wording is a draft.
+# optimal body weight wording on 23 Oct 2026 and the current body weight wording on 24 Oct 2026.
 FACT_TEXTS = {
     "body_weight_kg": ("Current body weight (kg)",
                        "The animal's current body weight; for lactating queens, the body "
