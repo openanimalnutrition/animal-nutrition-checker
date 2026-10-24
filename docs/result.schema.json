@@ -218,7 +218,7 @@
         "outcome_text": {"description": "The band's display name in the Dynamic Decile System (the IG's Nutrient Decile Bands); null for an outcome other than a band.", "type": ["string", "null"]},
         "outcome_reason": {"type": ["string", "null"]},
         "comparison_to_min": {"enum": ["below_min", "below_template_min", "at_or_above_min", null]},
-        "comparison_to_max": {"enum": ["above_max", "above_non_authoritative_max", "not_above_max", null]},
+        "comparison_to_max": {"description": "above_max, above_non_authoritative_max and not_above_max where the row has a maximum; above_range_high and not_above_range_high where it has none (the range high is the minimum times K).", "enum": ["above_max", "above_non_authoritative_max", "not_above_max", "above_range_high", "not_above_range_high", null]},
         "verdict": {"enum": ["deficient", "excess", null]},
         "verdict_status": {"const": "proposed, pending ratification"},
         "open_reason": {"enum": ["ig-open-point-3", "ig-open-point-6", "ig-open-point-6-aafco-dry-matter", null]},

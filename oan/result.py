@@ -458,7 +458,8 @@ def _nutrient(data, check, nid, entries):
                 "fill": raise_["fill"]})
         no_max = out["requirement_maximum"]
         if no_max and not no_max["set"] and \
-                described[side]["comparison_to_max"] == interpret.ABOVE_NON_AUTHORITATIVE_MAX:
+                described[side]["comparison_to_max"] in (interpret.ABOVE_NON_AUTHORITATIVE_MAX,
+                                                         interpret.ABOVE_RANGE_HIGH):
             described[side]["status"] += " " + no_max["text"]
     # One value is the entry, with the template column it is in; low and high are the two
     # ends of a range (steward, 24 Oct 2026, after the AI-read tests: a single value in a

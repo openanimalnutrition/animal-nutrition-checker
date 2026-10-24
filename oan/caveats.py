@@ -226,7 +226,9 @@ ENTRIES_RESULT_TEXT = ("entry is a value entered alone; placed names the templat
 # range high).
 OUTCOMES_TEXT = ("outcome is the Dynamic Decile System's band and outcome_text its name; "
                  "range-d10, Highest (90% of Range or Greater), includes values above the range "
-                 "high: comparison_to_max says whether a value is above it.")
+                 "high: comparison_to_max says whether a value is above it. On a row with no "
+                 "maximum the range high is the minimum × K, a banding choice, so a band name "
+                 "places a value within that span, not against a limit.")
 # A nutrient checked on both its per-Mcal and MBW rows (steward, 24 Oct 2026; the template's
 # notes: a diet meets both rows only when it meets the more protective one). {basis}, {row} and
 # {verdict} are filled in.

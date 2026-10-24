@@ -72,6 +72,10 @@ version; every result states both (`code_release`, `data_version`).
     range high. The moisture condition where wet and dry limits are the same says so on each
     row (`moisture-same-dry`, `moisture-same-wet`).
 
+  From a fourth test (again no misreading): `outcomes_text` adds that on a row with no maximum
+  a band places a value within the minimum × K span, not against a limit; and on such a row
+  `comparison_to_max` is `above_range_high` or `not_above_range_high`.
+
 ## Where the template's own text is kept
 
 - [template-21OCT26b-notes.csv](template-21OCT26b-notes.csv): all 301 template notes word for

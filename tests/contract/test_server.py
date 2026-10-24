@@ -158,7 +158,8 @@ class Server(unittest.TestCase):
             for n in self.mcp[key].structured_content["nutrients"]:
                 for side in ("entry", "low", "high"):
                     entry = n[side]
-                    if entry and entry["comparison_to_max"] == "above_non_authoritative_max":
+                    if entry and entry["comparison_to_max"] in (
+                            "above_non_authoritative_max", "above_range_high"):
                         seen += 1
                         self.assertIsNone(entry["verdict"], n["id"])
                     if entry and entry["verdict"] == "excess":

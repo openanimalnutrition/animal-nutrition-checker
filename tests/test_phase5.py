@@ -282,10 +282,13 @@ class Verdicts(unittest.TestCase):
         res = run("nrc-dog-adult", {"choline": 600, "water": 2000, "vitamin-e": 100})
         self.assertEqual(self.entry(res, "choline")["verdict"], "excess")
         self.assertEqual(self.entry(res, "choline")["comparison_to_max"], "above_max")
-        for nid, side in (("water", "high"), ("vitamin-e", "low")):
+        # Water has a maximum this checker sets; vitamin E has none, its range high is the
+        # minimum x K (steward, 24 Oct 2026).
+        for nid, side, comparison in (("water", "high", "above_non_authoritative_max"),
+                                      ("vitamin-e", "low", "above_range_high")):
             e = self.entry(res, nid, side)
             self.assertIsNone(e["verdict"], nid)
-            self.assertEqual(e["comparison_to_max"], "above_non_authoritative_max", nid)
+            self.assertEqual(e["comparison_to_max"], comparison, nid)
         self.assertIn("not excess", self.entry(res, "vitamin-e")["status"])
 
     def test_aafco_maximum_on_dry_matter(self):
