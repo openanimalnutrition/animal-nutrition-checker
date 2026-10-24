@@ -212,6 +212,20 @@ def _num(x):
     return "" if x is None else e(result.numbers.to_text(x) if isinstance(x, float) else x)
 
 
+def _side(n, side):
+    """A nutrient's low or high cells: a range's end, or a value entered alone in its column."""
+    if n["entry"] is not None:
+        return n["entry"] if n["entry"]["placed"] == side else None
+    return n[side]
+
+
+def _check_text(c):
+    if c["entry"] is not None:
+        return c["entry"]["text"] or c["entry"]["result"]
+    return "low %s, high %s" % (c["low"]["text"] or c["low"]["result"],
+                                c["high"]["text"] or c["high"]["result"])
+
+
 def _entry_cells(entry):
     if entry is None:
         return "<td></td><td></td><td></td>"
@@ -278,6 +292,8 @@ def result_page(data, request, res):
                 e(n["name"]), e(n["unit"]),
                 ("<br><small>%s</small>" % e(n["minimum_raise"]["text"])
                  if n["minimum_raise"] else "") +
+                ("<br><small>%s</small>" % e(n["other_row"]["text"])
+                 if n["other_row"] else "") +
                 ("<br><small>%s</small>" % e(n["mbw"]["text"]) if n["mbw"] else "") + (
                     "<br><small>%s</small>" % e(n["requirement_maximum"]["text"])
                     if n["requirement_maximum"] and not n["requirement_maximum"]["set"]
@@ -287,12 +303,11 @@ def result_page(data, request, res):
                 "none" if n["range_high"] is None else "%s<br><small>%s, %s: %s</small>" % (
                     _num(n["range_high"]), e(n["max_type"]), e(n["max_provenance"]),
                     e(n["max_type_text"] or "")),
-                _entry_cells(n["low"]), _entry_cells(n["high"]),
+                _entry_cells(_side(n, "low")), _entry_cells(_side(n, "high")),
                 conds, notes_fold(data, n["notes"])))
-    checks = "".join("<li>%s: low %s, high %s%s</li>" % (
-        e(c["id"]), e(c["low"]["text"] or c["low"]["result"]),
-        e(c["high"]["text"] or c["high"]["result"]),
-        (" " + e(c["caveat"])) if c["caveat"] else "") for c in res["checks"])
+    checks = "".join("<li>%s: %s%s</li>" % (
+        e(c["id"]), e(_check_text(c)), (" " + e(c["caveat"])) if c["caveat"] else "")
+        for c in res["checks"])
     lims = "".join("<li>%s</li>" % e(l["text"]) for l in res["limitations"])
     req = res["requirement"]
     body = (

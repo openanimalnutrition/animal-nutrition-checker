@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://openanimalnutrition.org/schema/oan-check-result/2",
   "title": "oan-check-result/2",
-  "description": "The result of the Open Animal Nutrition reference checker (every tool: check_diet, get_limits, list_requirements, describe_inputs, get_notes). Within version 2 a change only adds fields; a breaking change is version 3. Version 2 (release 0.6.0) renamed standard_minimum to verdict_minimum, lets a condition have no limitation (null), and added verdict_text, entries_text, max_type_text, outcome_text, energies_text and the notes block's text. The caveats come first and are in every result. Verdicts are proposed, pending ratification.",
+  "description": "The result of the Open Animal Nutrition reference checker (every tool: check_diet, get_limits, list_requirements, describe_inputs, get_notes). Within version 2 a change only adds fields; a breaking change is version 3. Version 2 (release 0.6.0) renamed standard_minimum to verdict_minimum, lets a condition have no limitation (null), and added verdict_text, entries_text, outcomes_text, max_type_text, outcome_text, energies_text, other_row and the notes block's text, and shows a value entered alone as entry (low and high only for a range). The caveats come first and are in every result. Verdicts are proposed, pending ratification.",
   "type": "object",
   "required": ["schema", "caveats", "tool", "code_release", "data_version", "data_sha256", "template_version", "verdict_status", "verdict_text"],
   "properties": {
@@ -27,7 +27,8 @@
     "template_version": {"type": "string"},
     "verdict_status": {"const": "proposed, pending ratification"},
     "verdict_text": {"description": "What the verdict field can hold, and that null is not an approval.", "type": "string"},
-    "entries_text": {"description": "check_diet: what the entries' low and high are (the template's two entry columns).", "type": "string"},
+    "entries_text": {"description": "check_diet: what entry, placed, low and high are (the template's two entry columns).", "type": "string"},
+    "outcomes_text": {"description": "check_diet: what outcome and outcome_text are, and that range-d10 includes values above the range high.", "type": "string"},
     "requirement": {"$ref": "#/$defs/requirement"},
     "subject": {"enum": ["diet", "requirement range"]},
     "inputs": {"type": "object", "required": ["submitted", "normalized"]},
@@ -166,9 +167,16 @@
           "additionalProperties": false,
           "properties": {"set": {"type": "boolean"}, "text": {"type": ["string", "null"]}}
         }]},
-        "low": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/entry"}]},
-        "high": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/entry"}]},
+        "entry": {"description": "A value entered alone, with placed: the template's entry column it is in.", "oneOf": [{"type": "null"}, {"$ref": "#/$defs/entry"}]},
+        "low": {"description": "The low end of a range entered (two ends); null for a value entered alone.", "oneOf": [{"type": "null"}, {"$ref": "#/$defs/entry"}]},
+        "high": {"description": "The high end of a range entered (two ends); null for a value entered alone.", "oneOf": [{"type": "null"}, {"$ref": "#/$defs/entry"}]},
         "summary": {"type": ["string", "null"]},
+        "other_row": {"description": "On a nutrient's per-Mcal and MBW rows checked together: the other row's verdicts.", "oneOf": [{"type": "null"}, {
+          "type": "object",
+          "required": ["id", "verdicts", "text"],
+          "additionalProperties": false,
+          "properties": {"id": {"type": "string"}, "verdicts": {"type": "array", "items": {"enum": ["deficient", "excess"]}}, "text": {"type": "string"}}
+        }]},
         "conditions": {"type": "array", "items": {"$ref": "#/$defs/condition"}},
         "notes": {"$ref": "#/$defs/note_ids"}
       }
@@ -214,7 +222,8 @@
         "verdict": {"enum": ["deficient", "excess", null]},
         "verdict_status": {"const": "proposed, pending ratification"},
         "open_reason": {"enum": ["ig-open-point-3", "ig-open-point-6", "ig-open-point-6-aafco-dry-matter", null]},
-        "status": {"type": ["string", "null"]}
+        "status": {"type": ["string", "null"]},
+        "placed": {"description": "On a value entered alone: the template's entry column it is in, low (Min) or high (Max).", "enum": ["low", "high"]}
       }
     },
     "condition": {
@@ -230,15 +239,16 @@
     },
     "check": {
       "type": "object",
-      "required": ["id", "status", "reads", "figures", "low", "high", "caveat", "notes"],
+      "required": ["id", "status", "reads", "figures", "entry", "low", "high", "caveat", "notes"],
       "additionalProperties": false,
       "properties": {
         "id": {"enum": ["la-ala-ratio", "epa-share-max", "epa-share-range", "epa-share-max-dha-only"]},
         "status": {"type": "string"},
         "reads": {"type": "array", "items": {"type": "string"}},
         "figures": {"type": "object", "additionalProperties": {"type": "number"}},
-        "low": {"$ref": "#/$defs/check_side"},
-        "high": {"$ref": "#/$defs/check_side"},
+        "entry": {"description": "The result when every nutrient read was entered as one value; low and high are then null.", "oneOf": [{"type": "null"}, {"$ref": "#/$defs/check_side"}]},
+        "low": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/check_side"}]},
+        "high": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/check_side"}]},
         "caveat": {"type": ["string", "null"]},
         "notes": {"$ref": "#/$defs/note_ids"}
       }

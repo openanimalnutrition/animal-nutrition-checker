@@ -214,9 +214,27 @@ ENTRIES_TEXT = ("low and high are the Min and Max entries: for a diet, one value
                 "minimum and maximum; for a requirement range, its two ends. Each is described "
                 "separately.")
 # In every check_diet result, next to the entries (steward, 24 Oct 2026: low and high name the
-# template's two entry columns, a context the result did not carry).
-ENTRIES_RESULT_TEXT = ENTRIES_TEXT + (" They name where a value was entered (the template's two "
-                                      "entry columns), not whether it is low or high.")
+# template's two entry columns, a context the result did not carry; then one value is shown as
+# entry, and low and high only for a range).
+ENTRIES_RESULT_TEXT = ("entry is a value entered alone; placed names the template's entry column "
+                       "it is in, low (Min) or high (Max), chosen by this checker's rule. low and "
+                       "high are the two ends of a range entered, such as an analysed minimum and "
+                       "maximum, or a requirement range's two ends. These names say where a "
+                       "value was entered (the template's two entry columns), not whether it is "
+                       "low or high. Each is described separately.")
+# Next to the entries: the bands (steward, 24 Oct 2026: range-d10 also holds values above the
+# range high).
+OUTCOMES_TEXT = ("outcome is the Dynamic Decile System's band and outcome_text its name; "
+                 "range-d10, Highest (90% of Range or Greater), includes values above the range "
+                 "high: comparison_to_max says whether a value is above it.")
+# A nutrient checked on both its per-Mcal and MBW rows (steward, 24 Oct 2026; the template's
+# notes: a diet meets both rows only when it meets the more protective one). {basis}, {row} and
+# {verdict} are filled in.
+OTHER_ROW_TEXT = ("This nutrient is also checked on its {basis} row ({row}): {verdict}. The more "
+                  "protective of the two rows applies.")
+# A requirement maximum on the nutrient's other row only (steward, 24 Oct 2026).
+MAXIMUM_ON_OTHER_ROW = ("{requirement} sets its {nutrient} maximum on the {basis} row ({row}), "
+                        "not on this row.")
 # An entry checked on a nutrient's other row (steward, 24 Oct 2026: a value entered on one of a
 # nutrient's per-Mcal and MBW rows is checked on both). {source}, {value} and {unit} are filled.
 TWIN_ENTRY_TEXT = ("Checked with the {source} entry, {value} {unit}: both rows take the diet's "

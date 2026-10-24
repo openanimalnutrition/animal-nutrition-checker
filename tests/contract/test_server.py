@@ -156,7 +156,7 @@ class Server(unittest.TestCase):
         seen = 0
         for key in ("check_diet", "check_diet#2"):
             for n in self.mcp[key].structured_content["nutrients"]:
-                for side in ("low", "high"):
+                for side in ("entry", "low", "high"):
                     entry = n[side]
                     if entry and entry["comparison_to_max"] == "above_non_authoritative_max":
                         seen += 1

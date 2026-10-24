@@ -61,6 +61,17 @@ version; every result states both (`code_release`, `data_version`).
     says why it is a lean cat's. The ten known limitations cite note ids, not template cells
     (section 2).
 
+  From a third test, no model misread a result; what still confused one was fixed:
+  - A value entered alone is shown as `entry`, with `placed` (the template's column it is in);
+    `low` and `high` only for a range entered as two ends. The advice checks follow.
+  - A nutrient's per-Mcal and MBW rows checked together each name the other's verdict
+    (`other_row`): the more protective row applies. `requirement_maximum` names the row that
+    holds the requirement's maximum when it is the other one; the large-breed puppy calcium
+    row records its NRC SUL.
+  - `outcomes_text`: range-d10, Highest (90% of Range or Greater), includes values above the
+    range high. The moisture condition where wet and dry limits are the same says so on each
+    row (`moisture-same-dry`, `moisture-same-wet`).
+
 ## Where the template's own text is kept
 
 - [template-21OCT26b-notes.csv](template-21OCT26b-notes.csv): all 301 template notes word for

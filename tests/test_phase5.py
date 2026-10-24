@@ -170,7 +170,7 @@ class Data21OCT26b8(unittest.TestCase):
         self.assertEqual(len(D.tables["limitations"]), 10)
 
     def test_every_condition_and_open_minimum_is_used(self):
-        self.assertEqual(len(D.tables["conditions"]), 33)
+        self.assertEqual(len(D.tables["conditions"]), 34)
         self.assertEqual(len(D.tables["open_minimums"]), 15)
         self.assertEqual({int(c["item"]) for c in D.tables["conditions"] if c["item"]},
                          set(range(1, 11)))
@@ -262,7 +262,12 @@ class StandardMinimum(unittest.TestCase):
 
 class Verdicts(unittest.TestCase):
     def entry(self, res, nid, side="low"):
-        return nutrient(res, nid)[side]
+        """The entry on a side: a range's end, or a value entered alone placed there."""
+        n = nutrient(res, nid)
+        if n["entry"] is not None:
+            self.assertEqual(n["entry"]["placed"], side)
+            return n["entry"]
+        return n[side]
 
     def test_open_point_7_seven_places(self):
         res = run("nrc-dog-adult", {"calcium": 1.3333333}, caloric_restriction_percent=25)
@@ -348,7 +353,7 @@ class Verdicts(unittest.TestCase):
         res = run("fediaf-dog-late-growth", {"selenium": 150}, caloric_restriction_percent=40)
         n = nutrient(res, "selenium")
         self.assertGreater(n["minimum"], n["range_high"])
-        e = n["low"]
+        e = n["entry"]
         self.assertEqual(e["verdict"], "deficient")
         self.assertEqual(e["comparison_to_max"], "above_non_authoritative_max")
         self.assertIn("Also above", e["status"])
@@ -401,7 +406,7 @@ class Conditions(unittest.TestCase):
 
     def test_moisture_split(self):
         res = run("fediaf-dog-adult-mer95", {"copper": 3, "selenium": 60})
-        self.assertIn("moisture-same", self.ids(res, "copper"))
+        self.assertIn("moisture-same-dry", self.ids(res, "copper"))
         self.assertIn("moisture-dry", self.ids(res, "selenium"))
         self.assertNotIn("moisture-selenium-fediaf", self.ids(res, "copper"))
         self.assertIn("moisture-selenium-fediaf", self.ids(res, "selenium"))
@@ -414,11 +419,12 @@ class Conditions(unittest.TestCase):
         res = run("aafco-cat-adult", {"taurine": 0.6, "taurine-wet": 0.6, "copper": 3})
         self.assertIn("moisture-dry", self.ids(res, "taurine"))
         self.assertIn("moisture-wet", self.ids(res, "taurine-wet"))
-        self.assertIn("moisture-same", self.ids(res, "copper"))
+        self.assertIn("moisture-same-dry", self.ids(res, "copper"))
         nrc = run("nrc-cat-adult", {"copper-mbw": 0.2, "selenium-mbw": 7})
         self.assertIn("moisture-any", self.ids(nrc, "copper-mbw"))
         self.assertIn("moisture-any", self.ids(nrc, "selenium-mbw"))
-        same = next(c for c in nutrient(res, "copper")["conditions"] if c["id"] == "moisture-same")
+        same = next(c for c in nutrient(res, "copper")["conditions"]
+                    if c["id"] == "moisture-same-dry")
         self.assertIn("Some standards set different copper, selenium and taurine limits",
                       same["depends_on"])
         # "whose minimum differs" holds wherever moisture-dry is shown.
@@ -522,14 +528,15 @@ class Requests(unittest.TestCase):
                                "entries": {"calcium-mbw": 1, "calcium": 1}})
         missing = [i["input"] for i in res["input_report"] if i["status"] == "missing"]
         self.assertEqual(missing, ["animal.body_weight_kg"])
-        self.assertEqual(nutrient(res, "calcium")["low"]["outcome"], "range-d1")
+        self.assertEqual(nutrient(res, "calcium")["entry"]["outcome"], "range-d1")
         res = result.check(D, {"entries": {"calcium": 1}})
         self.assertIn("requirement", [i["input"] for i in res["input_report"]])
 
     def test_bare_number_placement(self):
         res = run("nrc-dog-adult", {"water": 1000, "calcium": 1})
-        self.assertIsNotNone(nutrient(res, "water")["high"])
-        self.assertIsNotNone(nutrient(res, "calcium")["low"])
+        self.assertEqual(nutrient(res, "water")["entry"]["placed"], "high")
+        self.assertEqual(nutrient(res, "calcium")["entry"]["placed"], "low")
+        self.assertIsNone(nutrient(res, "calcium")["low"])
 
     def test_subject_is_a_label(self):
         a = run("nrc-dog-adult", {"phosphorus": {"low": 0.5, "high": 0.9}})
@@ -588,8 +595,8 @@ class NoMaximum(unittest.TestCase):
         for nid in ("calcium", "calcium-mbw"):
             self.assertEqual(nutrient(res, nid)["requirement_maximum"],
                              {"set": False, "text": text})
-        self.assertTrue(nutrient(res, "calcium-mbw")["low"]["status"].endswith(text))
-        self.assertNotIn(text, nutrient(res, "calcium")["low"]["status"])  # within the range
+        self.assertTrue(nutrient(res, "calcium-mbw")["entry"]["status"].endswith(text))
+        self.assertNotIn(text, nutrient(res, "calcium")["entry"]["status"])  # within the range
 
     def test_standards_own_maximum(self):
         for rid in ("aafco-dog-adult", "fediaf-dog-adult-mer95"):
@@ -629,14 +636,14 @@ class TextChecks(unittest.TestCase):
     def test_texts(self):
         res = run("nrc-dog-adult", {"linoleic-acid": 3.0, "alpha-linolenic-acid": 0.01})
         c = next(c for c in res["checks"] if c["id"] == "la-ala-ratio")
-        self.assertEqual(c["low"]["result"], "outside")
-        self.assertIn("NRC's advised ratio", c["low"]["text"])
+        self.assertEqual(c["entry"]["result"], "outside")
+        self.assertIn("NRC's advised ratio", c["entry"]["text"])
         self.assertIn("not a verdict", c["status"])
-        # Each entered as one value: read on both sides (steward, 24 Oct 2026).
-        self.assertEqual(c["high"], c["low"])
+        # Each entered as one value: one result, as entry (steward, 24 Oct 2026).
+        self.assertEqual((c["low"], c["high"]), (None, None))
         res = run("nrc-cat-late-gestation", {"epa-dha": 0.02, "epa": {"high": 0.019}})
         c = next(c for c in res["checks"] if c["id"] == "epa-share-max")
-        self.assertEqual(c["high"]["text"],
+        self.assertEqual(c["entry"]["text"],
                          "EPA is above 60% of EPA + DHA, NRC's advised maximum share.")
 
     def test_not_entered_is_not_checked(self):
@@ -652,13 +659,12 @@ class TextChecks(unittest.TestCase):
                   "EPA's share of EPA + DHA with NRC's advice."))
         for rid, entries, cid, missing, what in cases:
             c = next(c for c in run(rid, entries)["checks"] if c["id"] == cid)
-            for side in ("low", "high"):
-                self.assertEqual(c[side], {"result": "not-entered", "text": (
-                    "Not checked: %s is not entered. Enter it to compare %s" % (missing, what))},
-                    (rid, entries, side))
+            self.assertEqual(c["entry"], {"result": "not-entered", "text": (
+                "Not checked: %s is not entered. Enter it to compare %s" % (missing, what))},
+                (rid, entries))
         res = run("nrc-dog-adult", {"linoleic-acid": 3.0, "alpha-linolenic-acid": 0})
         c = next(c for c in res["checks"] if c["id"] == "la-ala-ratio")
-        self.assertEqual(c["low"]["result"], "outside")
+        self.assertEqual(c["entry"]["result"], "outside")
         # A range and one value: the one value pairs with both ends.
         res = run("nrc-dog-adult", {"linoleic-acid": {"low": 3.0, "high": 4.0},
                                     "alpha-linolenic-acid": {"low": 0.2}})
@@ -688,8 +694,7 @@ class TextChecks(unittest.TestCase):
             res = run(rid, {"epa-dha": 0.1, "epa": 0.02})
             self.assertEqual(res["inputs"]["normalized"]["entries"]["epa"], {"high": 0.02})
             c = next(c for c in res["checks"] if c["id"] == cid)
-            self.assertEqual((c["low"]["result"], c["high"]["result"]), (expected, expected),
-                             rid)
+            self.assertEqual(c["entry"]["result"], expected, rid)
         # A range still pairs low with low and high with high.
         res = run("nrc-dog-adult", {"epa-dha": {"low": 0.1, "high": 0.2},
                                     "epa": {"low": 0.055, "high": 0.06}})
@@ -723,8 +728,8 @@ class AIReadRound3(unittest.TestCase):
 
     def test_one_entry_checks_both_rows(self):
         res = run("nrc-dog-adult", {"calcium": 1.1}, **self.DOG_A)
-        self.assertEqual(nutrient(res, "calcium")["low"]["verdict"], None)
-        self.assertEqual(nutrient(res, "calcium-mbw")["low"]["verdict"], "deficient")
+        self.assertEqual(nutrient(res, "calcium")["entry"]["verdict"], None)
+        self.assertEqual(nutrient(res, "calcium-mbw")["entry"]["verdict"], "deficient")
         self.assertEqual(self.report(res, "checked-with-twin"), {
             "entries.calcium-mbw": "Checked with the calcium entry, 1.1 g/Mcal: both rows take "
                                    "the diet's g/Mcal."})
@@ -733,7 +738,7 @@ class AIReadRound3(unittest.TestCase):
         self.assertEqual(nutrient(res, "zinc")["high"]["value"], 30)
         self.assertIn("20 to 30 mg/Mcal", self.report(res, "checked-with-twin")["entries.zinc"])
         res = run("nrc-dog-adult", {"calcium": 1.1, "calcium-mbw": 1.3}, **self.DOG_A)
-        self.assertEqual(nutrient(res, "calcium-mbw")["low"]["value"], 1.3)
+        self.assertEqual(nutrient(res, "calcium-mbw")["entry"]["value"], 1.3)
         self.assertEqual(self.report(res, "checked-with-twin"), {})
         # No MBW rows (AAFCO): nothing added.
         res = run("aafco-dog-adult", {"calcium": 1.5}, body_weight_kg=20.0,
@@ -750,7 +755,7 @@ class AIReadRound3(unittest.TestCase):
         self.assertNotIn("large-breed-puppy-calcium",
                          [c["id"] for c in nutrient(small, "calcium")["conditions"]])
         row = nutrient(small, "calcium-large-breed-puppy")
-        self.assertEqual(row["low"]["status"], caveats.REASONS["large-breed-puppy-only"])
+        self.assertEqual(row["entry"]["status"], caveats.REASONS["large-breed-puppy-only"])
         self.assertEqual(self.report(small, "not-used"), {
             "animal.puppy_body_weight_kg": caveats.PUPPY_BODY_WEIGHT_NOT_USED})
         self.assertEqual(row["name"], "Calcium, Ca (NRC puppies 4 to 14 weeks, expected adult "
@@ -763,18 +768,18 @@ class AIReadRound3(unittest.TestCase):
         res = run("nrc-dog-adult", {"choline": 560, "zinc": 20, "carbohydrate": 10},
                   **self.DOG_A)
         self.assertEqual(res["verdict_text"], caveats.VERDICT_TEXT)
-        self.assertEqual(res["entries_text"], caveats.ENTRIES_TEXT + " They name where a value "
-                         "was entered (the template's two entry columns), not whether it is low "
-                         "or high.")
+        self.assertEqual(res["entries_text"], caveats.ENTRIES_RESULT_TEXT)
+        self.assertTrue(res["entries_text"].startswith("entry is a value entered alone"))
+        self.assertEqual(res["outcomes_text"], caveats.OUTCOMES_TEXT)
         self.assertEqual(res["factors"]["energies_text"], caveats.ENERGIES_TEXT)
         self.assertEqual(res["notes"]["text"], caveats.NOTES_TEXT)
         choline = nutrient(res, "choline")
-        self.assertEqual(choline["low"]["outcome_text"], "Highest (90% of Range or Greater)")
+        self.assertEqual(choline["entry"]["outcome_text"], "Highest (90% of Range or Greater)")
         self.assertTrue(choline["max_type_text"].startswith("NRC's presumed safe maximum"))
         zinc = nutrient(res, "zinc")
         self.assertEqual(zinc["max_type_text"], "no maximum: the range high is the minimum × 4, "
                                                 "a banding choice, not a limit")
-        self.assertEqual(zinc["low"]["outcome_text"], bands.DISPLAY[zinc["low"]["outcome"]])
+        self.assertEqual(zinc["entry"]["outcome_text"], bands.DISPLAY[zinc["entry"]["outcome"]])
         self.assertEqual(len(bands.DISPLAY), 14)
         self.assertEqual(set(bands.DISPLAY), set(bands.BANDS))
         self.assertEqual(schema_check.errors(res, SCHEMA), [])
@@ -784,6 +789,57 @@ class AIReadRound3(unittest.TestCase):
             caveats.CAT_REFERENCE_TEXT))
         self.assertNotIn(caveats.CAT_REFERENCE_TEXT,
                          res["factors"]["reference_energy_basis"])
+
+
+class AIReadRound4(unittest.TestCase):
+    """The fixes after round 4 of the AI-read test (steward, 24 Oct 2026)."""
+
+    DOG_A = AIReadRound3.DOG_A
+
+    def test_other_row(self):
+        res = run("nrc-dog-adult", {"calcium": 1.1, "choline": 560}, **self.DOG_A)
+        calcium, mbw = nutrient(res, "calcium"), nutrient(res, "calcium-mbw")
+        self.assertEqual(calcium["other_row"], {
+            "id": "calcium-mbw", "verdicts": ["deficient"],
+            "text": "This nutrient is also checked on its MBW row (calcium-mbw): deficient. The "
+                    "more protective of the two rows applies."})
+        self.assertEqual(mbw["other_row"]["verdicts"], [])
+        self.assertIn("on its per-Mcal row (calcium): no verdict.", mbw["other_row"]["text"])
+        self.assertEqual(nutrient(res, "choline-mbw")["other_row"]["verdicts"], ["excess"])
+        res = run("aafco-dog-adult", {"calcium": 1.5}, body_weight_kg=20.0,
+                  adult_dog_type=DOG_TYPE)
+        self.assertIsNone(nutrient(res, "calcium")["other_row"])
+
+    def test_requirement_maximum_per_row(self):
+        res = run("nrc-dog-adult", {"choline": 560}, **self.DOG_A)
+        self.assertEqual(nutrient(res, "choline")["requirement_maximum"],
+                         {"set": True, "text": None})
+        self.assertEqual(nutrient(res, "choline-mbw")["requirement_maximum"], {
+            "set": True, "text": "NRC RA Dog Maintenance sets its choline maximum on the per "
+                                 "Mcal row (choline), not on this row."})
+        puppy = run("nrc-puppy-4-14-wk", {"calcium-large-breed-puppy": 3.2}, body_weight_kg=8.0,
+                    mature_weight_kg=35.0)
+        self.assertEqual(nutrient(puppy, "calcium-large-breed-puppy")["requirement_maximum"],
+                         {"set": True, "text": None})
+
+    def test_entry_and_range(self):
+        res = run("nrc-dog-adult", {"water": 1000, "phosphorus": {"low": 0.9, "high": 1.5}},
+                  **self.DOG_A)
+        water, phosphorus = nutrient(res, "water"), nutrient(res, "phosphorus")
+        self.assertEqual((water["entry"]["placed"], water["low"], water["high"]),
+                         ("high", None, None))
+        self.assertIsNone(phosphorus["entry"])
+        self.assertEqual((phosphorus["low"]["value"], phosphorus["high"]["value"]), (0.9, 1.5))
+        self.assertNotIn("placed", phosphorus["low"])
+        self.assertEqual(schema_check.errors(res, SCHEMA), [])
+
+    def test_moisture_same_by_row(self):
+        res = run("aafco-cat-adult", {"copper": 3, "copper-wet": 3}, body_weight_kg=4.0,
+                  adult_cat_type=CAT_TYPE)
+        ids = {c["id"]: c["depends_on"] for c in nutrient(res, "copper-wet")["conditions"]}
+        self.assertTrue(ids["moisture-same-wet"].startswith(
+            "This row is for foods with more than 12% moisture; under this requirement its "
+            "dry-food row has the same limits, so either gives the same result. Some standards"))
 
 
 def grid_requests():
@@ -836,7 +892,7 @@ class Contract(unittest.TestCase):
         counts = {"deficient": 0, "excess": 0, "open": 0}
         for rid, res in self.results:
             for n in res["nutrients"]:
-                for side in ("low", "high"):
+                for side in ("entry", "low", "high"):
                     e = n[side]
                     if e is None:
                         continue

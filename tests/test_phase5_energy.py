@@ -208,10 +208,10 @@ class CholineMaximum(Close):
                      caloric_restriction_percent=10)
         low = nutrient(run("nrc-dog-adult", {"choline": {"low": 540}}, **facts), "choline")
         self.assertEqual(low["max_provenance"], "template-set")
-        self.assertEqual(low["low"]["comparison_to_max"], "not_above_max")
+        self.assertEqual(low["entry"]["comparison_to_max"], "not_above_max")
         high = nutrient(run("nrc-dog-adult", {"choline": {"low": 600}}, **facts), "choline")
-        self.assertEqual(high["low"]["comparison_to_max"], "above_non_authoritative_max")
-        self.assertNotEqual(high["low"]["verdict"], "excess")
+        self.assertEqual(high["entry"]["comparison_to_max"], "above_non_authoritative_max")
+        self.assertNotEqual(high["entry"]["verdict"], "excess")
 
 
 class EnergyFactor(Close):
@@ -342,7 +342,7 @@ class OptimalBodyWeight(Close):
         self.assertEqual(f["optimal_body_weight"]["status"], "used")
         self.assertEqual(f["energy_fed_is"], "the energy at the optimal body weight")
         self.assertIn(caveats.STATUS["energy-optimal-weight"],
-                      nutrient(res, "energy")["low"]["status"])
+                      nutrient(res, "energy")["entry"]["status"])
         # A row with one limit names its energy, in whole kcal/day (steward, 24 Oct 2026):
         # 130 x 22^0.75 = 1320.6.
         self.assertIn("converted to g/Mcal at the energy fed (1321 kcal/day) and a current body "
@@ -474,8 +474,8 @@ class RaisedMinimum(Close):
         self.close(n["verdict_minimum"], raise_["standard_minimum_before_raise"] *
                    raise_["factor"])
         self.assertEqual(raise_["reason"], limits.RAISE_ENERGY)
-        self.assertEqual(n["low"]["verdict"], "deficient")
-        status = n["low"]["status"]
+        self.assertEqual(n["entry"]["verdict"], "deficient")
+        status = n["entry"]["status"]
         self.assertNotIn("Below the AAFCO minimum", status)
         self.assertTrue(status.startswith("Below 122.8 g/Mcal: the AAFCO minimum at this "
                                           "food's energy density, 72.22 g/Mcal, raised × 1.7 "
@@ -490,7 +490,7 @@ class RaisedMinimum(Close):
     def test_also_below_the_standard(self):
         res = run("aafco-cat-adult", {"protein": 70, "energy-density": 3.6},
                   adult_cat_type=CAT["overweight"], **self.CAT)
-        status = nutrient(res, "protein")["low"]["status"]
+        status = nutrient(res, "protein")["entry"]["status"]
         self.assertTrue(status.endswith("The value is also below the AAFCO minimum before the "
                                         "raise (72.22 g/Mcal)."), status)
 
@@ -501,7 +501,7 @@ class RaisedMinimum(Close):
         n = nutrient(res, "linoleic-acid")
         self.assertEqual(n["minimum_raise"]["reason"], limits.RAISE_RESTRICTION)
         self.close(n["minimum_raise"]["factor"], 1.25)
-        self.assertEqual(n["low"]["status"].split(" (")[0],
+        self.assertEqual(n["entry"]["status"].split(" (")[0],
                          "Below 3.5 g/Mcal: the NRC minimum, 2.8 g/Mcal, raised × 1.25 for the "
                          "caloric restriction of 20%")
 
@@ -511,7 +511,7 @@ class RaisedMinimum(Close):
                   body_weight_kg=20.0, adult_dog_type=DOG["average"])
         for nid in ("linoleic-acid", "protein-mbw", "fat"):
             self.assertIsNone(nutrient(res, nid)["minimum_raise"], nid)
-        self.assertEqual(nutrient(res, "linoleic-acid")["low"]["status"],
+        self.assertEqual(nutrient(res, "linoleic-acid")["entry"]["status"],
                          caveats.STATUS["deficient"].replace("{standard}", "NRC"))
         res = run("nrc-dog-adult", {"protein-mbw": 20, "fat": 30}, body_weight_kg=20.0,
                   adult_dog_type=DOG["average"], caloric_restriction_percent=20)
@@ -529,7 +529,7 @@ class RaisedMinimum(Close):
     def test_aafco_open_minimum(self):
         res = run("aafco-cat-adult", {"linoleic-acid": 1.7, "energy-density": 3.6},
                   adult_cat_type=CAT["overweight"], **self.CAT)
-        low = nutrient(res, "linoleic-acid")["low"]
+        low = nutrient(res, "linoleic-acid")["entry"]
         self.assertIsNone(low["verdict"])
         self.assertEqual(low["open_reason"], "ig-open-point-6-aafco-dry-matter")
         self.assertIn("raised × 1.7 because the energy fed is below the reference energy",
