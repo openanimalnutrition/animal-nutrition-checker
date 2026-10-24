@@ -4,15 +4,18 @@ Licence
 CC0 1.0 Universal (see LICENSE): the code, the data, the notes and the documents in this
 repository. CC0 covers only the rights that this project's contributors hold and can waive.
 
-The standards
+The standards and other cited works
 The nutrient values in data/ are reported from three published standards:
 - National Research Council (2006), Nutrient Requirements of Dogs and Cats;
 - AAFCO (2026), Official Publication (Dog and Cat Food Nutrient Profiles);
 - FEDIAF (September 2025), Nutritional Guidelines.
-Each value cites its table or page. These publications belong to their publishers and are
-not reproduced here; read them for the full text. Where a note quotes a standard, the
-quotation is a short phrase with its source. CC0 does not extend to the publishers' rights.
-This project is not affiliated with, or endorsed by, NRC, AAFCO or FEDIAF.
+Each value cites its table or page. The notes also cite other works, for example Applied
+Veterinary Clinical Nutrition, 2nd edition, and AAFCO's expert panel reports. These
+publications belong to their publishers and are not reproduced here; read them for the full
+text. Some notes quote, or closely report, a single sentence of a cited work, with its page,
+where the exact wording carries the rule. That text remains its publisher's: CC0 does not
+extend to it, or to any other right of the publishers. This project is not affiliated with,
+or endorsed by, NRC, AAFCO or FEDIAF.
 
 Status
 The rules in this repository are the provisional steward's proposal, pending ratification
