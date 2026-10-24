@@ -1,0 +1,20 @@
+Open Animal Nutrition: reference implementation
+
+Licence
+CC0 1.0 Universal (see LICENSE): the code, the data, the notes and the documents in this
+repository. CC0 covers only the rights that this project's contributors hold and can waive.
+
+The standards
+The nutrient values in data/ are reported from three published standards:
+- National Research Council (2006), Nutrient Requirements of Dogs and Cats;
+- AAFCO (2026), Official Publication (Dog and Cat Food Nutrient Profiles);
+- FEDIAF (September 2025), Nutritional Guidelines.
+Each value cites its table or page. These publications belong to their publishers and are
+not reproduced here; read them for the full text. Where a note quotes a standard, the
+quotation is a short phrase with its source. CC0 does not extend to the publishers' rights.
+This project is not affiliated with, or endorsed by, NRC, AAFCO or FEDIAF.
+
+Status
+The rules in this repository are the provisional steward's proposal, pending ratification
+by a governance body. This is a non-normative reference implementation of the proposed
+computation, not a ratified standard.
