@@ -449,7 +449,8 @@ def reference_basis(data, requirement_id):
 def optimal_weight_status(requirement_id, facts):
     """Whether an entered optimal body weight is used: None when none is entered, else "used",
     "not-adult" (the requirement is not adult maintenance), "intake-entered" (the intake is
-    the energy fed) or "not-below-current" (at or above the current body weight)."""
+    the energy fed), "no-current-weight" (no current body weight is entered) or
+    "not-below-current" (at or above the current body weight)."""
     optimal, current = facts.get("optimal_body_weight_kg"), facts.get("body_weight_kg")
     if optimal is None:
         return None
@@ -457,7 +458,9 @@ def optimal_weight_status(requirement_id, facts):
         return "not-adult"
     if facts.get("energy_intake_kcal_per_day") is not None:
         return "intake-entered"
-    if current is None or not optimal < current:
+    if current is None:
+        return "no-current-weight"
+    if not optimal < current:
         return "not-below-current"
     return "used"
 

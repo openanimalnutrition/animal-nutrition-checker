@@ -283,19 +283,34 @@ def _mbw(data, request, nid, lim, unit):
     bw = request.facts["body_weight_kg"]
     fill = {"mbw_unit": mbw_unit.split("/", 1)[1], "figures": figures, "unit": unit,
             "bw": numbers.to_text(bw)}
+    which = "used" if nid in limits.MBW_NOT_RAISED and \
+        kcal.get("minimum") != request.energy_fed.kcal else "fed"
     if len(set(kcal.values())) == 1:
-        text = caveats.MBW_TEXT.format(kcal=numbers.to_text(kcal[bounds[0]]), **fill)
+        # One limit: its energy is named (steward, 24 Oct 2026).
+        if bounds == ["minimum"]:
+            name = caveats.MBW_MINIMUM_ENERGY[which]
+        elif bounds == ["maximum"] and request.energy_reference.kcal is not None:
+            name = caveats.MBW_MAXIMUM_ENERGY
+        else:
+            name = None
+        kcal_text = _kcal_text(kcal[bounds[0]])
+        energy_text = caveats.MBW_ENERGY.format(kcal=kcal_text) if name is None else \
+            caveats.MBW_ENERGY_NAMED.format(name=name, kcal=kcal_text)
+        text = caveats.MBW_TEXT.format(energy=energy_text, **fill)
     else:
-        which = "used" if nid in limits.MBW_NOT_RAISED and \
-            kcal["minimum"] != request.energy_fed.kcal else "fed"
         text = caveats.MBW_TEXT_TWO_ENERGIES.format(
             minimum_energy=caveats.MBW_MINIMUM_ENERGY[which],
-            minimum_kcal=numbers.to_text(kcal["minimum"]), ref=numbers.to_text(kcal["maximum"]),
-            **fill)
+            minimum_kcal=_kcal_text(kcal["minimum"]), ref=_kcal_text(kcal["maximum"]), **fill)
     return {"unit": mbw_unit, "minimum": per["minimum"], "maximum": per["maximum"],
             "minimum_energy_kcal_per_day": kcal.get("minimum"),
             "maximum_energy_kcal_per_day": kcal.get("maximum"),
             "body_weight_kg": bw, "text": text}
+
+
+def _kcal_text(kcal):
+    """kcal/day in a sentence: a whole number (steward, 24 Oct 2026); the result's
+    *_kcal_per_day fields keep the full figure."""
+    return numbers.to_text(numbers.sheet_round(kcal, 0))
 
 
 def _nutrient(data, check, nid, entries):
@@ -495,7 +510,7 @@ def _guard_energy_fed(data, req, facts, report):
         report.append({"input": "animal." + field, "status": "rejected",
                        "reason": "energy-fed-below-floor",
                        "text": caveats.ENERGY_FED_FLOOR_TEXT.format(
-                           fed=numbers.to_text(fed), ref=numbers.to_text(ref),
+                           fed=_kcal_text(fed), ref=_kcal_text(ref),
                            floor=numbers.to_text(ENERGY_FED_FLOOR * 100))})
 
 

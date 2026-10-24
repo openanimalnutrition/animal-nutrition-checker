@@ -681,16 +681,28 @@ class Contract(unittest.TestCase):
 
 
 class Wording(unittest.TestCase):
-    """The approved wording (22 Oct 2026) is what the code says."""
+    """The approved wording (22 Oct 2026; 24 Oct 2026) is what the code says."""
 
     def test_caveats(self):
         texts = dict(caveats.CAVEATS)
         self.assertTrue(texts["non_normative_reference"].startswith(
             "Reference implementation, not a ratified standard."))
+        # The notice points to the changes from the template (steward, 24 Oct 2026).
+        changes = "docs/changes-from-%s.md" % caveats.TEMPLATE_VERSION
+        self.assertIn("(the Dynamic Decile System, based on template Version %s with the "
+                      "changes in %s; data version {data_version})"
+                      % (caveats.TEMPLATE_VERSION, changes), texts["non_normative_reference"])
+        self.assertTrue(os.path.isfile(os.path.join(ROOT, changes)))
         self.assertIn("sells nutritional supplements", texts["steward_disclosed_interest"])
         self.assertTrue(texts["not_a_safety_or_compliance_assessment"].startswith(
             "Not a safety or compliance assessment, and not veterinary advice."))
         self.assertEqual(len(texts), 4)
+
+    def test_results_name_no_template(self):
+        """A result's status lines and entry description say "this checker", not "this
+        template" (steward, 24 Oct 2026: the template is to be retired)."""
+        for text in list(caveats.STATUS.values()) + [caveats.ENTRIES_TEXT]:
+            self.assertNotIn("template", text)
 
 
 if __name__ == "__main__":

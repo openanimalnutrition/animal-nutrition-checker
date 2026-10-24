@@ -124,7 +124,7 @@
           "type": "object",
           "required": ["status", "text"],
           "additionalProperties": false,
-          "properties": {"status": {"enum": ["used", "not-adult", "intake-entered", "not-below-current"]}, "text": {"type": "string"}}
+          "properties": {"status": {"enum": ["used", "not-adult", "intake-entered", "no-current-weight", "not-below-current"]}, "text": {"type": "string"}}
         }]},
         "energy_rules": {"type": "string"}
       }
