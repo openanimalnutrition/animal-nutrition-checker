@@ -21,7 +21,7 @@ from . import (caveats, conditions, energy, inputs, interpret, limits, numbers, 
                release, table)
 
 SCHEMA = "oan-check-result/1"
-CODE_RELEASE = "0.5.0.dev0"
+CODE_RELEASE = "0.5.0"
 SUBJECTS = ("diet", "requirement range")
 REQUEST_FIELDS = ("requirement", "animal", "entries", "subject")
 ENERGY_NAME, ENERGY_UNIT = "Energy", "kcal/day"
