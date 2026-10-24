@@ -21,6 +21,15 @@ version; every result states both (`code_release`, `data_version`).
   Data version 21OCT26b.7; the rules in section 1. Results before it said `0.5.0.dev0`
   whichever rules computed them; their data version tells them apart: 21OCT26b.5, the
   template's rules (22 Oct 2026); 21OCT26b.6, the rules of 23 Oct; 21OCT26b.7, those of 24 Oct.
+- 0.5.1 (24 Oct 2026): no rule changes, and the same verdicts; data version 21OCT26b.7. A
+  minimum this checker raises for a caloric restriction or by the energy factor is no longer
+  reported as the standard's own. The status line names the standard's minimum before the
+  raise, the factor and the reason, and says whether the value is below the standard's minimum
+  itself; a new field, `minimum_raise`, gives the same on every raised row. Why: an AI-read
+  test of 0.5.0 found "Below the AAFCO minimum" on a protein value 66% above AAFCO's own
+  minimum for the food (120 g/Mcal against 72.22, raised to 122.8); the raise is the
+  provisional steward's rule, which adds to the standards and does not change them (steward,
+  24 Oct 2026).
 
 ## Where the template's own text is kept
 

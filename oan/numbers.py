@@ -92,6 +92,15 @@ def to_text(x):
     return text
 
 
+def to_display(x, digits=4):
+    """A number in a sentence: rounded as ROUND does to 'digits' significant digits, then as
+    to_text writes it (122.787 -> "122.8", 1.7001 -> "1.7"). The result's number fields keep
+    the full figure."""
+    if x == 0 or not math.isfinite(x):
+        return to_text(x)
+    return to_text(sheet_round(x, digits - 1 - math.floor(math.log10(abs(x)))))
+
+
 def format_fixed(x, decimals, percent=False):
     """TEXT(x, "0.000") (decimals 3) or TEXT(x, "0.00%") (decimals 2, percent): the
     15-significant-digit value (times 100 for a percent), rounded half away from zero to

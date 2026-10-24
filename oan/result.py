@@ -21,7 +21,7 @@ from . import (caveats, conditions, energy, inputs, interpret, limits, numbers, 
                release, table)
 
 SCHEMA = "oan-check-result/1"
-CODE_RELEASE = "0.5.0"
+CODE_RELEASE = "0.5.1"
 SUBJECTS = ("diet", "requirement range")
 REQUEST_FIELDS = ("requirement", "animal", "entries", "subject")
 ENERGY_NAME, ENERGY_UNIT = "Energy", "kcal/day"
@@ -307,6 +307,33 @@ def _mbw(data, request, nid, lim, unit):
             "body_weight_kg": bw, "text": text}
 
 
+def _minimum_raise(request, nid, standard_min, unit):
+    """The result's minimum_raise and the status texts' fill-ins, or None when this checker
+    does not raise the standard's minimum (limits.Request.minimum_raise)."""
+    r = request.minimum_raise(nid)
+    if r is None:
+        return None
+    standard = request.requirement["standard"]
+    restriction = request.facts.get("caloric_restriction_percent")
+    fed, ref = request.energy_fed.kcal, request.energy_reference.kcal
+    values = {"standard": standard,
+              "restriction": numbers.to_display(restriction) if restriction else "",
+              "fed": _kcal_text(fed) if fed else "", "ref": _kcal_text(ref) if ref else ""}
+    a = request.aafco_factor
+    fill = {"minimum": numbers.to_display(standard_min),
+            "before": numbers.to_display(r.before), "unit": unit,
+            "factor": "" if r.factor is None else caveats.fill(
+                caveats.RAISE_FACTOR, {"factor": numbers.to_display(r.factor)}),
+            "for_food": caveats.RAISE_FOR_FOOD if limits.number(a) and a > 1 else ""}
+    supplies = "" if r.factor is None else caveats.fill(caveats.RAISE_SUPPLIES[r.reason], values)
+    text = caveats.fill(caveats.MINIMUM_RAISE_TEXT, dict(
+        fill, standard=standard, why=caveats.fill(caveats.RAISE_WHY_LONG[r.reason], values),
+        supplies=supplies))
+    return {"field": {"standard_minimum_before_raise": r.before, "factor": r.factor,
+                      "reason": r.reason, "text": text},
+            "fill": dict(fill, why=caveats.fill(caveats.RAISE_WHY[r.reason], values))}
+
+
 def _kcal_text(kcal):
     """kcal/day in a sentence: a whole number (steward, 24 Oct 2026); the result's
     *_kcal_per_day fields keep the full figure."""
@@ -334,6 +361,8 @@ def _nutrient(data, check, nid, entries):
             notes = notes + data.tables["template"][fid]["notes"].split()
     open_row = conditions.open_minimum(data.tables, request, nid) \
         if nid != inputs.ENERGY_ENTRY else None
+    raise_ = _minimum_raise(request, nid, standard_min, unit) \
+        if nid != inputs.ENERGY_ENTRY else None
     standard = request.requirement["standard"] if request.requirement else ""
     # A row with neither a minimum nor a maximum has no range high: the template's is the
     # minimum (none, read as 0) times K, which an AI reader took for a limit of 0 (steward,
@@ -342,6 +371,7 @@ def _nutrient(data, check, nid, entries):
     out = {"id": nid, "name": name, "unit": unit, "basis": basis, "ig_code": ig_code,
            "minimum": _number_or_none(lim.minimum),
            "standard_minimum": _number_or_none(standard_min),
+           "minimum_raise": None if raise_ is None else raise_["field"],
            "maximum": _number_or_none(lim.maximum),
            "range_high": None if no_limits else lim.range_high,
            "max_type": None if no_limits else lim.max_code,
@@ -367,7 +397,11 @@ def _nutrient(data, check, nid, entries):
                                     standard, k, reason_text,
                                     energy_row=nid == inputs.ENERGY_ENTRY,
                                     restricted=request.restricted,
-                                    optimal_weight=request.optimal_status == "used")
+                                    optimal_weight=request.optimal_status == "used",
+                                    minimum_raise=None if raise_ is None else {
+                                        "before": raise_["field"][
+                                            "standard_minimum_before_raise"],
+                                        "fill": raise_["fill"]})
         no_max = out["requirement_maximum"]
         if no_max and not no_max["set"] and \
                 out[side]["comparison_to_max"] == interpret.ABOVE_NON_AUTHORITATIVE_MAX:
