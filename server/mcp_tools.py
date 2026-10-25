@@ -4,7 +4,7 @@ SDK 2.x, server/requirements.lock).
 Each tool returns the whole Result (oan.result) twice: as structured content, and as a text
 block whose first lines are the caveats, followed by the Result's JSON in the one byte form
 the GUI's "download JSON" gives (oan.result.to_json). The caveats are also in each tool's
-description and in the server's instructions.
+description and in the server's instructions, after what the tool does and the call order.
 """
 
 import json
@@ -55,6 +55,23 @@ def animal_schema(data):
     return {"type": "object", "properties": props, "additionalProperties": False}
 
 
+# The call order, in every tool's description and in the server's instructions (steward, 25
+# Oct 2026: purpose and call order before the caveats; one model in the live-call test of
+# release 0.7.0 answered from its own knowledge without calling a tool, another skipped
+# describe_inputs). The steward approved this wording, the titles and get_limits' sentence on
+# 25 Oct 2026.
+CALL_ORDER = ("Call order: list_requirements to choose a requirement; describe_inputs for the "
+              "animal facts and the nutrient ids, units and ranges; then check_diet. get_notes "
+              "gives the texts of the note ids a result names; get_limits gives a requirement's "
+              "limits without a diet.")
+TITLES = {"list_requirements": "List requirements", "describe_inputs": "Describe inputs",
+          "get_limits": "Get limits", "check_diet": "Check diet", "get_notes": "Get notes"}
+
+
+def instructions(data_version):
+    return "\n".join([CALL_ORDER, caveats.PASTED_TEXT, ""] + caveat_lines(data_version))
+
+
 def tools(data):
     requirement = {"type": "string",
                    "description": "a requirement's id or name (list_requirements)"}
@@ -65,23 +82,31 @@ def tools(data):
          "additionalProperties": False, "minProperties": 1}]}
     with open(SCHEMA_PATH, encoding="utf-8") as f:
         output_schema = json.load(f)
-    head = "\n".join(caveat_lines(data.version)) + "\n\n"
+    tail = "\n\n" + CALL_ORDER + "\n\n" + "\n".join(caveat_lines(data.version))
     specs = [
         ("list_requirements", "The 21 requirements (standard, edition, species, life stage) "
          "and the animal facts each reads.", {}, []),
         ("describe_inputs", "The animal facts and the nutrient entries the checker takes, with "
          "their units and allowed ranges.", {}, []),
         ("get_limits", "Every nutrient's minimum, maximum, range high and the kind of maximum, "
-         "with conditions and note ids, for a requirement and animal.",
-         {"requirement": requirement, "animal": animal_schema(data)}, ["requirement"]),
-        ("check_diet", "Compares nutrient values of a diet or a requirement range with a "
-         "requirement, every entry per Mcal, on metabolic body weight (MBW) rows too (their "
-         "limits are converted to per Mcal): band, proposed verdict (deficient, excess or none), "
-         "conditions and notes per nutrient. " +
-         caveats.ENTRIES_TEXT + " The energy entry is " + caveats.ENERGY_ENTRY_TEXT,
+         "with conditions and note ids, for a requirement and animal. With nutrients (ids from "
+         "describe_inputs), only those rows, each with its MBW row.",
+         {"requirement": requirement, "animal": animal_schema(data),
+          "nutrients": {"type": "array", "items": {"type": "string"}, "minItems": 1,
+                        "description": "optional: only these nutrient ids (describe_inputs), "
+                                       "each with its MBW row"}},
+         ["requirement"]),
+        ("check_diet", caveats.UNITS_TEXT + " Compares nutrient values of a diet or a "
+         "requirement range with a requirement, every entry per Mcal, on metabolic body weight "
+         "(MBW) rows too (their limits are converted to per Mcal): band, proposed verdict "
+         "(deficient, excess or none), conditions and notes per nutrient. " +
+         caveats.WET_DRY_TEXT + " " + caveats.PASTED_TEXT + " " + caveats.UNDER_REPORTED_TEXT +
+         " " + caveats.ENTRIES_TEXT +
+         " The energy entry is " + caveats.ENERGY_ENTRY_TEXT,
          {"requirement": requirement, "animal": animal_schema(data),
           "entries": {"type": "object", "additionalProperties": entry,
-                      "description": "{nutrient id: number, or {low, high}} (describe_inputs)"},
+                      "description": caveats.UNITS_TEXT + " {nutrient id: number, or {low, "
+                                     "high}} (describe_inputs)"},
           "subject": {"type": "string", "enum": list(result.SUBJECTS)}},
          ["requirement", "entries"]),
         ("get_notes", "The texts of the checker's notes, by the note ids a result gives, with "
@@ -89,10 +114,14 @@ def tools(data):
          {"ids": {"type": "array", "items": {"type": "string"}, "minItems": 1,
                   "maxItems": result.MAX_NOTE_IDS}}, ["ids"]),
     ]
-    return [types.Tool(name=name, description=head + text,
+    # Read-only, idempotent, closed-world tools (steward's plan for hosting, 25 Oct 2026).
+    return [types.Tool(name=name, title=TITLES[name], description=text + tail,
                        input_schema={"type": "object", "properties": props,
                                      "required": required, "additionalProperties": False},
-                       output_schema=output_schema)
+                       output_schema=output_schema,
+                       annotations=types.ToolAnnotations(
+                           title=TITLES[name], read_only_hint=True, destructive_hint=False,
+                           idempotent_hint=True, open_world_hint=False))
             for name, text, props, required in specs]
 
 
@@ -125,8 +154,11 @@ def _error(text):
 
 
 def build(data):
-    """The MCP server (SDK 2.x low-level Server): the tools above, arguments checked against
-    each tool's input schema, then by the core."""
+    """The MCP server (SDK 2.x low-level Server): the tools above. The core checks the
+    arguments (oan.inputs, oan.result): what it cannot use is a tool error or an input-report
+    line saying why. The SDK does not check them against the input schemas, which clients
+    read (get_tool_input_schema serves only its Mcp-Param header validation; found in the
+    live-call test of release 0.7.0)."""
     tool_list = tools(data)
     schemas = {t.name: t.input_schema for t in tool_list}
 
@@ -143,6 +175,6 @@ def build(data):
             structured_content=res)
 
     return Server("open-animal-nutrition", version=result.CODE_RELEASE,
-                  instructions="\n".join(caveat_lines(data.version)),
+                  instructions=instructions(data.version),
                   get_tool_input_schema=schemas.get, on_list_tools=on_list_tools,
                   on_call_tool=on_call_tool)

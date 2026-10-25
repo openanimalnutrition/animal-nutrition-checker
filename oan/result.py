@@ -27,7 +27,7 @@ from . import (bands, caveats, conditions, energy, inputs, interpret, limits, nu
                outcomes, release, table)
 
 SCHEMA = "oan-check-result/2"
-CODE_RELEASE = "0.7.0"
+CODE_RELEASE = "0.8.0"
 SUBJECTS = ("diet", "requirement range")
 REQUEST_FIELDS = ("requirement", "animal", "entries", "subject")
 ENERGY_NAME, ENERGY_UNIT = "Energy", "kcal/day"
@@ -908,6 +908,7 @@ def check(data, request):
     order = [inputs.ENERGY_ENTRY] + limits.nutrient_ids(data.tables)
     nutrients = [_nutrient(data, c, nid, entries) for nid in order if nid in entries]
     _other_rows(data, nutrients)
+    _computed_ratio_status(nutrients, report)
     _missing(report, nutrients)
     _ratios_not_entered(c, entries, report)
     out = _envelope(data, "check_diet")
@@ -929,15 +930,42 @@ def check(data, request):
     return _shown(out)
 
 
+def _computed_ratio_status(nutrients, report):
+    """A ratio computed from its parts (rule 13) says so on its own row's status too."""
+    computed = {r["input"][len("entries."):] for r in report if r["reason"] == "ratio-computed"}
+    for n in nutrients:
+        if n["id"] in computed:
+            for side in ("entry", "low", "high"):
+                if n[side]:
+                    n[side]["status"] += " " + caveats.RATIO_COMPUTED_STATUS
+
+
 def get_limits(data, request):
-    """Every nutrient's limits for a requirement and animal (no entries), in the envelope."""
+    """Every nutrient's limits for a requirement and animal (no entries), in the envelope; with
+    "nutrients" (ids), only those rows, each with its MBW row (a full get_limits is about
+    150 KB; the live-call test of release 0.7.0)."""
     request = dict(request)
     if "entries" in request:
         raise RequestError("get_limits takes no entries; use check_diet")
+    wanted = request.pop("nutrients", None)
     req, facts, _, subject, report = _parse(data, request)
     _guard_energy_fed(data, req, facts, report)
     c = _Check(data, req, facts, {})
     order = [inputs.ENERGY_ENTRY] + limits.nutrient_ids(data.tables)
+    if wanted is not None:
+        if not isinstance(wanted, list) or not wanted or \
+                not all(isinstance(w, str) for w in wanted):
+            raise RequestError("nutrients must be a list of nutrient ids (describe_inputs)")
+        for w in wanted:
+            if w not in order:
+                reason = "unknown nutrient %r" % w
+                report.append({"input": "nutrients." + w, "status": "rejected",
+                               "reason": reason, "text": "Not used: %s." % reason})
+        keep = set(wanted) | {w + "-mbw" for w in wanted}
+        order = [nid for nid in order if nid in keep]
+        if not order:
+            raise RequestError("nutrients: no known nutrient id (describe_inputs lists them)")
+        request["nutrients"] = wanted
     nutrients = [_nutrient(data, c, nid, {}) for nid in order]
     for n in nutrients:
         for side in ("entry", "low", "high", "summary", "other_row"):
@@ -1043,8 +1071,12 @@ def describe_inputs(data):
     for nid in limits.nutrient_ids(data.tables):
         name, unit, basis, ig_code, _ = _row_info(data, nid)
         item = {"id": nid, "name": name, "unit": unit, "basis": basis}
-        if nid.endswith("-mbw"):
-            item["description"] = caveats.MBW_ENTRY_TEXT
+        texts = [caveats.MBW_ENTRY_TEXT] if nid.endswith("-mbw") else []
+        own = caveats.ENTRY_TEXTS.get(nid[:-len("-mbw")] if nid.endswith("-mbw") else nid)
+        if own:
+            texts.append(own)
+        if texts:
+            item["description"] = " ".join(texts)
         if nid in inputs.ENTRY_RANGES:
             item["range"] = list(inputs.ENTRY_RANGES[nid])
         entries.append(item)
@@ -1054,9 +1086,9 @@ def describe_inputs(data):
             "requirement": "a requirement's name or id (list_requirements)",
             "animal": "the animal facts below, by name; only those the requirement reads are "
                       "used",
-            "entries": "{nutrient id: {\"low\": number, \"high\": number}} with at least one, "
-                       "or a bare number: low on a row with a minimum, high on a row without "
-                       "one. " + caveats.ENTRIES_TEXT,
+            "entries": caveats.UNITS_TEXT + " {nutrient id: {\"low\": number, \"high\": "
+                       "number}} with at least one, or a bare number: low on a row with a "
+                       "minimum, high on a row without one. " + caveats.ENTRIES_TEXT,
             "subject": "diet (default) or requirement range: a label only",
         },
         "animal_facts": facts,

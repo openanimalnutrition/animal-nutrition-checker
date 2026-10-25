@@ -85,11 +85,11 @@ def nutrient(res, nid):
     return next(n for n in res["nutrients"] if n["id"] == nid)
 
 
-class Data21OCT26b9(unittest.TestCase):
+class Data21OCT26b10(unittest.TestCase):
     def test_release(self):
         from oan import release
         r = release.read_release(DATA_DIR)
-        self.assertEqual(r["data_version"], "21OCT26b.9")
+        self.assertEqual(r["data_version"], "21OCT26b.10")
         self.assertEqual(r["content_sha256"], release.content_hash(DATA_DIR))
 
     def test_validator_clean(self):
@@ -345,8 +345,9 @@ class Verdicts(unittest.TestCase):
 
     def test_conditional_line(self):
         e = self.entry(run("fediaf-dog-adult-mer95", {"zinc": 500}), "zinc")
-        self.assertEqual(e["status"], "Above a FEDIAF EU legal maximum, which applies only to "
-                         "amounts added as additives: conditional, not excess.")
+        self.assertEqual(e["status"], "Above a FEDIAF EU legal maximum, which applies only when "
+                         "the nutrient is added as an additive, and then to its total in the "
+                         "food: conditional, not excess.")
 
     def test_aafco_open_minimums(self):
         rid = "aafco-dog-growth-reproduction"
@@ -942,7 +943,10 @@ class AIReadRound7(unittest.TestCase):
         res = run("aafco-dog-adult", {"calcium": 1.3, "phosphorus": 1.6}, **dog)
         self.assertEqual(report(res), {("ratio-computed", "entries.ca-p-ratio"): "Computed from "
                          "the calcium and phosphorus entries, as AAFCO Dog Maintenance sets a "
-                         "Ca : P limit: 1.3 ÷ 1.6 = 0.8125."})
+                         "Ca : P limit: 1.3 ÷ 1.6 = 0.8125. If these entries are a label's "
+                         "guaranteed minimums, this is still the ratio to report: the actual "
+                         "amounts may be higher, but that would be an assumption, not a "
+                         "guarantee."})
         ratio = nutrient(res, "ca-p-ratio")
         self.assertEqual((ratio["entry"]["value"], ratio["entry"]["placed"],
                           ratio["entry"]["verdict"]), (0.8125, "low", "deficient"))
@@ -1089,6 +1093,73 @@ def grid_requests():
             yield rid, entries[i]
 
 
+class LiveCallRound1(unittest.TestCase):
+    """The live-call test of release 0.7.0 (steward, 25 Oct 2026): other AI models called the
+    tools for an owner. The texts the steward approved after it, and get_limits' filter."""
+
+    def test_units_first_in_the_entries_field(self):
+        self.assertTrue(result.describe_inputs(D)["request"]["entries"].startswith(
+            caveats.UNITS_TEXT))
+
+    def test_entry_texts(self):
+        items = {i["id"]: i for i in result.describe_inputs(D)["entries"]}
+        for nid in ("epa-dha", "epa", "fiber-total", "vitamin-a"):
+            self.assertEqual(items[nid]["description"], caveats.ENTRY_TEXTS[nid])
+        for nid in ("epa-dha", "vitamin-a"):
+            self.assertEqual(items[nid + "-mbw"]["description"],
+                             caveats.MBW_ENTRY_TEXT + " " + caveats.ENTRY_TEXTS[nid])
+        self.assertNotIn("description", items["protein"])
+
+    def test_computed_ratio_is_a_finding(self):
+        # A label's guaranteed minimums, Ca 0.50% and P 0.62% at 3,850 kcal/kg.
+        res = run("aafco-dog-adult", {"calcium": 1.2987013, "phosphorus": 1.6103896})
+        line = next(i for i in res["input_report"] if i["reason"] == "ratio-computed")
+        self.assertTrue(line["text"].endswith(
+            "If these entries are a label's guaranteed minimums, this is still the ratio to "
+            "report: the actual amounts may be higher, but that would be an assumption, not a "
+            "guarantee."), line["text"])
+        self.assertEqual(self.entry(res, "ca-p-ratio")["verdict"], "deficient")
+        # Round 2: on the ratio's own row too, not when the ratio is entered.
+        self.assertTrue(self.entry(res, "ca-p-ratio")["status"].endswith(
+            " " + caveats.RATIO_COMPUTED_STATUS))
+        res = run("aafco-dog-adult", {"calcium": 1.2987013, "phosphorus": 1.6103896,
+                                      "ca-p-ratio": 0.81})
+        self.assertNotIn(caveats.RATIO_COMPUTED_STATUS, self.entry(res, "ca-p-ratio")["status"])
+        res = run("aafco-dog-adult", {"calcium": {"low": 1.2, "high": 1.6},
+                                      "phosphorus": {"low": 1.1, "high": 1.5}})
+        ratio = nutrient(res, "ca-p-ratio")
+        for side in ("low", "high"):
+            self.assertTrue(ratio[side]["status"].endswith(caveats.RATIO_COMPUTED_STATUS), side)
+
+    def entry(self, res, nid):
+        return nutrient(res, nid)["entry"]
+
+    def test_legal_maximum_says_when_and_total(self):
+        phrase = "only when the nutrient is added as an additive, and then to its total in the food"
+        self.assertIn(phrase, caveats.KINDS["L"])
+        item3 = next(r for r in D.tables["limitations"] if r["item"] == "3")
+        self.assertIn(phrase, item3["text"])
+        n005 = next(n for n in D.tables["notes"] if n["id"] == "n005")
+        self.assertIn("and then to the total amount in the food", n005["text"])
+
+    def test_get_limits_filter(self):
+        base = {"requirement": "nrc-dog-adult", "animal": animal_for("nrc-dog-adult")}
+        res = result.get_limits(D, dict(base, nutrients=["zinc", "energy", "crude-fiber"]))
+        self.assertEqual([n["id"] for n in res["nutrients"]], ["energy", "zinc", "zinc-mbw"])
+        self.assertEqual([i["text"] for i in res["input_report"] if i["status"] == "rejected"],
+                         ["Not used: unknown nutrient 'crude-fiber'."])
+        self.assertEqual(res["inputs"]["submitted"]["nutrients"],
+                         ["zinc", "energy", "crude-fiber"])
+        full = result.get_limits(D, base)
+        zinc = next(n for n in full["nutrients"] if n["id"] == "zinc")
+        self.assertEqual(zinc, res["nutrients"][1])
+        for bad in ([], "zinc", [1], ["crude-fiber"]):
+            with self.assertRaises(result.RequestError, msg=repr(bad)):
+                result.get_limits(D, dict(base, nutrients=bad))
+        with self.assertRaises(result.RequestError):
+            result.check(D, dict(base, entries={"zinc": 1}, nutrients=["zinc"]))
+
+
 class Contract(unittest.TestCase):
     """The plan's contract tests that need no server: the caveats in every result, no excess
     above a non-authoritative maximum, verdict and band agreement, the schema, determinism."""
@@ -1103,7 +1174,11 @@ class Contract(unittest.TestCase):
     def test_every_result_conforms(self):
         others = [result.list_requirements(D), result.describe_inputs(D),
                   result.get_limits(D, {"requirement": "nrc-kitten",
-                                        "animal": animal_for("nrc-kitten")})]
+                                        "animal": animal_for("nrc-kitten")}),
+                  result.get_limits(D, {"requirement": "nrc-kitten",
+                                        "animal": animal_for("nrc-kitten"),
+                                        "nutrients": ["calcium", "x-unknown"]}),
+                  result.get_notes(D, {"ids": ["n231", "n005"]})]
         for res in [r for _, r in self.results] + others:
             self.assertEqual(schema_check.errors(res, SCHEMA), [], res["tool"])
 
