@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Enter values | Open Animal Nutrition checker</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+<p><a class="site-name" href="choose.html">Open Animal Nutrition checker</a></p>
+</header>
+<section class="caveats" aria-labelledby="caveats-title">
+<h2 id="caveats-title">Caveats</h2>
+<ol>
+<li><strong>Reference implementation, not a ratified standard.</strong> This is a non-normative reference implementation of the computation proposed by Open Animal Nutrition (the Dynamic Decile System, based on template Version 21OCT26b with the changes in docs/changes-from-21OCT26b.md; data version 21OCT26b.8). The verdicts deficient and excess are the provisional steward's proposal, pending ratification by a governance body that has not yet been formed.</li>
+<li><strong>Disclosed interest.</strong> The provisional steward sells nutritional supplements and offers diet formulation software that implements this standard (Disclosure of interest: <a href="https://github.com/openanimalnutrition/animal-nutrition-ig/blob/main/GOVERNANCE.md">https://github.com/openanimalnutrition/animal-nutrition-ig/blob/main/GOVERNANCE.md</a>). The computation references no product, ingredient, supplement or vendor.</li>
+<li><strong>Not a safety or compliance assessment, and not veterinary advice.</strong> Each value entered is compared with the selected requirement's ranges only. This does not show that a diet is adequate, safe, complete and balanced, or compliant with any regulation. Nutrients that are not entered are not checked.</li>
+<li><strong>Some results depend on facts this checker does not take as inputs, for example age, breed, or whether a nutrient is added as an additive.</strong> Each nutrient lists these as conditions. Where the Implementation Guide leaves a point open, the verdict is empty and the open point is named.</li>
+</ol>
+</section>
+<main>
+<form method="post" action="result.html">
+<h1>Enter values</h1>
+<dl class="summary">
+<dt>Requirement</dt>
+<dd>AAFCO Cat Maintenance <a class="noprint" href="choose.html" aria-label="Change the requirement">Change</a></dd>
+</dl>
+<input type="hidden" name="requirement" value="aafco-cat-adult">
+<p class="actions"><button type="submit">Check</button></p>
+
+<fieldset>
+<legend>Animal and energy</legend>
+<p class="field">
+<label for="bw">Current body weight (kg)</label>
+<small class="hint" id="bw-hint">The animal's current body weight; for lactating queens, the body weight at mating.</small>
+<small class="hint" id="bw-allowed">Allowed values: 0.05 to 150</small>
+<input id="bw" name="animal.body_weight_kg" type="text" inputmode="decimal" value="6.5" aria-describedby="bw-hint bw-allowed">
+</p>
+<p class="field">
+<label for="obw">Optimal body weight (kg), optional</label>
+<small class="hint" id="obw-hint">Only if you will feed the energy calculated at the optimal weight. The minimums then rise so that the diet still supplies the daily amounts for the current body weight. Adult maintenance only; not used when an intake is entered.</small>
+<small class="hint" id="obw-allowed">Allowed values: 0.05 to 150</small>
+<input id="obw" name="animal.optimal_body_weight_kg" type="text" inputmode="decimal" aria-describedby="obw-hint obw-allowed">
+</p>
+<p class="field">
+<label for="cat-type">[placeholder label: adult cat type]</label>
+<select id="cat-type" name="animal.adult_cat_type">
+<option value=""></option>
+<option value="Not selected or a cat">Not selected or a cat</option>
+<option value="Overweight domestic (130 * BW^0.4)" selected="selected">Overweight domestic (130 * BW^0.4)</option>
+<option value="Lean domestic (100 * kgBW^0.67)">Lean domestic (100 * kgBW^0.67)</option>
+</select>
+</p>
+<p class="field">
+<label for="intake">[placeholder label: energy intake kcal per day]</label>
+<small class="hint" id="intake-allowed">Allowed values: 10 to 30000</small>
+<input id="intake" name="animal.energy_intake_kcal_per_day" type="text" inputmode="decimal" aria-describedby="intake-allowed">
+</p>
+<p class="field">
+<label for="restriction">[placeholder label: caloric restriction percent]</label>
+<small class="hint" id="restriction-allowed">Allowed values: 0, or 1 to 55</small>
+<input id="restriction" name="animal.caloric_restriction_percent" type="text" inputmode="decimal" value="25" aria-describedby="restriction-allowed">
+</p>
+</fieldset>
+
+<h2>Values</h2>
+<p class="field">
+<label for="subject">What is entered</label>
+<select id="subject" name="subject">
+<option value="diet" selected="selected">diet</option>
+<option value="requirement range">requirement range</option>
+</select>
+</p>
+<p class="field">
+<label for="paste">Or paste values instead of typing them.</label>
+<small class="hint" id="paste-hint">One nutrient per line: name, low, high (for example: Calcium, Ca, 1.2, 3). Leave low or high empty if you have only one.</small>
+<textarea id="paste" name="paste" rows="8" aria-describedby="paste-hint">Protein, 120,
+Taurine, Tau (For 12% or Less Moisture Foods), 0.6,
+Phosphorus, P, 5.5,
+Energy Density, 3.6,
+Linoleic acid (LA), 2,
+Calcium, Ca, 1.2, 3
+[placeholder: a line that was not understood]</textarea>
+</p>
+<p class="actions"><button type="submit" class="secondary" formaction="enter.html">Parse the pasted lines</button></p>
+
+<table class="stack">
+<caption>6 rows parsed</caption>
+<thead><tr><th scope="col">Row</th><th scope="col">Low</th><th scope="col">High</th></tr></thead>
+<tbody>
+<tr><th scope="row">Protein</th><td data-label="Low">120</td><td data-label="High"></td></tr>
+<tr><th scope="row">Taurine, Tau (For 12% or Less Moisture Foods)</th><td data-label="Low">0.6</td><td data-label="High"></td></tr>
+<tr><th scope="row">Phosphorus, P</th><td data-label="Low">5.5</td><td data-label="High"></td></tr>
+<tr><th scope="row">Energy Density</th><td data-label="Low">3.6</td><td data-label="High"></td></tr>
+<tr><th scope="row">Linoleic acid (LA)</th><td data-label="Low">2</td><td data-label="High"></td></tr>
+<tr><th scope="row">Calcium, Ca</th><td data-label="Low">1.2</td><td data-label="High">3</td></tr>
+</tbody>
+</table>
+<h3>Not understood</h3>
+<ul>
+<li>[placeholder: a line that was not understood, as pasted]</li>
+</ul>
+
+<p>Every entry is per Mcal (or the unit shown), on the MBW rows too.</p>
+
+<h3 id="g-pa">Protein and amino acids</h3>
+<table class="stack" aria-labelledby="g-pa">
+<thead><tr><th scope="col">Nutrient</th><th scope="col">Unit</th><th scope="col" id="lo-pa">Low (Min entry)</th><th scope="col" id="hi-pa">High (Max entry)</th></tr></thead>
+<tbody>
+<tr><th scope="row" id="r-protein">Protein</th><td class="wide" data-label="Unit" id="u-protein">g/Mcal</td><td data-label="Low (Min entry)"><input type="text" inputmode="decimal" name="low.protein" value="120" aria-labelledby="r-protein lo-pa" aria-describedby="u-protein"></td><td data-label="High (Max entry)"><input type="text" inputmode="decimal" name="high.protein" aria-labelledby="r-protein hi-pa" aria-describedby="u-protein"></td></tr>
+<tr><th scope="row" id="r-arginine">Arginine, Arg</th><td class="wide" data-label="Unit" id="u-arginine">g/Mcal</td><td data-label="Low (Min entry)"><input type="text" inputmode="decimal" name="low.arginine" aria-labelledby="r-arginine lo-pa" aria-describedby="u-arginine"></td><td data-label="High (Max entry)"><input type="text" inputmode="decimal" name="high.arginine" aria-labelledby="r-arginine hi-pa" aria-describedby="u-arginine"></td></tr>
+<tr><th scope="row" id="r-taurine">Taurine, Tau (For 12% or Less Moisture Foods)</th><td class="wide" data-label="Unit" id="u-taurine">g/Mcal</td><td data-label="Low (Min entry)"><input type="text" inputmode="decimal" name="low.taurine" value="0.6" aria-labelledby="r-taurine lo-pa" aria-describedby="u-taurine"></td><td data-label="High (Max entry)"><input type="text" inputmode="decimal" name="high.taurine" aria-labelledby="r-taurine hi-pa" aria-describedby="u-taurine"></td></tr>
+<tr><th scope="row" id="r-taurine-wet">Taurine, Tau (For &gt;12% Moisture Foods)</th><td class="wide" data-label="Unit" id="u-taurine-wet">g/Mcal</td><td data-label="Low (Min entry)"><input type="text" inputmode="decimal" name="low.taurine-wet" aria-labelledby="r-taurine-wet lo-pa" aria-describedby="u-taurine-wet"></td><td data-label="High (Max entry)"><input type="text" inputmode="decimal" name="high.taurine-wet" aria-labelledby="r-taurine-wet hi-pa" aria-describedby="u-taurine-wet"></td></tr>
+</tbody>
+</table>
+<details>
+<summary>MBW rows (1)</summary>
+<table class="stack" aria-label="Protein and amino acids: MBW rows">
+<thead><tr><th scope="col">Nutrient</th><th scope="col">Unit</th><th scope="col" id="lo-pa-mbw">Low (Min entry)</th><th scope="col" id="hi-pa-mbw">High (Max entry)</th></tr></thead>
+<tbody>
+<tr><th scope="row" id="r-protein-mbw">Protein MBW</th><td class="wide" data-label="Unit" id="u-protein-mbw">g/Mcal</td><td data-label="Low (Min entry)"><input type="text" inputmode="decimal" name="low.protein-mbw" aria-labelledby="r-protein-mbw lo-pa-mbw" aria-describedby="u-protein-mbw"></td><td data-label="High (Max entry)"><input type="text" inputmode="decimal" name="high.protein-mbw" aria-labelledby="r-protein-mbw hi-pa-mbw" aria-describedby="u-protein-mbw"></td></tr>
+</tbody>
+</table>
+</details>
+
+<h3 id="g-fa">Fat and fatty acids</h3>
+<table class="stack" aria-labelledby="g-fa">
+<thead><tr><th scope="col">Nutrient</th><th scope="col">Unit</th><th scope="col" id="lo-fa">Low (Min entry)</th><th scope="col" id="hi-fa">High (Max entry)</th></tr></thead>
+<tbody>
+<tr><th scope="row" id="r-fat">Fat, Total Lipid</th><td class="wide" data-label="Unit" id="u-fat">g/Mcal</td><td data-label="Low (Min entry)"><input type="text" inputmode="decimal" name="low.fat" aria-labelledby="r-fat lo-fa" aria-describedby="u-fat"></td><td data-label="High (Max entry)"><input type="text" inputmode="decimal" name="high.fat" aria-labelledby="r-fat hi-fa" aria-describedby="u-fat"></td></tr>
+<tr><th scope="row" id="r-linoleic-acid">Linoleic acid (LA)</th><td class="wide" data-label="Unit" id="u-linoleic-acid">g/Mcal</td><td data-label="Low (Min entry)"><input type="text" inputmode="decimal" name="low.linoleic-acid" value="2" aria-labelledby="r-linoleic-acid lo-fa" aria-describedby="u-linoleic-acid"></td><td data-label="High (Max entry)"><input type="text" inputmode="decimal" name="high.linoleic-acid" aria-labelledby="r-linoleic-acid hi-fa" aria-describedby="u-linoleic-acid"></td></tr>
+<tr><th scope="row" id="r-la-aa-to-ala-epa-dha-ratio">LA + AA : ALA + EPA + DHA</th><td class="wide" data-label="Unit" id="u-la-aa-to-ala-epa-dha-ratio">no units</td><td data-label="Low (Min entry)"><input type="text" inputmode="decimal" name="low.la-aa-to-ala-epa-dha-ratio" aria-labelledby="r-la-aa-to-ala-epa-dha-ratio lo-fa" aria-describedby="u-la-aa-to-ala-epa-dha-ratio"></td><td data-label="High (Max entry)"><input type="text" inputmode="decimal" name="high.la-aa-to-ala-epa-dha-ratio" aria-labelledby="r-la-aa-to-ala-epa-dha-ratio hi-fa" aria-describedby="u-la-aa-to-ala-epa-dha-ratio"></td></tr>
+</tbody>
+</table>
+
+<h3 id="g-mi">Minerals</h3>
+<table class="stack" aria-labelledby="g-mi">
+<thead><tr><th scope="col">Nutrient</th><th scope="col">Unit</th><th scope="col" id="lo-mi">Low (Min entry)</th><th scope="col" id="hi-mi">High (Max entry)</th></tr></thead>
+<tbody>
+<tr><th scope="row" id="r-calcium">Calcium, Ca</th><td class="wide" data-label="Unit" id="u-calcium">g/Mcal</td><td data-label="Low (Min entry)"><input type="text" inputmode="decimal" name="low.calcium" value="1.2" aria-labelledby="r-calcium lo-mi" aria-describedby="u-calcium"></td><td data-label="High (Max entry)"><input type="text" inputmode="decimal" name="high.calcium" value="3" aria-labelledby="r-calcium hi-mi" aria-describedby="u-calcium"></td></tr>
+<tr><th scope="row" id="r-phosphorus">Phosphorus, P</th><td class="wide" data-label="Unit" id="u-phosphorus">g/Mcal</td><td data-label="Low (Min entry)"><input type="text" inputmode="decimal" name="low.phosphorus" value="5.5" aria-labelledby="r-phosphorus lo-mi" aria-describedby="u-phosphorus"></td><td data-label="High (Max entry)"><input type="text" inputmode="decimal" name="high.phosphorus" aria-labelledby="r-phosphorus hi-mi" aria-describedby="u-phosphorus"></td></tr>
+<tr><th scope="row" id="r-ca-p-ratio">Ca : P ratio</th><td class="wide" data-label="Unit" id="u-ca-p-ratio">no units</td><td data-label="Low (Min entry)"><input type="text" inputmode="decimal" name="low.ca-p-ratio" aria-labelledby="r-ca-p-ratio lo-mi" aria-describedby="u-ca-p-ratio"></td><td data-label="High (Max entry)"><input type="text" inputmode="decimal" name="high.ca-p-ratio" aria-labelledby="r-ca-p-ratio hi-mi" aria-describedby="u-ca-p-ratio"></td></tr>
+<tr><th scope="row" id="r-copper">Copper, Cu (For 12% or Less Moisture Foods)</th><td class="wide" data-label="Unit" id="u-copper">mg/Mcal</td><td data-label="Low (Min entry)"><input type="text" inputmode="decimal" name="low.copper" aria-labelledby="r-copper lo-mi" aria-describedby="u-copper"></td><td data-label="High (Max entry)"><input type="text" inputmode="decimal" name="high.copper" aria-labelledby="r-copper hi-mi" aria-describedby="u-copper"></td></tr>
+</tbody>
+</table>
+
+<h3 id="g-vi">Vitamins</h3>
+<table class="stack" aria-labelledby="g-vi">
+<thead><tr><th scope="col">Nutrient</th><th scope="col">Unit</th><th scope="col" id="lo-vi">Low (Min entry)</th><th scope="col" id="hi-vi">High (Max entry)</th></tr></thead>
+<tbody>
+<tr><th scope="row" id="r-retinol">Retinol (for cats)</th><td class="wide" data-label="Unit" id="u-retinol">mcg retinol/Mcal</td><td data-label="Low (Min entry)"><input type="text" inputmode="decimal" name="low.retinol" aria-labelledby="r-retinol lo-vi" aria-describedby="u-retinol"></td><td data-label="High (Max entry)"><input type="text" inputmode="decimal" name="high.retinol" aria-labelledby="r-retinol hi-vi" aria-describedby="u-retinol"></td></tr>
+<tr><th scope="row" id="r-vitamin-d">Vitamin D (dogs: D2 + D3; cats: D3)</th><td class="wide" data-label="Unit" id="u-vitamin-d">IU, Vit D/Mcal</td><td data-label="Low (Min entry)"><input type="text" inputmode="decimal" name="low.vitamin-d" aria-labelledby="r-vitamin-d lo-vi" aria-describedby="u-vitamin-d"></td><td data-label="High (Max entry)"><input type="text" inputmode="decimal" name="high.vitamin-d" aria-labelledby="r-vitamin-d hi-vi" aria-describedby="u-vitamin-d"></td></tr>
+<tr><th scope="row" id="r-choline">Choline, total</th><td class="wide" data-label="Unit" id="u-choline">mg/Mcal</td><td data-label="Low (Min entry)"><input type="text" inputmode="decimal" name="low.choline" aria-labelledby="r-choline lo-vi" aria-describedby="u-choline"></td><td data-label="High (Max entry)"><input type="text" inputmode="decimal" name="high.choline" aria-labelledby="r-choline hi-vi" aria-describedby="u-choline"></td></tr>
+</tbody>
+</table>
+
+<h3 id="g-ot">Other</h3>
+<table class="stack" aria-labelledby="g-ot">
+<thead><tr><th scope="col">Nutrient</th><th scope="col">Unit</th><th scope="col" id="lo-ot">Low (Min entry)</th><th scope="col" id="hi-ot">High (Max entry)</th></tr></thead>
+<tbody>
+<tr><th scope="row" id="r-water">Water</th><td class="wide" data-label="Unit" id="u-water">g/Mcal</td><td data-label="Low (Min entry)"><input type="text" inputmode="decimal" name="low.water" aria-labelledby="r-water lo-ot" aria-describedby="u-water"></td><td data-label="High (Max entry)"><input type="text" inputmode="decimal" name="high.water" aria-labelledby="r-water hi-ot" aria-describedby="u-water"></td></tr>
+<tr><th scope="row" id="r-energy-density">Energy Density</th><td class="wide" data-label="Unit" id="u-energy-density">kcal/g DM</td><td data-label="Low (Min entry)"><input type="text" inputmode="decimal" name="low.energy-density" value="3.6" aria-labelledby="r-energy-density lo-ot" aria-describedby="u-energy-density"></td><td data-label="High (Max entry)"><input type="text" inputmode="decimal" name="high.energy-density" aria-labelledby="r-energy-density hi-ot" aria-describedby="u-energy-density"></td></tr>
+</tbody>
+</table>
+
+<p>[placeholder: remaining rows]</p>
+
+<p class="actions"><button type="submit">Check</button></p>
+</form>
+</main>
+<footer class="site-footer">
+<p>Code 0.6.0, data 21OCT26b.8 (7e5908a71a5c)</p>
+<ul class="inline">
+<li><a href="https://github.com/openanimalnutrition/animal-nutrition-checker">Source and data (GitHub)</a></li>
+<li><a href="about.html#report">Report an error</a></li>
+<li><a href="about.html">About</a></li>
+</ul>
+</footer>
+</body>
+</html>
