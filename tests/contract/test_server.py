@@ -146,7 +146,7 @@ class Server(unittest.TestCase):
                             t.description.index(first_caveat), t.name)
         check = next(t for t in self.mcp["tools"].tools if t.name == "check_diet")
         self.assertTrue(check.description.startswith(caveats.UNITS_TEXT))
-        for text in (caveats.WET_DRY_TEXT, caveats.PASTED_TEXT):
+        for text in (caveats.WET_DRY_TEXT, caveats.PASTED_TEXT, caveats.UNDER_REPORTED_TEXT):
             self.assertIn(text, check.description)
         self.assertTrue(check.input_schema["properties"]["entries"]["description"].startswith(
             caveats.UNITS_TEXT))

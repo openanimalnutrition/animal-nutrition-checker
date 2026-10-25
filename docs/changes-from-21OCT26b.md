@@ -171,6 +171,18 @@ version; every result states both (`code_release`, `data_version`).
     list of nutrient ids (a full result is about 150 KB). The contract tests add clients of
     protocol versions 2024-11-05 and 2025-03-26 and the OAuth discovery paths (a plain 404).
 
+  From a second live-call test, of this release before it was merged, with a new case (a
+  homemade recipe's calculated profile, per Mcal), in which none of the failures above recurred:
+  - The dog vitamin A row says how to convert mcg of retinol or RAE to IU (÷ 0.3, counting it
+    all as retinol) and that RAE including carotenoids makes it approximate: one model left
+    vitamin A out of the recipe's check, the other converted without saying so.
+  - A ratio computed from its parts says, on its own row as well as in the input report, that a
+    ratio from a label's guaranteed minimums is still the ratio to report: one model again
+    called such a Ca : P "deficient" result "not evidence of a deficiency".
+  - check_diet's description asks the model to pass on a source's warning that some values may
+    be under-reported (a calculated profile counting missing composition data as zero); neither
+    model passed on the recipe report's warning.
+
 ## Where the template's own text is kept
 
 - [template-21OCT26b-notes.csv](template-21OCT26b-notes.csv): all 301 template notes word for

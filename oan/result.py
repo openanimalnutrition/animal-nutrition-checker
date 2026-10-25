@@ -908,6 +908,7 @@ def check(data, request):
     order = [inputs.ENERGY_ENTRY] + limits.nutrient_ids(data.tables)
     nutrients = [_nutrient(data, c, nid, entries) for nid in order if nid in entries]
     _other_rows(data, nutrients)
+    _computed_ratio_status(nutrients, report)
     _missing(report, nutrients)
     _ratios_not_entered(c, entries, report)
     out = _envelope(data, "check_diet")
@@ -927,6 +928,16 @@ def check(data, request):
         "notes": _root_notes(data, req),
     })
     return _shown(out)
+
+
+def _computed_ratio_status(nutrients, report):
+    """A ratio computed from its parts (rule 13) says so on its own row's status too."""
+    computed = {r["input"][len("entries."):] for r in report if r["reason"] == "ratio-computed"}
+    for n in nutrients:
+        if n["id"] in computed:
+            for side in ("entry", "low", "high"):
+                if n[side]:
+                    n[side]["status"] += " " + caveats.RATIO_COMPUTED_STATUS
 
 
 def get_limits(data, request):

@@ -1103,10 +1103,11 @@ class LiveCallRound1(unittest.TestCase):
 
     def test_entry_texts(self):
         items = {i["id"]: i for i in result.describe_inputs(D)["entries"]}
-        for nid in ("epa-dha", "epa", "fiber-total"):
+        for nid in ("epa-dha", "epa", "fiber-total", "vitamin-a"):
             self.assertEqual(items[nid]["description"], caveats.ENTRY_TEXTS[nid])
-        self.assertEqual(items["epa-dha-mbw"]["description"],
-                         caveats.MBW_ENTRY_TEXT + " " + caveats.ENTRY_TEXTS["epa-dha"])
+        for nid in ("epa-dha", "vitamin-a"):
+            self.assertEqual(items[nid + "-mbw"]["description"],
+                             caveats.MBW_ENTRY_TEXT + " " + caveats.ENTRY_TEXTS[nid])
         self.assertNotIn("description", items["protein"])
 
     def test_computed_ratio_is_a_finding(self):
@@ -1118,6 +1119,17 @@ class LiveCallRound1(unittest.TestCase):
             "report: the actual amounts may be higher, but that would be an assumption, not a "
             "guarantee."), line["text"])
         self.assertEqual(self.entry(res, "ca-p-ratio")["verdict"], "deficient")
+        # Round 2: on the ratio's own row too, not when the ratio is entered.
+        self.assertTrue(self.entry(res, "ca-p-ratio")["status"].endswith(
+            " " + caveats.RATIO_COMPUTED_STATUS))
+        res = run("aafco-dog-adult", {"calcium": 1.2987013, "phosphorus": 1.6103896,
+                                      "ca-p-ratio": 0.81})
+        self.assertNotIn(caveats.RATIO_COMPUTED_STATUS, self.entry(res, "ca-p-ratio")["status"])
+        res = run("aafco-dog-adult", {"calcium": {"low": 1.2, "high": 1.6},
+                                      "phosphorus": {"low": 1.1, "high": 1.5}})
+        ratio = nutrient(res, "ca-p-ratio")
+        for side in ("low", "high"):
+            self.assertTrue(ratio[side]["status"].endswith(caveats.RATIO_COMPUTED_STATUS), side)
 
     def entry(self, res, nid):
         return nutrient(res, nid)["entry"]

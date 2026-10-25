@@ -100,7 +100,8 @@ def tools(data):
          "requirement range with a requirement, every entry per Mcal, on metabolic body weight "
          "(MBW) rows too (their limits are converted to per Mcal): band, proposed verdict "
          "(deficient, excess or none), conditions and notes per nutrient. " +
-         caveats.WET_DRY_TEXT + " " + caveats.PASTED_TEXT + " " + caveats.ENTRIES_TEXT +
+         caveats.WET_DRY_TEXT + " " + caveats.PASTED_TEXT + " " + caveats.UNDER_REPORTED_TEXT +
+         " " + caveats.ENTRIES_TEXT +
          " The energy entry is " + caveats.ENERGY_ENTRY_TEXT,
          {"requirement": requirement, "animal": animal_schema(data),
           "entries": {"type": "object", "additionalProperties": entry,

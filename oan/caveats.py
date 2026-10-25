@@ -336,7 +336,24 @@ ENTRY_TEXTS = {
     "epa": "EPA alone, for NRC's EPA checks; enter it on the EPA + DHA row as well.",
     "fiber-total": ("Total dietary fibre (TDF). A label's crude fibre is a different, lower "
                     "measure; do not enter it here."),
+    # Steward, 25 Oct 2026, after round 2 of the live-call test (a recipe report in mcg RAE: one
+    # model left vitamin A out, one converted without the caveat).
+    "vitamin-a": ("Vitamin A for dogs, in IU. From mcg of retinol or of RAE (retinol activity "
+                  "equivalents): IU = mcg ÷ 0.3, counting it all as retinol. Where RAE includes "
+                  "provitamin A carotenoids (for example from vegetables), this is approximate; "
+                  "say so."),
 }
+# Steward, 25 Oct 2026, after round 2 of the live-call test: on the computed ratio's own row
+# too, where one model still called a Ca : P from a label's guaranteed minimums "not evidence
+# of a deficiency" (RATIO_COMPUTED's sentence was only in the input report); and in
+# check_diet's description, as neither model passed on a recipe report's warning that values
+# without composition data count as zero.
+RATIO_COMPUTED_STATUS = ("Computed from its parts entered: if they are a label's guaranteed "
+                         "minimums, this is still the ratio to report; the actual amounts may be "
+                         "higher, but that would be an assumption, not a guarantee.")
+UNDER_REPORTED_TEXT = ("If the source warns that some values may be under-reported (for example, "
+                       "a calculated profile that counts missing composition data as zero), "
+                       "pass that warning on with the result.")
 # In every check_diet result, next to the entries (steward, 24 Oct 2026: low and high name the
 # template's two entry columns, a context the result did not carry; then one value is shown as
 # entry, and low and high only for a range).
