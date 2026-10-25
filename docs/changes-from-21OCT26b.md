@@ -3,9 +3,11 @@
 The steward approved this page's wording on 24 Oct 2026; the rules in section 1 are the
 provisional steward's decisions, proposed, pending ratification.
 
-The Dynamic Decile System template (the Google Sheet), Version 21OCT26b, is frozen and is to be
+The Dynamic Decile System template (the Google Sheet), Version 21OCT26b, is frozen and
 retired; this checker is its successor (steward, 21 to 23 Oct 2026) and, from release 0.5.0,
-the reference (declared by the IG on 24 Oct 2026). The parity check
+the reference (declared by the IG on 24 Oct 2026). The template's last version, 21OCT26c (25
+Oct 2026), changes only its status text, to name this checker as the reference; no value or
+formula changed, so this page and the parity check apply to it unchanged. The parity check
 ([parity-21OCT26b.md](parity-21OCT26b.md)) shows that the code reproduces the template's
 computation. This page lists where the checker now differs from the template, and why, so the
 template's notes need not be read beside the checker's. The three differences approved at
