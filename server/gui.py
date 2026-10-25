@@ -117,7 +117,8 @@ def page(data, body, title="Open Animal Nutrition Checker"):
             "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
             "<title>%s</title>%s</head><body><h1>%s</h1>"
             "<section class=\"caveats\"><h2>Caveats</h2><ol>%s</ol></section>%s"
-            "<footer>Code %s, data %s (%s)</footer></body></html>") % (
+            "<footer>Code %s, data %s (%s). <a href=\"/about\">About: hosting, privacy, "
+            "contact</a></footer></body></html>") % (
         e(title), STYLE_LINK, e(title), caveat_items, body, e(result.CODE_RELEASE),
         e(data.version), e(data.sha256[:12]))
 

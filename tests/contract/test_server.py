@@ -6,7 +6,8 @@
 - oversize and malformed requests are rejected, and so are unknown fields, other hosts and
   other origins;
 - an MCP client lists the tools and calls each one;
-- the pages escape what they echo and send the security headers.
+- the pages escape what they echo and send the security headers;
+- the server's log holds no request content and no client address (the About page says so).
 
 Run (in the test image): python -I -B tests/contract/test_server.py
 """
@@ -31,6 +32,8 @@ import mcp_tools  # noqa: E402
 
 PORT = 8791
 BASE = "http://127.0.0.1:%d" % PORT
+# The uvicorn flags of the Dockerfile's CMD that the About page and the headers rely on.
+UVICORN_FLAGS = ["--no-access-log", "--no-server-header"]
 D = result.Data(os.path.join(ROOT, "data"))
 DOG = energy.dog_type_labels(D.tables)[3]
 REQUEST = {"requirement": "nrc-dog-adult",
@@ -55,6 +58,21 @@ def form_of(request):
     return items
 
 
+def start_server(port, **popen):
+    env = dict(os.environ, OAN_ORIGINS="http://127.0.0.1:%d" % port)
+    proc = subprocess.Popen(
+        [sys.executable, "-I", "-B", "-m", "uvicorn", "--app-dir",
+         os.path.join(ROOT, "server"), "app:app", "--host", "127.0.0.1", "--port",
+         str(port)] + UVICORN_FLAGS, env=env, **popen)
+    for _ in range(100):
+        try:
+            socket.create_connection(("127.0.0.1", port), 0.2).close()
+            break
+        except OSError:
+            time.sleep(0.1)
+    return proc
+
+
 def mcp_json_part(text):
     marker = mcp_tools.JSON_MARKER + "\n"
     return text[text.index(marker) + len(marker):]
@@ -66,9 +84,9 @@ def sse_json(text):
         text = [line[5:].strip() for line in text.splitlines() if line.startswith("data:")][-1]
     return json.loads(text)
 
-async def mcp_calls(calls):
+async def mcp_calls(calls, base=BASE):
     out = {}
-    async with Client(BASE + "/mcp") as client:
+    async with Client(base + "/mcp") as client:
         out["tools"] = await client.list_tools()
         out["instructions"] = client.instructions
         for key, name, args in calls:
@@ -79,17 +97,7 @@ async def mcp_calls(calls):
 class Server(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        env = dict(os.environ, OAN_ORIGINS="http://127.0.0.1:%d" % PORT)
-        cls.proc = subprocess.Popen(
-            [sys.executable, "-I", "-B", "-m", "uvicorn", "--app-dir",
-             os.path.join(ROOT, "server"), "app:app", "--host", "127.0.0.1", "--port",
-             str(PORT), "--no-access-log"], env=env)
-        for _ in range(100):
-            try:
-                socket.create_connection(("127.0.0.1", PORT), 0.2).close()
-                break
-            except OSError:
-                time.sleep(0.1)
+        cls.proc = start_server(PORT)
         cls.http = httpx.Client(base_url=BASE, timeout=10)
         cls.mcp = asyncio.run(mcp_calls([
             ("list_requirements", "list_requirements", {}),
@@ -285,11 +293,20 @@ class Server(unittest.TestCase):
         self.assertEqual(r.headers["x-content-type-options"], "nosniff")
         # Under no-referrer, browsers send "Origin: null" with a form and every check fails.
         self.assertEqual(r.headers["referrer-policy"], "same-origin")
+        self.assertEqual(r.headers["strict-transport-security"], "max-age=31536000")
+        self.assertNotIn("server", r.headers)
         r = self.http.post("/check", data=dict(form_of(REQUEST)), headers={"origin": "null"})
         self.assertEqual(r.status_code, 403)
         r = self.http.post("/check", data=dict(form_of(REQUEST)), headers={"origin": BASE})
         self.assertEqual(r.status_code, 200)
         self.assertNotIn("access-control-allow-origin", r.headers)
+
+    def test_about(self):
+        self.assertIn('<a href="/about">', self.http.get("/").text)
+        page = self.http.get("/about").text
+        self.assertLess(page.index("Caveats"), page.index("<h3>Privacy</h3>"))
+        for text in ("<h3>Hosting</h3>", "<h3>Contact</h3>", "mailto:"):
+            self.assertIn(text, page)
 
     def test_steps(self):
         self.assertIn("Choose a requirement", self.http.get("/").text)
@@ -304,6 +321,45 @@ class Server(unittest.TestCase):
         self.assertIn("2 rows parsed", r.text)
         self.assertIn("Not understood (1)", r.text)
         self.assertIn('name="low.calcium" value="1.2"', r.text)
+
+
+
+class Log(unittest.TestCase):
+    """What the server writes while answering requests that carry a marker everywhere."""
+
+    def test_no_request_content_or_address_in_the_log(self):
+        port, mark = PORT + 1, "ZQXMARK"
+        base = "http://127.0.0.1:%d" % port
+        proc = start_server(port, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        try:
+            with httpx.Client(base_url=base, timeout=10,
+                              headers={"user-agent": mark}) as http:
+                http.get("/%s?q=%s" % (mark, mark))
+                http.get("/", params={"requirement": mark})
+                http.get("/", headers={"host": mark + ".example"})
+                http.post("/check", data=dict(form_of(REQUEST), **{"low.calcium": mark}))
+                http.post("/check", data={"requirement": "nrc-dog-adult", mark: "1"})
+                http.post("/check.json", data=dict(form_of(REQUEST)))
+                http.post("/parse", data={"requirement": "nrc-dog-adult",
+                                          "paste": "Calcium %s 1" % mark})
+                http.post("/check", data={"x": "1"}, headers={"origin": "http://" + mark})
+                http.post("/mcp", content=("{" + mark).encode(), headers={
+                    "content-type": "application/json",
+                    "accept": "application/json, text/event-stream"})
+            asyncio.run(mcp_calls([
+                ("ok", "check_diet", REQUEST),
+                ("bad", "check_diet", {"requirement": mark, "entries": {mark: {"low": 1}}}),
+                ("tool", "get_limits", {"requirement": "nrc-kitten", "nutrients": [mark]}),
+            ], base))
+            with socket.create_connection(("127.0.0.1", port)) as raw:
+                raw.sendall(("GARBAGE %s\r\n\r\n" % mark).encode())
+                raw.recv(100)
+        finally:
+            proc.terminate()
+            out, _ = proc.communicate(timeout=10)
+        self.assertIn("Application startup complete", out)
+        self.assertNotIn(mark, out)
+        self.assertNotRegex(out, r"127\.0\.0\.1:\d+ - ")
 
 
 if __name__ == "__main__":

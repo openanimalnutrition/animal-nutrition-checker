@@ -26,11 +26,12 @@ and not veterinary advice; every result says so first.
 - The provisional steward is DVM Consulting, Inc., a California Certified B Corporation. It
   sells nutritional supplements and offers diet formulation software that implements this
   standard ([disclosure of interest](https://github.com/openanimalnutrition/animal-nutrition-ig/blob/main/GOVERNANCE.md)).
-  The computation references no product, ingredient, supplement or vendor.
+  The computation references no product, ingredient, supplement or vendor. Hosting is paid
+  for by DVM Consulting, Inc., the provisional steward (disclosure of interest).
 - The steward keeps working on the checker. Every change goes through a pull request, is
   recorded with its reason in `docs/changes-from-21OCT26b.md`, and gets a new data version
   when the data change (`data/RELEASE`; now 21OCT26b.10) and a new release number when the
-  code's rules change (`oan/result.py`; now 0.9.0). Every result states both
+  code's rules change (`oan/result.py`; now 0.9.1). Every result states both
   (`code_release`, `data_version`).
 
 ## Where the reasoning is
@@ -76,8 +77,8 @@ http://127.0.0.1:8790/mcp.
 Or run the published image instead of building it. Every push to main publishes it, once
 the contract tests pass, as `ghcr.io/openanimalnutrition/animal-nutrition-checker`, with
 the tags `main` (the newest) and `sha-<commit>`, and labels giving the code release and the
-data version (`.github/workflows/image.yml`). The hosted checker is to run this image,
-pinned by its digest.
+data version (`.github/workflows/image.yml`). The hosted checker runs this image, pinned by
+its digest ([`docs/OPERATIONS.md`](docs/OPERATIONS.md)).
 
 ```
 docker run --rm --read-only --tmpfs /tmp --cpus 1 --memory 512m -p 127.0.0.1:8790:8790 ghcr.io/openanimalnutrition/animal-nutrition-checker:main
@@ -365,4 +366,7 @@ takes the same inputs and its "download JSON" gives the same bytes.
 
 To run it, see [Run it](#run-it) above.
 
-Next: hosting at openanimalnutrition.org (phase 6).
+Hosted at https://openanimalnutrition.org/, with the MCP server at
+https://checker.openanimalnutrition.org/mcp (no sign-in). What the hosted checker keeps is
+stated on its About page (`/about`, from `server/pages/about.html`). How it runs, what it costs, how
+to release, roll back or take it offline: [`docs/OPERATIONS.md`](docs/OPERATIONS.md).

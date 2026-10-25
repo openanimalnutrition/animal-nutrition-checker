@@ -206,6 +206,15 @@ version; every result states both (`code_release`, `data_version`).
     within their rounding comes within the entered value's rounding: 0.50 ÷ 0.62 = 0.8065,
     entered with the parts rounded to 1.299 and 1.61, was warned as differing from 0.8068.
 
+- 0.9.1 (25 Oct 2026): data version 21OCT26b.10; the rules and verdicts are unchanged, and
+  results differ only in `code_release`. Hosting hygiene for the live site: a new page, `/about` (from
+  `server/pages/about.html`, linked from every page's footer), says who pays for the
+  hosting, exactly what the checker and its host keep, and whom to contact; a contract test
+  sends requests with a marker in every field, header, path and tool argument, and fails if
+  the marker or a client address appears in the server's log. The server now
+  sends `Strict-Transport-Security` and no longer names its software (`server: uvicorn`).
+  How the hosted checker runs: `docs/OPERATIONS.md`.
+
 ## Where the template's own text is kept
 
 - [template-21OCT26b-notes.csv](template-21OCT26b-notes.csv): all 301 template notes word for
