@@ -185,19 +185,109 @@ VERDICT_TEXT = ("verdict is deficient, excess or null; null is not an approval: 
 # The kind of each range high (max_type_text): KINDS where the status lines use them, and the
 # IG's Maximum types for the others (steward, 24 Oct 2026). {k} is filled in.
 MAX_TYPE_TEXTS = {
+    # The result shows the figure as printed (result._limit); the steward approved this wording
+    # on 25 Oct 2026, after the AI-read test of release 0.6.0 with new cases ("150.000000001"),
+    # reworded the same day ("printed as a lower bound" read as confusing).
+    "SUL>": "an NRC safe upper limit that NRC prints as greater than the figure shown (the limit "
+            "itself is somewhere above it): a value at the figure is not above it",
+    # After the colon: the steward's choline points (approved 25 Oct 2026), as on the computed
+    # choline range high (COMPUTED_MAX_TEXTS), so both rows explain NRC's figure alike.
     "PSM": "NRC's presumed safe maximum for choline, given in NRC's text rather than its tables "
-           "(2006 NRC page 233)",
+           "(2006 NRC page 233): NRC sets no safe upper limit for choline, and this is the "
+           "highest amount known to have been fed safely (2,000 mg per kg of diet as fed, with "
+           "no energy density stated; converted here at 4 kcal/g)",
     "EST": "this checker's own estimate",
     "CALC": "calculated by this checker from other limits",
     "TPL": "set or computed by this checker",
     "K": "no maximum: the range high is the minimum × {k}, a banding choice, not a limit",
 }
+# The two range highs computed from a minimum where it replaces NRC's figure (ENERGY_RULES_TEXT),
+# in place of "set or computed by this checker"; the steward approved this wording on 25 Oct
+# 2026, after the AI-read test of release 0.6.0 with new cases (705 mg/Mcal of choline was not
+# explained on its row). {factor} and {figure} are filled in.
+COMPUTED_MAX_TEXTS = {
+    # The second sentence: the steward's points, approved on 25 Oct 2026 after AI-read rounds 7
+    # to 9 called the conflict unresolved (some choline minimums exceed the highest amount known
+    # to have been fed safely, as fed, with no energy density stated; the data behind the
+    # minimum are stronger than any for a maximum; NRC sets no SUL for choline).
+    "choline": "computed by this checker: {factor} times the higher choline minimum, because "
+               "that is above NRC's presumed safe maximum of {figure} mg/Mcal; a range high, not "
+               "a safe limit. Some choline minimums exceed that figure: NRC sets no safe upper "
+               "limit for choline, and the data behind the choline minimum are stronger than any "
+               "for a maximum, and its presumed safe maximum (2,000 mg per kg of diet as fed, "
+               "with no energy density stated; converted here at 4 kcal/g) is the highest amount "
+               "known to have been fed safely",
+    "calcium-large-breed-puppy": "computed by this checker: {factor} times this row's minimum, "
+                                 "because that minimum is above NRC's calcium safe upper limit "
+                                 "of {figure} g/Mcal; a range high, not a safe limit",
+}
+# A minimum that is this checker's own (verdict_minimum null): what it is, on every result
+# (steward, 25 Oct 2026, after the AI-read test of release 0.6.0 with new cases: a null
+# verdict_minimum was explained only below it). {how} is filled in from OWN_MINIMUM_HOW, then
+# MINIMUM_NOTES when the minimum has notes.
+MINIMUM_TEXT = ("A minimum this checker sets itself, not a standard's ({how}): a value below it "
+                "gets no verdict (Implementation Guide open point 6).")
+OWN_MINIMUM_HOW = {
+    "fixed": "the same figure for every requirement",
+    "default": "a default, as this requirement's standard prints none",
+    "vitamin-d2": "the vitamin D minimum divided by {efficiency}, cats' efficiency with vitamin D2",
+    "ratio": "computed from the limits of the ratio's parts",
+    "template": "this checker's figure for this requirement",
+}
+MINIMUM_NOTES = "; see note {notes}"
+# A ratio row not entered while every part of it is, and not computed (rule 13) (steward, 25
+# Oct 2026, after the AI-read test of release 0.6.0 with new cases: calcium and phosphorus
+# entered, and nothing said why Ca:P was not checked). The steward approved the first wording
+# before rule 13, and the first three as rule 13 words them on 25 Oct 2026 (a numerator of 0
+# gives a ratio of 0, checked), and "below-zero" with its second sentence the same day.
+# {ratio}, {requirement}, {denominator} and {part} are filled in.
+RATIO_NOT_ENTERED = {
+    "not-a-standards-ratio": "Not checked: the {ratio} ratio is not entered. This checker "
+                             "computes a ratio from its parts only where the standard sets "
+                             "one; enter the diet's ratio to check it.",
+    "no-range": "Not checked: the {ratio} ratio is not entered, and {requirement} sets no range "
+                "for it.",
+    "zero-denominator": "Not checked: the {ratio} ratio is not entered and cannot be computed "
+                        "from its parts, as {denominator} is 0.",
+    "below-zero": "Not checked: the {ratio} ratio is not entered and cannot be computed from its "
+                  "parts, as {part} is below 0. A negative amount of {part} is not physically "
+                  "possible and likely represents an entry or input error that should be checked "
+                  "and corrected.",
+}
+RATIO_NAMES = {"ca-p-ratio": "Ca : P", "la-aa-to-ala-epa-dha-ratio": "LA + AA : ALA + EPA + DHA",
+               "la-aa-to-epa-dha-ratio": "LA + AA : EPA + DHA"}
+# Rule 13 (steward, 25 Oct 2026: compute a ratio a standard sets from its parts entered, to
+# prevent misses; the approved example "Computed from the calcium and phosphorus entries: 1.3 ÷
+# 1.6 = 0.8125."; the other texts approved the same day, and "as {requirement} sets a {ratio}
+# limit" after the AI-read retest that guessed ranges caused the computation). {parts},
+# {pairing}, {sums}, {ratio}, {requirement} and {entered} are filled in.
+RATIO_COMPUTED = "Computed from the {parts} entries, as {requirement} sets a {ratio} limit{pairing}: {sums}."
+RATIO_PAIRING = "; the lowest and highest ratios the ranges allow"
+RATIO_DIFFERS = ("The {ratio} ratio entered, {entered}, differs from the {parts} entries: {sums}. "
+                 "The ratio is checked as entered.")
+RATIO_PART_NAMES = {"calcium": "calcium", "phosphorus": "phosphorus", "linoleic-acid": "LA",
+                    "arachidonic-acid": "AA", "alpha-linolenic-acid": "ALA",
+                    "epa-dha": "EPA + DHA"}
 # The energies of the factors block (steward, 24 Oct 2026: "energy used" and "energy fed" were
 # confused in every AI-read test).
 ENERGIES_TEXT = ("requirement: the requirement's energy at the current body weight; used: that, "
                  "or the intake entered (the energy row's minimum uses it); reference: the energy "
                  "the standard's per-Mcal figures assume; fed: what the animal is fed (MBW "
                  "minimums are converted at it).")
+# The body weight and the intake, in every result with a requirement (steward, 25 Oct 2026, after
+# the AI-read retest of release 0.7.0: "entering the dog's optimal body weight ... would lower the
+# daily nutrient requirements"; and intake_shortfall had no text).
+BODY_WEIGHT_TEXT = ("The limits are for the animal's current body weight (body_weight_kg). An "
+                    "optimal body weight, used only under adult maintenance with no intake "
+                    "entered, lowers the energy fed and so raises the minimums; it never lowers "
+                    "them. intake_shortfall only reports how far an intake entered is below the "
+                    "requirement's energy: the checker does not read it as a caloric "
+                    "restriction, weight loss or underfeeding.")
+# An entry below 0 (steward, 25 Oct 2026, with the wording of the ratio below 0). {name} is
+# filled in.
+BELOW_ZERO_ENTRY = ("{name} is entered below 0. A negative amount is not physically possible and "
+                    "likely represents an entry or input error that should be checked and "
+                    "corrected.")
 # The notes block (steward, 24 Oct 2026).
 NOTES_TEXT = ("Note ids name the checker's notes (data/notes.csv); the get_notes tool returns "
               "their text.")
@@ -228,7 +318,8 @@ OUTCOMES_TEXT = ("outcome is the Dynamic Decile System's band and outcome_text i
                  "range-d10, Highest (90% of Range or Greater), includes values above the range "
                  "high: comparison_to_max says whether a value is above it. On a row with no "
                  "maximum the range high is the minimum × K, a banding choice, so a band name "
-                 "places a value within that span, not against a limit.")
+                 "places a value within that span, not against a limit. On a row with no "
+                 "minimum, the bands run from 0 to the range high.")
 # A nutrient checked on both its per-Mcal and MBW rows (steward, 24 Oct 2026; the template's
 # notes: a diet meets both rows only when it meets the more protective one). {basis}, {row} and
 # {verdict} are filled in.
@@ -282,7 +373,9 @@ MBW_ENTRY_TEXT = ("the diet's amount per Mcal, as on the per-Mcal row; the limit
 # ("fed more energy than it needs to keep its weight stable ..."). On 24 Oct 2026 the steward
 # approved "(fat's and the ratios' excepted)" and the named exceptions to "Maximums do not
 # change per Mcal" (choline, the large-breed puppy calcium row, carbohydrate), and, the same day
-# after the AI-read test of release 0.5.0, when each of them applies.
+# after the AI-read test of release 0.5.0, when each of them applies. On 25 Oct 2026, after the
+# AI-read test of release 0.6.0 with new cases, the steward approved the clause on an intake
+# entered and fat's MBW minimum (limits.MBW_NOT_RAISED).
 ENERGY_RULES_TEXT = (
     "How energy sets the limits (the provisional steward's rules, proposed, pending "
     "ratification). The reference energy is the energy the standard's per-Mcal figures assume, "
@@ -290,7 +383,9 @@ ENERGY_RULES_TEXT = (
     "requirement's energy (at the optimal body weight when that is used) less any caloric "
     "restriction. MBW minimums are converted to per Mcal at the energy fed, so the diet still "
     "supplies the daily amount per kg BW^0.75 (dogs) or BW^0.67 (cats), except fat's: fat per "
-    "se is not essential, so neither fat row takes a restriction or an optimal body weight. "
+    "se is not essential, so neither fat row takes a restriction or an optimal body weight; an "
+    "intake entered still sets fat's MBW minimum (with a restriction, the intake divided by one "
+    "minus the restriction). "
     "Under adult maintenance requirements, on a row with no MBW minimum (fat's and the ratios' "
     "excepted), the per-Mcal minimum is multiplied by the energy factor, the reference energy "
     "divided by the energy fed (at least 1, and at least the restriction's factor); in growth, "

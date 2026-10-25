@@ -15,13 +15,19 @@ A request is a JSON object:
   subject      "diet" (the default) or "requirement range": a label only (decision 2)
 A request that is not of this shape raises RequestError. A value outside its input rule is
 rejected in the input report and never computed with.
+
+Numbers are shown as the checker compares them (steward, 25 Oct 2026, after the AI-read test of
+release 0.6.0 with new cases: "150.000000001" and "45.00000000000001" read as bugs): a limit
+at 7 decimal places, as every band test and comparison rounds it (oan/bands.py), which also
+shows a figure printed as "greater than" as printed (table.GREATER_THAN_STEP is far below 7
+places); every other number at 15 significant digits.
 """
 
-from . import (caveats, conditions, energy, inputs, interpret, limits, numbers, outcomes,
-               release, table)
+from . import (bands, caveats, conditions, energy, inputs, interpret, limits, numbers,
+               outcomes, release, table)
 
 SCHEMA = "oan-check-result/2"
-CODE_RELEASE = "0.6.0"
+CODE_RELEASE = "0.7.0"
 SUBJECTS = ("diet", "requirement range")
 REQUEST_FIELDS = ("requirement", "animal", "entries", "subject")
 ENERGY_NAME, ENERGY_UNIT = "Energy", "kcal/day"
@@ -168,6 +174,17 @@ def _accept_entries(data, raw, report):
     return out, bare
 
 
+def _below_zero(data, entries, report):
+    """A warning on each entry below 0, as entered (before a value is copied to a twin row):
+    not physically possible (steward, 25 Oct 2026). Verdicts are unchanged."""
+    for nid in sorted(entries):
+        if any(v < 0 for v in entries[nid].values()):
+            name = _row_info(data, nid)[0].split(" (")[0].split(",")[0].strip()
+            report.append({"input": "entries." + nid, "status": "warning",
+                           "reason": "below-zero",
+                           "text": caveats.fill(caveats.BELOW_ZERO_ENTRY, {"name": name})})
+
+
 class _Check:
     """One request's limits, the energy row's and every nutrient's."""
 
@@ -241,6 +258,96 @@ def _twin_entries(data, check, entries, bare, report):
                            "source": nid, "value": shown, "unit": rows[per_mcal]["unit"]})})
 
 
+def _computed_ratios(check, entries, report):
+    """Rule 13 (steward, 25 Oct 2026): a ratio a standard sets for the requirement, not entered
+    while every part of it is, is computed from the parts and checked as an entry: a part entered
+    as one value counts on both sides, ranges give the lowest and highest ratios they allow (the
+    numerator's low over the denominator's high, and the reverse; steward, 25 Oct 2026, as for
+    the advice checks), and a part not entered is never 0. An entered ratio is checked as
+    entered, with
+    a warning when its parts, all single values, give another ratio at the entered value's
+    decimal places (at least one)."""
+    request = check.request
+    if request.requirement is None:
+        return
+    for nid, (top, bottom) in limits.RATIO_PARTS.items():
+        parts = top + bottom
+        if not all(p in entries for p in parts):
+            continue
+        single = all(len(entries[p]) == 1 for p in parts)
+        values, sums = _ratio_values(entries, top, bottom, single)
+        if values is None:
+            continue  # a part below 0 or a denominator of 0: _ratios_not_entered says so
+        fill = {"parts": _ratio_parts(parts), "sums": " and ".join(sums),
+                "ratio": caveats.RATIO_NAMES[nid], "requirement": request.requirement["name"],
+                "pairing": "" if single else caveats.RATIO_PAIRING}
+        if nid in entries:
+            if single and len(entries[nid]) == 1:
+                entered = next(iter(entries[nid].values()))
+                text = numbers.to_text(entered)
+                places = max(1, len(text.split(".")[1]) if "." in text else 0)
+                if not numbers.close(numbers.sheet_round(values["low"], places), entered):
+                    report.append({"input": "entries." + nid, "status": "warning",
+                                   "reason": "ratio-differs-from-parts",
+                                   "text": caveats.fill(caveats.RATIO_DIFFERS,
+                                                        dict(fill, entered=text))})
+            continue
+        if not any(limits.number(request.std(nid, b)) for b in ("min", "max")):
+            continue  # not a standard's ratio: _ratios_not_entered says so
+        if single:
+            lim, _ = check.limits_of(nid)
+            entries[nid] = {"high" if lim.minimum is None else "low": values["low"]}
+        else:
+            low, high = sorted((values["low"], values["high"]))
+            entries[nid] = {"low": low, "high": high}
+        report.append({"input": "entries." + nid, "status": "defaulted",
+                       "reason": "ratio-computed",
+                       "text": caveats.fill(caveats.RATIO_COMPUTED, fill)})
+
+
+def _ratio_parts_entered(entries, parts, side):
+    return [next(iter(entries[p].values())) if len(entries[p]) == 1 else entries[p][side]
+            for p in parts]
+
+
+def _ratio_problem(entries, top, bottom):
+    """Why a ratio cannot be computed from its parts entered: ("below-zero", the first part
+    below 0), ("zero-denominator", None), or None. A numerator of 0 gives a ratio of 0."""
+    sides = ("low", "high")
+    for p in top + bottom:
+        if any(v < 0 for v in entries[p].values()):
+            return "below-zero", p
+    if any(sum(_ratio_parts_entered(entries, bottom, side)) == 0 for side in sides):
+        return "zero-denominator", None
+    return None
+
+
+def _ratio_values(entries, top, bottom, single):
+    """A ratio from its parts entered, {side: value}, and the sums as text; (None, None) when it
+    cannot be computed (_ratio_problem)."""
+    if _ratio_problem(entries, top, bottom) is not None:
+        return None, None
+    values, sums = {}, []
+    for side in ("low",) if single else ("low", "high"):
+        other = "high" if side == "low" else "low"
+        t, b = _ratio_parts_entered(entries, top, side), _ratio_parts_entered(entries, bottom,
+                                                                              other)
+        values[side] = sum(t) / sum(b)
+        sums.append("%s ÷ %s = %s" % (_ratio_sum(t), _ratio_sum(b),
+                                      numbers.to_display(values[side])))
+    return values, sums
+
+
+def _ratio_sum(values):
+    texts = [numbers.to_text(v) for v in values]
+    return texts[0] if len(texts) == 1 else "(%s)" % " + ".join(texts)
+
+
+def _ratio_parts(parts):
+    names = [caveats.RATIO_PART_NAMES[p] for p in parts]
+    return names[0] if len(names) == 1 else "%s and %s" % (", ".join(names[:-1]), names[-1])
+
+
 def _row_info(data, nid):
     """(name, unit, basis, ig_code, notes) of a nutrient, a template row or the energy row."""
     if nid == inputs.ENERGY_ENTRY:
@@ -264,6 +371,52 @@ def _number_or_none(x):
     return x if limits.number(x) else None
 
 
+def _limit(x):
+    """A limit as the checker compares it: at 7 decimal places (bands.PLACES); None for none
+    or a limit not computed."""
+    return numbers.sheet_round(x, bands.PLACES) if limits.number(x) else None
+
+
+def _shown(value):
+    """The result with every float at 15 significant digits (a limit is already at 7 places)."""
+    if isinstance(value, float):
+        return float("%.15g" % value)
+    if isinstance(value, dict):
+        return {k: _shown(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_shown(v) for v in value]
+    return value
+
+
+def _minimum_text(request, nid):
+    """What a minimum of this checker's own is (caveats.MINIMUM_TEXT), or None."""
+    own = request.own_minimum(nid) if request.requirement is not None else None
+    if own is None:
+        return None
+    kind, notes = own
+    how = caveats.OWN_MINIMUM_HOW[kind]
+    if kind == "vitamin-d2":
+        how = caveats.fill(how, {"efficiency": numbers.to_text(
+            request.figure("vitamin-d2-per-vitamin-d"))})
+    if notes:
+        how += caveats.fill(caveats.MINIMUM_NOTES, {"notes": ", ".join(_dedupe(notes))})
+    return caveats.fill(caveats.MINIMUM_TEXT, {"how": how})
+
+
+def _computed_max_text(request, nid, code):
+    """The two range highs computed from a minimum where it replaces NRC's figure
+    (caveats.COMPUTED_MAX_TEXTS), or None."""
+    if code != limits.COMPUTED or nid not in caveats.COMPUTED_MAX_TEXTS:
+        return None
+    if nid == "choline":
+        factor, figure = limits.CHOLINE_MAX_OVER_MIN, request.std("choline", "max")
+    else:
+        factor = request.figure("large-breed-puppy-calcium-max-over-min")
+        figure = request.figure("large-breed-puppy-calcium-max")
+    return caveats.fill(caveats.COMPUTED_MAX_TEXTS[nid], {
+        "factor": numbers.to_text(factor), "figure": numbers.to_text(_limit(figure))})
+
+
 # Maximum types that are a standard's own figure (not the template's estimate or calculation).
 STANDARD_MAXIMUM_TYPES = {code for code, kind in limits.PROVENANCE.items()
                           if kind in ("authoritative", "conditional")}
@@ -285,7 +438,8 @@ def _requirement_maximum(data, request, nid, lim):
     family = [first] + [m for m, n in nutrients.items() if n["mbw_of"] == first]
     rows = data.tables["limits"][request.requirement["id"]]
     name = nutrients[first]["name"].split(" (For")[0].split(",")[0].strip()
-    if len(name) > 1 and name[1].islower():
+    # In a sentence: "protein", but a chemical symbol stays as it is ("Ca : P ratio").
+    if len(name.split(" ")[0]) > 2 and name[1].islower():
         name = name[0].lower() + name[1:]
     holders = [m for m in family if m in rows and rows[m]["max_type"] in STANDARD_MAXIMUM_TYPES]
     if holders:
@@ -319,10 +473,10 @@ def _mbw(data, request, nid, lim, unit):
     mbw_unit = "%s/%s" % (amount, table.MBW_BASIS[request.requirement["species"]])
     per = {"minimum": None, "maximum": None}
     for bound in bounds:
-        per[bound] = float(numbers.to_text(getattr(lim, bound) / factors[bound]))
+        per[bound] = _limit(getattr(lim, bound) / factors[bound])
     figures = ", ".join("%s %s %s (%s %s)" % (
-        bound, numbers.to_text(per[bound]), mbw_unit, numbers.to_text(getattr(lim, bound)), unit)
-        for bound in bounds)
+        bound, numbers.to_text(per[bound]), mbw_unit, numbers.to_text(_limit(getattr(lim, bound))),
+        unit) for bound in bounds)
     kcal = {b: request.mbw_energy(b, nid).kcal for b in bounds}
     bw = request.facts["body_weight_kg"]
     fill = {"mbw_unit": mbw_unit.split("/", 1)[1], "figures": figures, "unit": unit,
@@ -373,7 +527,7 @@ def _minimum_raise(request, nid, standard_min, unit):
     text = caveats.fill(caveats.MINIMUM_RAISE_TEXT, dict(
         fill, standard=standard, why=caveats.fill(caveats.RAISE_WHY_LONG[r.reason], values),
         supplies=supplies))
-    return {"field": {"standard_minimum_before_raise": r.before, "factor": r.factor,
+    return {"field": {"standard_minimum_before_raise": _limit(r.before), "factor": r.factor,
                       "reason": r.reason, "text": text},
             "fill": dict(fill, why=caveats.fill(caveats.RAISE_WHY[r.reason], values))}
 
@@ -423,14 +577,17 @@ def _nutrient(data, check, nid, entries):
     # 22 Oct 2026). The bands still use the template's 0 (oan/outcomes.py).
     no_limits = lim.minimum is None and lim.maximum is None
     out = {"id": nid, "name": name, "unit": unit, "basis": basis, "ig_code": ig_code,
-           "minimum": _number_or_none(lim.minimum),
-           "verdict_minimum": _number_or_none(standard_min),
+           "minimum": _limit(lim.minimum),
+           "verdict_minimum": _limit(standard_min),
+           "minimum_text": None if nid == inputs.ENERGY_ENTRY else _minimum_text(request, nid),
            "minimum_raise": None if raise_ is None else raise_["field"],
-           "maximum": _number_or_none(lim.maximum),
-           "range_high": None if no_limits else lim.range_high,
+           "maximum": _limit(lim.maximum),
+           "range_high": None if no_limits else _limit(lim.range_high),
            "max_type": None if no_limits else lim.max_code,
            "max_provenance": None if no_limits else provenance,
-           "max_type_text": None if no_limits else _max_type_text(lim.max_code, k, provenance),
+           "max_type_text": None if no_limits else (
+               _computed_max_text(request, nid, lim.max_code) or
+               _max_type_text(lim.max_code, k, provenance)),
            "limits_unavailable": None if unavailable is None else {
                "reason": unavailable.reason, "text": _reason_text(unavailable.reason)},
            "mbw": _mbw(data, request, nid, None if unavailable else lim, unit),
@@ -598,6 +755,8 @@ def _factors(check):
             "status": request.optimal_status,
             "text": caveats.OPTIMAL_WEIGHT_STATUS[request.optimal_status]},
         "energies_text": caveats.ENERGIES_TEXT,
+        "body_weight_text": caveats.BODY_WEIGHT_TEXT if request.requirement is not None
+        else None,
         "energy_rules": caveats.ENERGY_RULES_TEXT,
     }
 
@@ -675,6 +834,32 @@ def _missing(report, nutrients):
                 report.append(item)
 
 
+def _ratios_not_entered(check, entries, report):
+    """A ratio row not entered or computed while every part of it is entered: not checked, and
+    why (caveats.RATIO_NOT_ENTERED): a ratio the standard does not set is not computed (rule
+    13), the requirement sets no range for it, a part entered is below 0, or a denominator
+    entered is 0."""
+    request = check.request
+    if request.requirement is None:
+        return
+    for nid, (top, bottom) in limits.RATIO_PARTS.items():
+        if nid in entries or not all(p in entries for p in top + bottom):
+            continue
+        lim, _ = check.limits_of(nid)
+        fill = {"ratio": caveats.RATIO_NAMES[nid], "requirement": request.requirement["name"],
+                "denominator": " + ".join(caveats.RATIO_PART_NAMES[p] for p in bottom)}
+        if not (limits.number(lim.minimum) or limits.number(lim.maximum)):
+            why = "no-range"
+        elif any(limits.number(request.std(nid, b)) for b in ("min", "max")):
+            why, part = _ratio_problem(entries, top, bottom)
+            fill["part"] = caveats.RATIO_PART_NAMES.get(part, "")
+        else:
+            why = "not-a-standards-ratio"
+        report.append({"input": "entries." + nid, "status": "warning",
+                       "reason": "ratio-not-entered",
+                       "text": caveats.fill(caveats.RATIO_NOT_ENTERED[why], fill)})
+
+
 def _requirement_block(req, requested):
     if req is None:
         return {"requested": requested, "id": None, "name": None, "standard": None,
@@ -705,9 +890,11 @@ def check(data, request):
     req, facts, raw, subject, report = _parse(data, request)
     _guard_energy_fed(data, req, facts, report)
     entries, bare = _accept_entries(data, raw, report)
+    _below_zero(data, entries, report)
     c = _Check(data, req, facts, {})
     _place_bare(c, entries, bare, report)
     _twin_entries(data, c, entries, bare, report)
+    _computed_ratios(c, entries, report)
     if "puppy_body_weight_kg" in facts:
         report.append({"input": "animal.puppy_body_weight_kg", "status": "warning",
                        "reason": "not-used", "text": caveats.PUPPY_BODY_WEIGHT_NOT_USED})
@@ -722,6 +909,7 @@ def check(data, request):
     nutrients = [_nutrient(data, c, nid, entries) for nid in order if nid in entries]
     _other_rows(data, nutrients)
     _missing(report, nutrients)
+    _ratios_not_entered(c, entries, report)
     out = _envelope(data, "check_diet")
     out.update({
         "requirement": _requirement_block(req, request.get("requirement")),
@@ -738,7 +926,7 @@ def check(data, request):
         "limitations": _limitations(data, nutrients),
         "notes": _root_notes(data, req),
     })
-    return out
+    return _shown(out)
 
 
 def get_limits(data, request):
@@ -766,7 +954,7 @@ def get_limits(data, request):
         "limitations": _limitations(data, nutrients),
         "notes": _root_notes(data, req),
     })
-    return out
+    return _shown(out)
 
 
 ALWAYS_READ = ("body_weight_kg", "energy_intake_kcal_per_day", "caloric_restriction_percent")

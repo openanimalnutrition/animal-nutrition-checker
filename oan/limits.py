@@ -122,6 +122,15 @@ MBW_NOT_RAISED = ("fat-mbw",)
 # range is kept above the minimum (steward, 23 Oct 2026; calcium's tight control has data
 # behind it, choline's does not).
 CHOLINE_MAX_OVER_MIN = 1.1
+# Each ratio row and the rows it is a ratio of, (numerator, denominator). Under rule 13 a ratio
+# that a standard sets, not entered while every part is, is computed from the parts (result:
+# ratio-computed); otherwise a ratio is checked only as entered (result: ratio-not-entered).
+RATIO_PARTS = {
+    "ca-p-ratio": (("calcium",), ("phosphorus",)),
+    "la-aa-to-ala-epa-dha-ratio": (("linoleic-acid", "arachidonic-acid"),
+                                   ("alpha-linolenic-acid", "epa-dha")),
+    "la-aa-to-epa-dha-ratio": (("linoleic-acid", "arachidonic-acid"), ("epa-dha",)),
+}
 # Minimums the template computes that never count as a standard's (Request.standard_minimum),
 # and those computed by a standard's own rule that always do.
 TEMPLATE_MINIMUMS = ("vitamin-d2", "vitamin-d2-mbw", "epa")
@@ -480,6 +489,24 @@ class Request:
         if self.data["limits"][self.requirement["id"]][nid]["min_rule"] == "template":
             return None
         return m
+
+    def own_minimum(self, nid):
+        """Why a minimum is this checker's own (a number, with standard_minimum None), as
+        (kind, note ids): kind "fixed", "default", "vitamin-d2", "ratio" or "template"
+        (caveats.OWN_MINIMUM_HOW); None for a standard's minimum or none."""
+        m = self.minimum(nid)
+        if not number(m) or self.standard_minimum(nid) is not None:
+            return None
+        if nid in FIXED_MINIMUMS:
+            return "fixed", self.template[FIXED_MINIMUMS[nid]]["notes"].split()
+        if nid in ("vitamin-d2", "vitamin-d2-mbw"):
+            return "vitamin-d2", self.template["vitamin-d2-per-vitamin-d"]["notes"].split()
+        if nid in DEFAULT_MINIMUMS and self.std(nid, "min") is None:
+            return "default", self.template[DEFAULT_MINIMUMS[nid]]["notes"].split()
+        if nid in RATIO_PARTS and self.std(nid, "min") is None:
+            return "ratio", []
+        row = self.data["limits"][self.requirement["id"]].get(nid, {})
+        return "template", row.get("min_notes", "").split()
 
     def dry_matter_raised(self, nid):
         """Whether the AAFCO dry matter factor raises this row's minimum or maximum: each

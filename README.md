@@ -29,8 +29,8 @@ and not veterinary advice; every result says so first.
   The computation references no product, ingredient, supplement or vendor.
 - The steward keeps working on the checker. Every change goes through a pull request, is
   recorded with its reason in `docs/changes-from-21OCT26b.md`, and gets a new data version
-  when the data change (`data/RELEASE`; now 21OCT26b.8) and a new release number when the
-  code's rules change (`oan/result.py`; now 0.6.0). Every result states both
+  when the data change (`data/RELEASE`; now 21OCT26b.9) and a new release number when the
+  code's rules change (`oan/result.py`; now 0.7.0). Every result states both
   (`code_release`, `data_version`).
 
 ## Where the reasoning is
@@ -212,6 +212,7 @@ Version 21OCT26b. The frozen baseline in `tests/parity/` is never edited.
 | 21OCT26b.6 | `notes.csv`: the notes describe the checker, not the spreadsheet: 224 adapted (cells to field names, cross-references to note ids, the rules of 23 Oct 2026), 3 deleted (n169, n174, n186); each change and its reason in `docs/changes-from-21OCT26b.md` (steward, 23 Oct 2026). No value changed |
 | 21OCT26b.7 | `notes.csv`: ten notes (n181, n182, n183, n192, n214, n223, n224, n226, n227, n238) follow the rules of 24 Oct 2026: a restriction never raises fat, ratios do not change with a restriction or a low energy fed, and the range highs computed from a minimum are named (steward, 24 Oct 2026). No value changed |
 | 21OCT26b.8 | Row names and conditions for AI readers (steward, 24 Oct 2026, after the AI-read test of release 0.5.1): the dry rows of taurine (per Mcal and MBW), copper and selenium are named "(For 12% or Less Moisture Foods)", and the moisture condition says on each row which foods it is for and whether the wet and dry limits differ under the requirement; template instructions left the vitamin D, vitamin D2, arginine and vitamin E names ("Cats: 1.43X if Vit D2" read as "multiply a D2 entry by 1.43"), with two new conditions (cat vitamin D form; arginine without protein); 15 notes follow the new names. Then, after a second AI-read test: the large-breed puppy calcium row's name and notes (n098, n233, n234) and a condition on the general calcium row (rule 11); AAFCO's dry matter maximums in conditions and limitation 8 (rule 12); the ten known limitations cite note ids, not template cells. No requirement figure changed |
+| 21OCT26b.9 | `conditions.csv`: the condition on added selenium (`source-form-selenium`) names the separate limits it means, AAFCO's additive approval limit and FEDIAF's limit on organic selenium (steward, 25 Oct 2026, after the AI-read test of release 0.6.0 with new cases: beside FEDIAF's EU legal maximum, which applies to added selenium, "Limits on added selenium are not checked" read as a contradiction). No requirement figure changed |
 
 The frozen baseline gained the same `energy.csv` once, in phase 2, and the same
 `template.csv` once, in phase 3 (steward, 21 Oct 2026 both times), so the 21OCT26b cases
