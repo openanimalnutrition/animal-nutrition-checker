@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Result lines from other requests (mockup only) | Open Animal Nutrition checker</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+<p><a class="site-name" href="choose.html">Open Animal Nutrition checker</a></p>
+</header>
+<section class="caveats" aria-labelledby="caveats-title">
+<h2 id="caveats-title">Caveats</h2>
+<ol>
+<li><strong>Reference implementation, not a ratified standard.</strong> This is a non-normative reference implementation of the computation proposed by Open Animal Nutrition (the Dynamic Decile System, based on template Version 21OCT26b with the changes in docs/changes-from-21OCT26b.md; data version 21OCT26b.8). The verdicts deficient and excess are the provisional steward's proposal, pending ratification by a governance body that has not yet been formed.</li>
+<li><strong>Disclosed interest.</strong> The provisional steward sells nutritional supplements and offers diet formulation software that implements this standard (Disclosure of interest: <a href="https://github.com/openanimalnutrition/animal-nutrition-ig/blob/main/GOVERNANCE.md">https://github.com/openanimalnutrition/animal-nutrition-ig/blob/main/GOVERNANCE.md</a>). The computation references no product, ingredient, supplement or vendor.</li>
+<li><strong>Not a safety or compliance assessment, and not veterinary advice.</strong> Each value entered is compared with the selected requirement's ranges only. This does not show that a diet is adequate, safe, complete and balanced, or compliant with any regulation. Nutrients that are not entered are not checked.</li>
+<li><strong>Some results depend on facts this checker does not take as inputs, for example age, breed, or whether a nutrient is added as an additive.</strong> Each nutrient lists these as conditions. Where the Implementation Guide leaves a point open, the verdict is empty and the open point is named.</li>
+</ol>
+</section>
+<main>
+<h1>[mockup only] Result: lines from other requests</h1>
+<p>[mockup note: not a route. This page places the result lines that the AAFCO example on result.html does not produce. Each part names the request it comes from; everything not quoted from that request is a placeholder.]</p>
+
+<section aria-labelledby="v-ae">
+<h2 id="v-ae">Animal and energy</h2>
+<p>[mockup note: NRC RA Cat Maintenance, a 4 kg cat, adult cat type not chosen. The Energy row stands where the energy lines would be; the “How energy sets the limits” paragraph follows as on result.html.]</p>
+<dl class="summary">
+<dt>Current body weight (kg)</dt><dd>4</dd>
+<dt>Energy</dt><dd>Choose the type of adult cat.</dd>
+</dl>
+<p>[mockup note: a request with an optimal body weight and an intake both entered. The row follows the animal facts, before the energy lines.]</p>
+<dl class="summary">
+<dt>Optimal body weight</dt><dd>Not used: an intake is entered, and the intake is the energy fed.</dd>
+</dl>
+</section>
+
+<section aria-labelledby="v-ir">
+<h2 id="v-ir">Input report</h2>
+<p>[mockup note: two requests, each with an input outside its allowed values.]</p>
+<dl class="summary">
+<dt>[placeholder label: caloric restriction percent]</dt><dd>Not used: outside 1 to 55 (or 0 for none).</dd>
+<dt>Current body weight (kg)</dt><dd>Not used: outside 0.05 to 150.</dd>
+</dl>
+</section>
+
+<section aria-labelledby="v-results">
+<h2 id="v-results">Results</h2>
+<p><strong>Verdicts: proposed, pending ratification.</strong></p>
+<p>[mockup note: NRC RA Cat Maintenance, a 4 kg lean cat, Protein and Protein MBW both entered as 60. The “Minimum for a verdict” row is shown on Protein only to place it: it appears when the minimum for a verdict differs from the minimum.]</p>
+
+<section class="nutrient">
+<header>
+<h3>Protein <small>(g/Mcal)</small></h3>
+<p>[placeholder: the raise and no-maximum texts, when the request produces them]</p>
+<p>This nutrient is also checked on its per-Mcal row (protein): no verdict. The more protective of the two rows applies.</p>
+</header>
+<dl class="summary">
+<dt>Minimum</dt><dd>[placeholder]</dd>
+<dt>Minimum for a verdict</dt><dd>[placeholder]</dd>
+<dt>Range high</dt><dd>[placeholder]</dd>
+<dt>Value</dt><dd>60</dd>
+<dt class="sub">Band</dt><dd>[placeholder]</dd>
+<dt class="sub">Verdict</dt><dd>[placeholder]</dd>
+<dt class="sub">Status</dt><dd>[placeholder]</dd>
+<dt>Conditions ([placeholder])</dt><dd>[placeholder]</dd>
+</dl>
+<details>
+<summary>Notes ([placeholder])</summary>
+<dl>
+<dt>[placeholder: note id] ([placeholder: origin])</dt><dd>[placeholder note text]</dd>
+</dl>
+</details>
+</section>
+
+<section class="nutrient">
+<header>
+<h3>Protein MBW <small>(g/Mcal)</small></h3>
+<p>This row's requirement is per kg BW^0.67 a day: minimum 4.96 g/kg BW^0.67 (49.6 g/Mcal), converted to g/Mcal at the energy fed (253 kcal/day) and a current body weight of 4 kg. Enter the diet's g/Mcal.</p>
+<p>This nutrient is also checked on its per-Mcal row (protein): no verdict. The more protective of the two rows applies.</p>
+</header>
+<dl class="summary">
+<dt>Minimum</dt><dd>[placeholder]</dd>
+<dt>Range high</dt><dd>[placeholder]</dd>
+<dt>Value</dt><dd>60</dd>
+<dt class="sub">Band</dt><dd>[placeholder]</dd>
+<dt class="sub">Verdict</dt><dd>[placeholder]</dd>
+<dt class="sub">Status</dt><dd>[placeholder]</dd>
+<dt>Conditions ([placeholder])</dt><dd>[placeholder]</dd>
+</dl>
+<details>
+<summary>Notes ([placeholder])</summary>
+<dl>
+<dt>[placeholder: note id] ([placeholder: origin])</dt><dd>[placeholder note text]</dd>
+</dl>
+</details>
+</section>
+
+<p>[mockup note: the same request without the adult cat type. Any row whose limits cannot be computed; Protein shown.]</p>
+<section class="nutrient">
+<header>
+<h3>Protein <small>(g/Mcal)</small></h3>
+<p>[placeholder: texts under the name, if any]</p>
+</header>
+<dl class="summary">
+<dt>Minimum</dt><dd>Choose the type of adult cat.</dd>
+<dt>Range high</dt><dd>[placeholder]</dd>
+<dt>Value</dt><dd>60</dd>
+<dt class="sub">Band</dt><dd>[placeholder]</dd>
+<dt class="sub">Verdict</dt><dd>[placeholder]</dd>
+<dt class="sub">Status</dt><dd>Not computed: Choose the type of adult cat.</dd>
+<dt>Conditions ([placeholder])</dt><dd>[placeholder]</dd>
+</dl>
+<details>
+<summary>Notes ([placeholder])</summary>
+<dl>
+<dt>[placeholder: note id] ([placeholder: origin])</dt><dd>[placeholder note text]</dd>
+</dl>
+</details>
+</section>
+</section>
+
+<section aria-labelledby="v-fa">
+<h2 id="v-fa">NRC fatty acid checks</h2>
+<p>[mockup note: an NRC dog request. The section is left out when there are no checks. The third item only places a caveat; its check text and status are placeholders.]</p>
+<ul>
+<li><p>LA:ALA is outside NRC's advised ratio of 2.6:1 to 26:1.</p><p>Status: advice check, not a verdict (Implementation Guide open point 16)</p></li>
+<li><p>EPA is outside 50% to 60% of EPA + DHA, NRC's advised share.</p><p>Status: advice check, not a verdict (Implementation Guide open point 16)</p></li>
+<li><p>[placeholder: check text]</p><p>Status: [placeholder]</p><p>Caveat: DHA not compared: this requirement's data has no EPA + DHA minimum.</p></li>
+</ul>
+</section>
+</main>
+<footer class="site-footer">
+<p>Code 0.6.0, data 21OCT26b.8 (7e5908a71a5c)</p>
+<ul class="inline">
+<li><a href="https://github.com/openanimalnutrition/animal-nutrition-checker">Source and data (GitHub)</a></li>
+<li><a href="about.html#report">Report an error</a></li>
+<li><a href="about.html">About</a></li>
+</ul>
+</footer>
+</body>
+</html>

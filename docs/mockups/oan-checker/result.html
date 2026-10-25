@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AAFCO Cat Maintenance result | Open Animal Nutrition checker</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+<p><a class="site-name" href="choose.html">Open Animal Nutrition checker</a></p>
+</header>
+<section class="caveats" aria-labelledby="caveats-title">
+<h2 id="caveats-title">Caveats</h2>
+<ol>
+<li><strong>Reference implementation, not a ratified standard.</strong> This is a non-normative reference implementation of the computation proposed by Open Animal Nutrition (the Dynamic Decile System, based on template Version 21OCT26b with the changes in docs/changes-from-21OCT26b.md; data version 21OCT26b.8). The verdicts deficient and excess are the provisional steward's proposal, pending ratification by a governance body that has not yet been formed.</li>
+<li><strong>Disclosed interest.</strong> The provisional steward sells nutritional supplements and offers diet formulation software that implements this standard (Disclosure of interest: <a href="https://github.com/openanimalnutrition/animal-nutrition-ig/blob/main/GOVERNANCE.md">https://github.com/openanimalnutrition/animal-nutrition-ig/blob/main/GOVERNANCE.md</a>). The computation references no product, ingredient, supplement or vendor.</li>
+<li><strong>Not a safety or compliance assessment, and not veterinary advice.</strong> Each value entered is compared with the selected requirement's ranges only. This does not show that a diet is adequate, safe, complete and balanced, or compliant with any regulation. Nutrients that are not entered are not checked.</li>
+<li><strong>Some results depend on facts this checker does not take as inputs, for example age, breed, or whether a nutrient is added as an additive.</strong> Each nutrient lists these as conditions. Where the Implementation Guide leaves a point open, the verdict is empty and the open point is named.</li>
+</ol>
+</section>
+<main>
+<h1>AAFCO Cat Maintenance</h1>
+<p>Subject: diet. Verdicts: proposed, pending ratification.</p>
+<form id="inputs" class="actions" method="post" action="enter.html">
+<input type="hidden" name="requirement" value="aafco-cat-adult">
+<input type="hidden" name="subject" value="diet">
+<input type="hidden" name="animal.body_weight_kg" value="6.5">
+<input type="hidden" name="animal.adult_cat_type" value="Overweight domestic (130 * BW^0.4)">
+<input type="hidden" name="animal.caloric_restriction_percent" value="25">
+<input type="hidden" name="low.protein" value="120">
+<input type="hidden" name="low.taurine" value="0.6">
+<input type="hidden" name="low.linoleic-acid" value="2">
+<input type="hidden" name="low.calcium" value="1.2">
+<input type="hidden" name="high.calcium" value="3">
+<input type="hidden" name="low.phosphorus" value="5.5">
+<input type="hidden" name="low.energy-density" value="3.6">
+<button type="submit" class="secondary" formaction="check.json">Download JSON</button>
+<button type="submit" class="secondary">Change the inputs</button>
+</form>
+
+<section aria-labelledby="ae-title">
+<header class="split">
+<h2 id="ae-title">Animal and energy</h2>
+<button type="submit" form="inputs" class="link noprint" aria-label="Change the animal and energy inputs">Change</button>
+</header>
+<dl class="summary">
+<dt>Current body weight (kg)</dt><dd>6.5</dd>
+<dt>[placeholder label: adult cat type]</dt><dd>Overweight domestic (130 * BW^0.4)</dd>
+<dt>[placeholder label: caloric restriction percent]</dt><dd>25</dd>
+<dt>Reference energy, kcal/day</dt><dd>350.5</dd>
+<dt>Reference energy is</dt><dd>NRC's lean adult cat energy, 100 kcal x kg BW^0.67 at the current body weight. AAFCO states no energy basis; using NRC's is the provisional steward's proposal, pending ratification. The adult cat type chosen sets only the energy fed. For an overweight cat, this is the energy a lean cat of the same weight would need, so the daily nutrient amounts stay those for the current body weight (the provisional steward's rule); an optimal body weight, if entered, changes only the energy fed.</dd>
+<dt>Energy fed, kcal/day</dt><dd>206.1</dd>
+<dt>Energy fed is</dt><dd>the requirement's energy less the restriction</dd>
+<dt>Energy factor (rows with no MBW minimum)</dt><dd>1.7</dd>
+<dt>Energy used, kcal/day</dt><dd>274.9</dd>
+<dt>Energy used is</dt><dd>the requirement's energy</dd>
+<dt>The requirement's energy, kcal/day</dt><dd>274.9</dd>
+<dt>Caloric restriction, %</dt><dd>25</dd>
+<dt>AAFCO dry matter factor</dt><dd>1.111</dd>
+</dl>
+<p><strong>How energy sets the limits (the provisional steward's rules, proposed, pending ratification).</strong> The reference energy is the energy the standard's per-Mcal figures assume, at the current body weight. The energy fed is the intake entered, or else the requirement's energy (at the optimal body weight when that is used) less any caloric restriction. MBW minimums are converted to per Mcal at the energy fed, so the diet still supplies the daily amount per kg BW^0.75 (dogs) or BW^0.67 (cats), except fat's: fat per se is not essential, so neither fat row takes a restriction or an optimal body weight. Under adult maintenance requirements, on a row with no MBW minimum (fat's and the ratios' excepted), the per-Mcal minimum is multiplied by the energy factor, the reference energy divided by the energy fed (at least 1, and at least the restriction's factor); in growth, gestation and lactation, where the animal is fed more energy than it needs to keep its weight stable and the extra goes to growth, a pregnancy or milk, nutrient needs rise and fall with the energy fed: per-Mcal minimums hold at any intake and only a restriction raises them. Maximums do not change per Mcal, except three range highs this checker computes from a minimum, which follow it: the NRC dog choline maximum, only when 1.1 times the higher choline minimum (per Mcal or MBW) is above NRC's 500 mg/Mcal; the range high of NRC's large-breed puppy calcium row, only when that row's minimum is above NRC's 4.5 g/Mcal; and the carbohydrate maximum, where the standard sets none. MBW maximums are converted at the reference energy, and a ratio's computed range uses the minimums before any restriction or energy factor.</p>
+</section>
+
+<section aria-labelledby="ir-title">
+<h2 id="ir-title">Input report</h2>
+<p>[placeholder: wording when every input was used]</p>
+</section>
+
+<section aria-labelledby="results-title">
+<h2 id="results-title">Results</h2>
+<p><strong>Verdicts: proposed, pending ratification.</strong></p>
+
+<section class="nutrient" id="n-protein" aria-labelledby="h-protein">
+<header>
+<h3 id="h-protein">Protein <small>(g/Mcal)</small></h3>
+<p>AAFCO's minimum at this food's energy density is 72.22 g/Mcal. This checker raises it × 1.7 to 122.8 g/Mcal because the energy fed (206 kcal/day) is below the reference energy (350 kcal/day), so that the diet still supplies the daily amount that AAFCO's figure gives at the reference energy. This is the provisional steward's proposed rule, pending ratification: it adds to the standard and does not change it. The bands and any verdict use the raised minimum.</p>
+<p>AAFCO Cat Maintenance sets no protein maximum, per Mcal; limits from other standards or life stages do not apply to this check.</p>
+</header>
+<dl class="summary">
+<dt>Minimum</dt><dd>122.8</dd>
+<dt>Range high</dt><dd>491.1 (no maximum: the range high is the minimum × 4, a banding choice, not a limit)</dd>
+<dt>Value</dt><dd>120</dd>
+<dt class="sub">Band</dt><dd>Slightly Restricted (75 to &lt;100% of Min)</dd>
+<dt class="sub">Verdict</dt><dd><strong class="verdict deficient">DEFICIENT</strong></dd>
+<dt class="sub">Status</dt><dd>Below 122.8 g/Mcal: the AAFCO minimum at this food's energy density, 72.22 g/Mcal, raised × 1.7 because the energy fed is below the reference energy (the provisional steward's proposed rule, which adds to the standard and does not change it). Deficient (proposed, pending ratification). The value is not below the AAFCO minimum before the raise (72.22 g/Mcal); only the raise makes it deficient.</dd>
+<dt>Conditions (2)</dt>
+<dd><ul>
+<li>AAFCO compares this food on dry matter: its minimums and maximums here are AAFCO's dry-matter values per Mcal of this food. (<a href="#limitation-8">limitation 8</a>)</li>
+<li>The range high is the minimum × 4, this template's banding choice, not a safe limit. (<a href="#limitation-10">limitation 10</a>)</li>
+</ul></dd>
+</dl>
+<details>
+<summary>Notes (3)</summary>
+<dl>
+<dt><strong>n196</strong> (Adapted from DDS template Version 21OCT26b, Standards tab B12 (docs/changes-from-21OCT26b.md))</dt>
+<dd>FEDIAF Sept. 2025 values apply to foods made from ingredients with normal digestibility (at least 70% dry matter and 80% protein digestibility) and average bioavailability (page 10), and FEDIAF's protein levels take into account an apparent crude protein digestibility of 80% (pages 22 and 27). If a protein digestibility of at least 80% cannot be guaranteed, FEDIAF recommends increasing the essential amino acid levels by a minimum of 10% (page 13); this checker makes no such increase, so in that case compare the amino acid rows with their FEDIAF mins times 1.1. If formulating below FEDIAF's recommended minimum for total protein (adult dogs), FEDIAF states that it is particularly important to ensure that the amino acid profile meets its guidelines for adult maintenance (page 22). For bitches, FEDIAF's reproduction protein recommendation assumes the diet contains some carbohydrate, to decrease the risk of hypoglycemia in the bitch and neonatal mortality; if carbohydrate is absent or at a very low level, the protein requirement is much higher and may be double (page 22). No adjustment is made here for this (see note n288 on the carbohydrate default).</dd>
+<dt><strong>n299</strong> (Adapted from DDS template Version 21OCT26b, Standards tab C130 (docs/changes-from-21OCT26b.md))</dt>
+<dd>Set at 3.5 kcal/g dry matter (DM) based on the lowest historical threshold in some regulatory guidelines (pre-2016 AAFCO Official Publications (dog profiles)) to switch to using requirements on a dry matter basis instead of an energy basis when a food's energy density is below this value. It is this checker's own minimum, not an energy density requirement of the 2006 NRC, 2026 AAFCO, or FEDIAF Sept. 2025, and neither is this row's fixed 6 kcal/g DM range high (see note n301). The 2026 AAFCO dog and cat profiles presume 4000 kcal ME/kg DM (4 kcal/g DM) and state that "formulations less than 4000 kcal ME/kg should not be corrected for energy" (Footnote a on pages 164 and 175; page 183 states the same rule), so AAFCO compares such foods, whatever their moisture, with its dry matter values without energy correction. This checker compares every food per Mcal, which matches the 2006 NRC (page 355) and FEDIAF Sept. 2025 (page 13), as both correct for any energy density. To apply AAFCO's rule under an AAFCO requirement, when the energy density entered (this row's low entry) is above 0 and below 4 kcal/g DM, each min that a caloric restriction raises, and the fat min, is multiplied by 4 divided by that energy density (the AAFCO dry matter factor; see note n180), together with any caloric restriction factor. This equals AAFCO's dry matter comparison to within the rounding between its dry matter and per 1,000 kcal tables: e.g., at 3.6 kcal/g DM the 65 g/Mcal adult cat protein min becomes 72.2 g/Mcal, which is 26% protein in DM. The exception is 7 values that AAFCO prints differently in its two tables (for cats, valine for growth and reproduction, and linoleic acid; for dogs, EPA + DHA, sodium, chloride and selenium for growth and reproduction, and selenium for adult maintenance): for these the factored min corresponds to a dry matter value other than the one AAFCO prints, so a food can meet it here and not AAFCO's dry matter value, or the reverse (see notes n060, n080, n081, n089, n090, n111, n112, n122, n123, n131, n135, n132, n136, n133 and n137). The maximums stay per Mcal, this checker's cautious choice, as an animal eating a less energy-dense food to its energy needs takes in the per Mcal amount; so such a food at an AAFCO dry matter maximum can read above the per Mcal maximum here. Nothing is adjusted when no energy density is entered or it is 4 or more, or under an NRC or FEDIAF requirement. AAFCO adds that formulations of low energy density should not be considered adequate for reproductive needs (dogs) or for growth or reproductive needs (cats) based on comparison to the profiles alone (Footnote a on pages 164 and 175). For reference, the 2026 AAFCO (page 167) states that before the 2016 revisions to its profiles the presumed caloric density for dog foods was 3500 kcal ME/kg DM for nutrient concentrations per kg DM.</dd>
+<dt><strong>n171</strong> (Adapted from DDS template Version 21OCT26b, Standards tab K1 (docs/changes-from-21OCT26b.md))</dt>
+<dd>Each row has a multiplier that derives the range high from the min when there is no SUL or max: 4, unless the row's notes give another factor. A range high derived this way (the min times the multiplier) is this checker's banding device, not a max or a safe upper limit (code K in note n027; the Open Animal Nutrition FHIR IG calls it derived-provisional and never calls a value above it excess). That a standard sets no max does not mean that higher intakes are safe: the 2026 AAFCO (page 163) states that the absence of a maximum concentration should not be interpreted to mean that nutrients without a specific maximum content are safe at any concentration, as it reflects the lack of information in dogs and cats on toxic concentrations of that nutrient, and the 2006 NRC (page 354) states that SUL values are not available for many required nutrients, especially minerals and vitamins. For potassium, the 2026 AAFCO (page 170) did not establish a maximum for dogs because potential toxicosis of potassium was not a practical concern. A value above such a range high falls in the top band (range-d10), as does a value from 90% of the range up to it; neither description shows the value to be safe or excessive.</dd>
+</dl>
+</details>
+</section>
+
+<section class="nutrient" id="n-taurine" aria-labelledby="h-taurine">
+<header>
+<h3 id="h-taurine">Taurine, Tau (For 12% or Less Moisture Foods) <small>(g/Mcal)</small></h3>
+<p>AAFCO's minimum at this food's energy density is 0.2778 g/Mcal. This checker raises it × 1.7 to 0.4723 g/Mcal because the energy fed (206 kcal/day) is below the reference energy (350 kcal/day), so that the diet still supplies the daily amount that AAFCO's figure gives at the reference energy. This is the provisional steward's proposed rule, pending ratification: it adds to the standard and does not change it. The bands and any verdict use the raised minimum.</p>
+<p>AAFCO Cat Maintenance sets no taurine maximum, per Mcal; limits from other standards or life stages do not apply to this check.</p>
+</header>
+<dl class="summary">
+<dt>Minimum</dt><dd>0.4723</dd>
+<dt>Range high</dt><dd>1.889 (no maximum: the range high is the minimum × 4, a banding choice, not a limit)</dd>
+<dt>Value</dt><dd>0.6</dd>
+<dt class="sub">Band</dt><dd>Lowest/Just Above Min (Min to &lt;10% of Range)</dd>
+<dt class="sub">Verdict</dt><dd>none</dd>
+<dt class="sub">Status</dt><dd>Within the range.</dd>
+<dt>Conditions (3)</dt>
+<dd><ul>
+<li>This row is for foods with 12% moisture or less (FEDIAF uses 14%). For a wetter food, use the row for more than 12% moisture, whose minimum differs. (<a href="#limitation-7">limitation 7</a>)</li>
+<li>AAFCO compares this food on dry matter: its minimums and maximums here are AAFCO's dry-matter values per Mcal of this food. (<a href="#limitation-8">limitation 8</a>)</li>
+<li>The range high is the minimum × 4, this template's banding choice, not a safe limit. (<a href="#limitation-10">limitation 10</a>)</li>
+</ul></dd>
+</dl>
+<details>
+<summary>Notes (5)</summary>
+<dl>
+<dt>[placeholder: note id] ([placeholder: origin])</dt><dd>[placeholder note text]</dd>
+<dt>[placeholder: note id] ([placeholder: origin])</dt><dd>[placeholder note text]</dd>
+<dt>[placeholder: note id] ([placeholder: origin])</dt><dd>[placeholder note text]</dd>
+<dt>[placeholder: note id] ([placeholder: origin])</dt><dd>[placeholder note text]</dd>
+<dt>[placeholder: note id] ([placeholder: origin])</dt><dd>[placeholder note text]</dd>
+</dl>
+</details>
+</section>
+
+<section class="nutrient" id="n-linoleic-acid" aria-labelledby="h-linoleic-acid">
+<header>
+<h3 id="h-linoleic-acid">Linoleic acid (LA) <small>(g/Mcal)</small></h3>
+<p>AAFCO's minimum at this food's energy density is 1.556 g/Mcal. This checker raises it × 1.7 to 2.645 g/Mcal because the energy fed (206 kcal/day) is below the reference energy (350 kcal/day), so that the diet still supplies the daily amount that AAFCO's figure gives at the reference energy. This is the provisional steward's proposed rule, pending ratification: it adds to the standard and does not change it. The bands and any verdict use the raised minimum.</p>
+<p>AAFCO Cat Maintenance sets no linoleic acid (LA) maximum, per Mcal; limits from other standards or life stages do not apply to this check.</p>
+</header>
+<dl class="summary">
+<dt>Minimum</dt><dd>2.645</dd>
+<dt>Range high</dt><dd>10.58 (no maximum: the range high is the minimum × 4, a banding choice, not a limit)</dd>
+<dt>Value</dt><dd>2</dd>
+<dt class="sub">Band</dt><dd>Slightly Restricted (75 to &lt;100% of Min)</dd>
+<dt class="sub">Verdict</dt><dd>none</dd>
+<dt class="sub">Status</dt><dd>Below 2.645 g/Mcal: the AAFCO minimum as raised for this food's energy density, 1.556 g/Mcal, which for this nutrient is not AAFCO's printed dry matter value, raised × 1.7 because the energy fed is below the reference energy (the provisional steward's proposed rule, which adds to the standard and does not change it). No verdict (Implementation Guide open point 6). The value is not below the AAFCO minimum before the raise (1.556 g/Mcal).</dd>
+<dt>Conditions (2)</dt>
+<dd><ul>
+<li>AAFCO compares this food on dry matter: its minimums and maximums here are AAFCO's dry-matter values per Mcal of this food. (<a href="#limitation-8">limitation 8</a>)</li>
+<li>The range high is the minimum × 4, this template's banding choice, not a safe limit. (<a href="#limitation-10">limitation 10</a>)</li>
+</ul></dd>
+</dl>
+<details>
+<summary>Notes (3)</summary>
+<dl>
+<dt>[placeholder: note id] ([placeholder: origin])</dt><dd>[placeholder note text]</dd>
+<dt>[placeholder: note id] ([placeholder: origin])</dt><dd>[placeholder note text]</dd>
+<dt>[placeholder: note id] ([placeholder: origin])</dt><dd>[placeholder note text]</dd>
+</dl>
+</details>
+</section>
+
+<section class="nutrient" id="n-calcium" aria-labelledby="h-calcium">
+<header>
+<h3 id="h-calcium">Calcium, Ca <small>(g/Mcal)</small></h3>
+<p>AAFCO's minimum at this food's energy density is 1.667 g/Mcal. This checker raises it × 1.7 to 2.834 g/Mcal because the energy fed (206 kcal/day) is below the reference energy (350 kcal/day), so that the diet still supplies the daily amount that AAFCO's figure gives at the reference energy. This is the provisional steward's proposed rule, pending ratification: it adds to the standard and does not change it. The bands and any verdict use the raised minimum.</p>
+<p>AAFCO Cat Maintenance sets no calcium maximum, per Mcal; limits from other standards or life stages do not apply to this check.</p>
+</header>
+<dl class="summary">
+<dt>Minimum</dt><dd>2.834</dd>
+<dt>Range high</dt><dd>11.33 (no maximum: the range high is the minimum × 4, a banding choice, not a limit)</dd>
+<dt>Low</dt><dd>1.2</dd>
+<dt class="sub">Band</dt><dd>Severely Restricted (25 to &lt;50% of Min)</dd>
+<dt class="sub">Verdict</dt><dd><strong class="verdict deficient">DEFICIENT</strong></dd>
+<dt class="sub">Status</dt><dd>Below 2.834 g/Mcal: the AAFCO minimum at this food's energy density, 1.667 g/Mcal, raised × 1.7 because the energy fed is below the reference energy (the provisional steward's proposed rule, which adds to the standard and does not change it). Deficient (proposed, pending ratification). The value is also below the AAFCO minimum before the raise (1.667 g/Mcal).</dd>
+<dt>High</dt><dd>3</dd>
+<dt class="sub">Band</dt><dd>Lowest/Just Above Min (Min to &lt;10% of Range)</dd>
+<dt class="sub">Verdict</dt><dd>none</dd>
+<dt class="sub">Status</dt><dd>Within the range.</dd>
+<dt>Conditions (2)</dt>
+<dd><ul>
+<li>AAFCO compares this food on dry matter: its minimums and maximums here are AAFCO's dry-matter values per Mcal of this food. (<a href="#limitation-8">limitation 8</a>)</li>
+<li>The range high is the minimum × 4, this template's banding choice, not a safe limit. (<a href="#limitation-10">limitation 10</a>)</li>
+</ul></dd>
+</dl>
+<details>
+<summary>Notes (3)</summary>
+<dl>
+<dt>[placeholder: note id] ([placeholder: origin])</dt><dd>[placeholder note text]</dd>
+<dt>[placeholder: note id] ([placeholder: origin])</dt><dd>[placeholder note text]</dd>
+<dt>[placeholder: note id] ([placeholder: origin])</dt><dd>[placeholder note text]</dd>
+</dl>
+</details>
+</section>
+
+<section class="nutrient" id="n-phosphorus" aria-labelledby="h-phosphorus">
+<header>
+<h3 id="h-phosphorus">Phosphorus, P <small>(g/Mcal)</small></h3>
+<p>AAFCO's minimum at this food's energy density is 1.389 g/Mcal. This checker raises it × 1.7 to 2.361 g/Mcal because the energy fed (206 kcal/day) is below the reference energy (350 kcal/day), so that the diet still supplies the daily amount that AAFCO's figure gives at the reference energy. This is the provisional steward's proposed rule, pending ratification: it adds to the standard and does not change it. The bands and any verdict use the raised minimum.</p>
+</header>
+<dl class="summary">
+<dt>Minimum</dt><dd>2.361</dd>
+<dt>Range high</dt><dd>5.556 (an AAFCO maximum)</dd>
+<dt>Value</dt><dd>5.5</dd>
+<dt class="sub">Band</dt><dd>Highest (90% of Range or Greater)</dd>
+<dt class="sub">Verdict</dt><dd>none</dd>
+<dt class="sub">Status</dt><dd>Within the range.</dd>
+<dt>Conditions (2)</dt>
+<dd><ul>
+<li>AAFCO's limit on phosphorus from soluble sources is not checked. (<a href="#limitation-4">limitation 4</a>)</li>
+<li>AAFCO compares this food on dry matter: its minimums and maximums here are AAFCO's dry-matter values per Mcal of this food. (<a href="#limitation-8">limitation 8</a>)</li>
+</ul></dd>
+</dl>
+<details>
+<summary>Notes (3)</summary>
+<dl>
+<dt>[placeholder: note id] ([placeholder: origin])</dt><dd>[placeholder note text]</dd>
+<dt>[placeholder: note id] ([placeholder: origin])</dt><dd>[placeholder note text]</dd>
+<dt>[placeholder: note id] ([placeholder: origin])</dt><dd>[placeholder note text]</dd>
+</dl>
+</details>
+</section>
+
+<p>[placeholder: the result block for Energy Density, the sixth row entered]</p>
+</section>
+
+<h2>Known limitations</h2>
+<ul class="plain">
+<li id="limitation-4">4. Sources: iron added as oxide or carbonate and copper added as oxide should not be counted toward the mins (notes n246 and n248); limits on added selenium and on phosphorus from soluble sources (cats) are not checked (notes n255 and n235).</li>
+<li id="limitation-7">7. Moisture: foods with more than 12% moisture count as wet, a lower cut than FEDIAF's 14% (note n209); FEDIAF's wet-diet selenium values per kg BW^0.75 (dogs) or BW^0.67 (cats) are not used (note n257).</li>
+<li id="limitation-8">8. Energy density: under an AAFCO requirement, a food below 4 kcal/g DM is compared with AAFCO's dry matter minimums and maximums only when its energy density is entered; without it, AAFCO's per Mcal values are used (note n299).</li>
+<li id="limitation-10">10. This checker's own choices where the standards give no value: range highs derived from the min (notes n171 and n241), the carbohydrate default min (note n288), the energy density range (note n299), the energy estimates for the AAFCO requirements (note n029) and the folate DFE conversion (note n278).</li>
+</ul>
+</main>
+<footer class="site-footer">
+<p>Code 0.6.0, data 21OCT26b.8 (7e5908a71a5c)</p>
+<ul class="inline">
+<li><a href="https://github.com/openanimalnutrition/animal-nutrition-checker">Source and data (GitHub)</a></li>
+<li><a href="about.html#report">Report an error</a></li>
+<li><a href="about.html">About</a></li>
+</ul>
+</footer>
+</body>
+</html>

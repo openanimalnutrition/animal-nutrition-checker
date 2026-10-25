@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Choose a requirement | Open Animal Nutrition checker</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+<p><a class="site-name" href="choose.html">Open Animal Nutrition checker</a></p>
+</header>
+<section class="caveats" aria-labelledby="caveats-title">
+<h2 id="caveats-title">Caveats</h2>
+<ol>
+<li><strong>Reference implementation, not a ratified standard.</strong> This is a non-normative reference implementation of the computation proposed by Open Animal Nutrition (the Dynamic Decile System, based on template Version 21OCT26b with the changes in docs/changes-from-21OCT26b.md; data version 21OCT26b.8). The verdicts deficient and excess are the provisional steward's proposal, pending ratification by a governance body that has not yet been formed.</li>
+<li><strong>Disclosed interest.</strong> The provisional steward sells nutritional supplements and offers diet formulation software that implements this standard (Disclosure of interest: <a href="https://github.com/openanimalnutrition/animal-nutrition-ig/blob/main/GOVERNANCE.md">https://github.com/openanimalnutrition/animal-nutrition-ig/blob/main/GOVERNANCE.md</a>). The computation references no product, ingredient, supplement or vendor.</li>
+<li><strong>Not a safety or compliance assessment, and not veterinary advice.</strong> Each value entered is compared with the selected requirement's ranges only. This does not show that a diet is adequate, safe, complete and balanced, or compliant with any regulation. Nutrients that are not entered are not checked.</li>
+<li><strong>Some results depend on facts this checker does not take as inputs, for example age, breed, or whether a nutrient is added as an additive.</strong> Each nutrient lists these as conditions. Where the Implementation Guide leaves a point open, the verdict is empty and the open point is named.</li>
+</ol>
+</section>
+<main>
+<form method="get" action="enter.html">
+<h1><label for="requirement">Choose a requirement</label></h1>
+<p class="field">
+<small class="hint" id="requirement-hint">[placeholder: hint, for example “One of 21 published nutrient requirements (NRC 2006, AAFCO 2026, FEDIAF 2025).”]</small>
+<select id="requirement" name="requirement" aria-describedby="requirement-hint">
+<option value="">Choose a requirement</option>
+<optgroup label="Dogs: NRC">
+<option value="nrc-dog-adult">NRC RA Dog Maintenance</option>
+<option value="nrc-puppy-4-14-wk">NRC RA Puppy 4-14 Wk Growth</option>
+<option value="nrc-puppy-14-wk-plus">NRC RA Puppy 14 Wk+ Growth</option>
+<option value="nrc-dog-gestation-lactation">NRC RA Dog Late Gestation &amp; Peak Lactation</option>
+</optgroup>
+<optgroup label="Dogs: AAFCO">
+<option value="aafco-dog-adult">AAFCO Dog Maintenance</option>
+<option value="aafco-dog-growth-reproduction">AAFCO Dog Growth (Small &amp; Medium) and Reproduction</option>
+<option value="aafco-dog-growth-large-breed">AAFCO Large Breed Dog Growth</option>
+</optgroup>
+<optgroup label="Dogs: FEDIAF">
+<option value="fediaf-dog-adult-mer95">FEDIAF Dog (MER 95 kcal/kg^0.75)</option>
+<option value="fediaf-dog-adult-mer110">FEDIAF Dog (MER 110 kcal/kg^0.75)</option>
+<option value="fediaf-dog-early-growth-reproduction">FEDIAF Dog Early Growth (&lt; 14 wk) &amp; Reproduction</option>
+<option value="fediaf-dog-late-growth">FEDIAF Dog Late Growth (&gt;/= 14 wk)</option>
+</optgroup>
+<optgroup label="Cats: NRC">
+<option value="nrc-cat-adult">NRC RA Cat Maintenance</option>
+<option value="nrc-kitten">NRC RA Kitten Growth</option>
+<option value="nrc-cat-late-gestation">NRC RA Cat Late Gestation</option>
+<option value="nrc-cat-peak-lactation">NRC RA Cat Peak Lactation</option>
+</optgroup>
+<optgroup label="Cats: AAFCO">
+<option value="aafco-cat-adult">AAFCO Cat Maintenance</option>
+<option value="aafco-cat-growth-reproduction">AAFCO Cat Growth and Reproduction</option>
+</optgroup>
+<optgroup label="Cats: FEDIAF">
+<option value="fediaf-cat-adult-mer75">FEDIAF Cat (MER 75 kcal/kg^0.67)</option>
+<option value="fediaf-cat-adult-mer100">FEDIAF Cat (MER 100 kcal/kg^0.67)</option>
+<option value="fediaf-cat-growth">FEDIAF Cat Growth</option>
+<option value="fediaf-cat-reproduction">FEDIAF Cat Reproduction</option>
+</optgroup>
+</select>
+</p>
+<p class="actions"><button type="submit">Next</button></p>
+</form>
+</main>
+<footer class="site-footer">
+<p>Code 0.6.0, data 21OCT26b.8 (7e5908a71a5c)</p>
+<ul class="inline">
+<li><a href="https://github.com/openanimalnutrition/animal-nutrition-checker">Source and data (GitHub)</a></li>
+<li><a href="about.html#report">Report an error</a></li>
+<li><a href="about.html">About</a></li>
+</ul>
+</footer>
+</body>
+</html>
