@@ -23,11 +23,13 @@ shows a figure printed as "greater than" as printed (table.GREATER_THAN_STEP is 
 places); every other number at 15 significant digits.
 """
 
+from decimal import Decimal
+
 from . import (bands, caveats, conditions, energy, inputs, interpret, limits, numbers,
                outcomes, release, table)
 
 SCHEMA = "oan-check-result/2"
-CODE_RELEASE = "0.8.0"
+CODE_RELEASE = "0.9.0"
 SUBJECTS = ("diet", "requirement range")
 REQUEST_FIELDS = ("requirement", "animal", "entries", "subject")
 ENERGY_NAME, ENERGY_UNIT = "Energy", "kcal/day"
@@ -63,9 +65,12 @@ class Data:
 
 
 def to_json(result):
-    """The one byte form of a result, for the GUI's download and the MCP's text block."""
+    """The one byte form of a result, for the GUI's download and the MCP's text block: compact,
+    with no indentation (steward, 25 Oct 2026, after the real-client test of release 0.8.0: a
+    321 KB result, a quarter of it indentation, went to a file the model read with its own code,
+    not to the model)."""
     import json
-    return json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False) + "\n"
+    return json.dumps(result, ensure_ascii=False, separators=(",", ":"), allow_nan=False) + "\n"
 
 
 def _envelope(data, tool):
@@ -258,15 +263,47 @@ def _twin_entries(data, check, entries, bare, report):
                            "source": nid, "value": shown, "unit": rows[per_mcal]["unit"]})})
 
 
+def _mbw_rows_not_shown(data, check, entries, report):
+    """An MBW row the requirement sets no limits on, entered with the same value as its per-Mcal
+    row (entered, or checked with it), is not shown as a row: one input-report line names them
+    all (steward, 25 Oct 2026, after the real-client test of release 0.8.0, where 38 such rows,
+    each "No range", took a result to 321 KB). Its heading-rule line goes with it."""
+    if check.request.requirement is None:
+        return
+    folded = []
+    for n in data.tables["nutrients"]:
+        nid, twin = n["id"], n["mbw_of"]
+        if n["basis"] != "per-mbw" or not twin or nid not in entries or twin not in entries:
+            continue
+        lim, _ = check.limits_of(nid)
+        if lim.minimum is not None or lim.maximum is not None:
+            continue
+        if sorted(entries[nid].values()) != sorted(entries[twin].values()):
+            continue
+        del entries[nid]
+        folded.append(nid)
+    if not folded:
+        return
+    gone = {"entries." + nid for nid in folded}
+    report[:] = [r for r in report
+                 if not (r["input"] in gone and r["reason"] in ("placed-low", "placed-high"))]
+    report.append({"input": "entries", "status": "defaulted", "reason": "mbw-rows-not-shown",
+                   "text": caveats.fill(caveats.MBW_ROWS_NOT_SHOWN, {
+                       "requirement": check.request.requirement["name"],
+                       "ids": ", ".join(folded)})})
+
+
 def _computed_ratios(check, entries, report):
     """Rule 13 (steward, 25 Oct 2026): a ratio a standard sets for the requirement, not entered
     while every part of it is, is computed from the parts and checked as an entry: a part entered
     as one value counts on both sides, ranges give the lowest and highest ratios they allow (the
     numerator's low over the denominator's high, and the reverse; steward, 25 Oct 2026, as for
     the advice checks), and a part not entered is never 0. An entered ratio is checked as
-    entered, with
-    a warning when its parts, all single values, give another ratio at the entered value's
-    decimal places (at least one)."""
+    entered, with a warning when its parts, all single values, cannot give it: when no ratio the
+    parts allow within their rounding comes within the entered value's rounding (each to its
+    decimal places, at least one; steward, 25 Oct 2026, after the real-client test of release
+    0.8.0, where 0.50 ÷ 0.62 = 0.8065 entered with parts rounded to 1.299 and 1.61 was warned
+    as differing from 0.8068)."""
     request = check.request
     if request.requirement is None:
         return
@@ -285,8 +322,7 @@ def _computed_ratios(check, entries, report):
             if single and len(entries[nid]) == 1:
                 entered = next(iter(entries[nid].values()))
                 text = numbers.to_text(entered)
-                places = max(1, len(text.split(".")[1]) if "." in text else 0)
-                if not numbers.close(numbers.sheet_round(values["low"], places), entered):
+                if not _ratio_within_rounding(entries, top, bottom, entered):
                     report.append({"input": "entries." + nid, "status": "warning",
                                    "reason": "ratio-differs-from-parts",
                                    "text": caveats.fill(caveats.RATIO_DIFFERS,
@@ -303,6 +339,25 @@ def _computed_ratios(check, entries, report):
         report.append({"input": "entries." + nid, "status": "defaulted",
                        "reason": "ratio-computed",
                        "text": caveats.fill(caveats.RATIO_COMPUTED, fill)})
+
+
+def _rounding_span(value):
+    """(low, high) a value as entered stands for, to its last decimal place (at least one), in
+    decimal arithmetic: an entry of 1.61 stands for 1.605 to 1.615, and 2 for 1.95 to 2.05."""
+    d = Decimal(numbers.to_text(value))
+    half = Decimal("0.5").scaleb(-max(1, -d.as_tuple().exponent))
+    return d - half, d + half
+
+
+def _ratio_within_rounding(entries, top, bottom, entered):
+    """Whether an entered ratio and the ratios its parts (single values) allow within their
+    rounding overlap, each value to its decimal places (_rounding_span)."""
+    def span(parts):
+        spans = [_rounding_span(next(iter(entries[p].values()))) for p in parts]
+        return sum(s[0] for s in spans), sum(s[1] for s in spans)
+    (t_low, t_high), (b_low, b_high) = span(top), span(bottom)
+    e_low, e_high = _rounding_span(entered)
+    return e_high >= t_low / b_high and (b_low <= 0 or e_low <= t_high / b_low)
 
 
 def _ratio_parts_entered(entries, parts, side):
@@ -894,6 +949,7 @@ def check(data, request):
     c = _Check(data, req, facts, {})
     _place_bare(c, entries, bare, report)
     _twin_entries(data, c, entries, bare, report)
+    _mbw_rows_not_shown(data, c, entries, report)
     _computed_ratios(c, entries, report)
     if "puppy_body_weight_kg" in facts:
         report.append({"input": "animal.puppy_body_weight_kg", "status": "warning",

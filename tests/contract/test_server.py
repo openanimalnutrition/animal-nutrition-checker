@@ -146,7 +146,8 @@ class Server(unittest.TestCase):
                             t.description.index(first_caveat), t.name)
         check = next(t for t in self.mcp["tools"].tools if t.name == "check_diet")
         self.assertTrue(check.description.startswith(caveats.UNITS_TEXT))
-        for text in (caveats.WET_DRY_TEXT, caveats.PASTED_TEXT, caveats.UNDER_REPORTED_TEXT):
+        for text in (caveats.WET_DRY_TEXT, caveats.PASTED_TEXT, caveats.UNDER_REPORTED_TEXT,
+                     caveats.GUARANTEED_MINIMUM_TEXT):
             self.assertIn(text, check.description)
         self.assertTrue(check.input_schema["properties"]["entries"]["description"].startswith(
             caveats.UNITS_TEXT))
@@ -190,6 +191,7 @@ class Server(unittest.TestCase):
         r = self.mcp["missing"]
         self.assertTrue(r.is_error)
         self.assertIn("animal.body_weight_kg", r.content[0].text)
+        self.assertTrue(r.content[0].text.endswith(". " + caveats.MISSING_INPUTS_ASK))
         self.assertFalse(self.mcp["check_diet"].is_error)
 
     # The GUI's JSON and the MCP's check_diet: the same bytes.

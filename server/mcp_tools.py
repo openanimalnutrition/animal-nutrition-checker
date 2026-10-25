@@ -101,7 +101,7 @@ def tools(data):
          "(MBW) rows too (their limits are converted to per Mcal): band, proposed verdict "
          "(deficient, excess or none), conditions and notes per nutrient. " +
          caveats.WET_DRY_TEXT + " " + caveats.PASTED_TEXT + " " + caveats.UNDER_REPORTED_TEXT +
-         " " + caveats.ENTRIES_TEXT +
+         " " + caveats.GUARANTEED_MINIMUM_TEXT + " " + caveats.ENTRIES_TEXT +
          " The energy entry is " + caveats.ENERGY_ENTRY_TEXT,
          {"requirement": requirement, "animal": animal_schema(data),
           "entries": {"type": "object", "additionalProperties": entry,
@@ -143,7 +143,8 @@ def run_tool(data, name, arguments):
         missing = [i for i in res["input_report"] if i["status"] == "missing"]
         if missing:
             raise ValueError("Missing inputs, needed for the nutrients entered: " + "; ".join(
-                "%s (%s)" % (i["input"], i["text"]) for i in missing))
+                "%s (%s)" % (i["input"], i["text"]) for i in missing) + ". " +
+                caveats.MISSING_INPUTS_ASK)
         return res
     raise ValueError("unknown tool %r" % name)
 

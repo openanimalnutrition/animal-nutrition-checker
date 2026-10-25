@@ -30,7 +30,7 @@ and not veterinary advice; every result says so first.
 - The steward keeps working on the checker. Every change goes through a pull request, is
   recorded with its reason in `docs/changes-from-21OCT26b.md`, and gets a new data version
   when the data change (`data/RELEASE`; now 21OCT26b.10) and a new release number when the
-  code's rules change (`oan/result.py`; now 0.8.0). Every result states both
+  code's rules change (`oan/result.py`; now 0.9.0). Every result states both
   (`code_release`, `data_version`).
 
 ## Where the reasoning is
