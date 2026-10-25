@@ -24,8 +24,8 @@ sys.path.insert(0, ROOT)
 sys.path.insert(0, HERE)
 import real_sheets_check  # noqa: E402
 import schema_check  # noqa: E402
-from oan import (bands, caveats, energy, interpret, limits, outcomes, result,  # noqa: E402
-                 table, validate)
+from oan import (bands, caveats, energy, interpret, limits, numbers, outcomes,  # noqa: E402
+                 result, table, validate)
 
 DATA_DIR = os.path.join(ROOT, "data")
 D = result.Data(DATA_DIR)
@@ -85,11 +85,11 @@ def nutrient(res, nid):
     return next(n for n in res["nutrients"] if n["id"] == nid)
 
 
-class Data21OCT26b8(unittest.TestCase):
+class Data21OCT26b9(unittest.TestCase):
     def test_release(self):
         from oan import release
         r = release.read_release(DATA_DIR)
-        self.assertEqual(r["data_version"], "21OCT26b.8")
+        self.assertEqual(r["data_version"], "21OCT26b.9")
         self.assertEqual(r["content_sha256"], release.content_hash(DATA_DIR))
 
     def test_validator_clean(self):
@@ -573,13 +573,14 @@ class MBWRows(unittest.TestCase):
         self.assertEqual((ca["mbw"]["minimum_energy_kcal_per_day"],
                           ca["mbw"]["maximum_energy_kcal_per_day"], ca["mbw"]["body_weight_kg"]),
                          (950.0, None, 35.0))
-        self.assertIn("0.13 g/kg BW^0.75 (1.96911363883933 g/Mcal)", ca["mbw"]["text"])
+        self.assertIn("0.13 g/kg BW^0.75 (1.9691136 g/Mcal)", ca["mbw"]["text"])
         fat = nutrient(res, "fat-mbw")
         self.assertEqual((fat["mbw"]["minimum"], fat["mbw"]["maximum"]), (1.8, 10.8))
         # The minimum at the intake (the energy fed), the maximum at NRC's reference energy,
         # 130 kcal x kg BW^0.75 (steward, 23 Oct 2026).
         self.assertEqual((fat["mbw"]["minimum_energy_kcal_per_day"],
-                          fat["mbw"]["maximum_energy_kcal_per_day"]), (950.0, 130 * 35 ** 0.75))
+                          fat["mbw"]["maximum_energy_kcal_per_day"]),
+                         (950.0, float("%.15g" % (130 * 35 ** 0.75))))
         self.assertIn("the minimum at the energy fed (950 kcal/day)", fat["mbw"]["text"])
         self.assertIsNone(nutrient(run("nrc-dog-adult", {"calcium": 1}), "calcium")["mbw"])
 
@@ -707,11 +708,12 @@ class TextChecks(unittest.TestCase):
             self.assertEqual(res["inputs"]["normalized"]["entries"]["epa"], {"high": 0.02})
             c = next(c for c in res["checks"] if c["id"] == cid)
             self.assertEqual(c["entry"]["result"], expected, rid)
-        # A range still pairs low with low and high with high.
+        # Ranges give the lowest and highest shares they allow (release 0.7.0): 0.055 / 0.2 =
+        # 27.5% and 0.06 / 0.1 = 60% (paired low with low, 55% and 30%).
         res = run("nrc-dog-adult", {"epa-dha": {"low": 0.1, "high": 0.2},
                                     "epa": {"low": 0.055, "high": 0.06}})
         c = next(c for c in res["checks"] if c["id"] == "epa-share-range")
-        self.assertEqual((c["low"]["result"], c["high"]["result"]), ("ok", "outside"))
+        self.assertEqual((c["low"]["result"], c["high"]["result"]), ("outside", "ok"))
 
     def test_dha_not_compared_caveat(self):
         data = copy.deepcopy(D.tables)
@@ -852,6 +854,219 @@ class AIReadRound4(unittest.TestCase):
         self.assertTrue(ids["moisture-same-wet"].startswith(
             "This row is for foods with more than 12% moisture; under this requirement its "
             "dry-food row has the same limits, so either gives the same result. Some standards"))
+
+
+class AIReadRound7(unittest.TestCase):
+    """The fixes after the AI-read test of release 0.6.0 with five new cases (steward, 25 Oct
+    2026): numbers shown as compared, a minimum of this checker's own named, the two computed
+    range highs explained, a ratio not entered, added selenium, fat's MBW minimum."""
+
+    def test_numbers_as_compared(self):
+        res = run("nrc-cat-adult", {"zinc": {"low": 150, "high": 150.0000001}, "thiamine": 1.4},
+                  body_weight_kg=4.5)
+        zinc = nutrient(res, "zinc")
+        self.assertEqual((zinc["maximum"], zinc["range_high"]), (150.0, 150.0))
+        self.assertEqual(zinc["max_type_text"], caveats.MAX_TYPE_TEXTS["SUL>"])
+        self.assertEqual(zinc["low"]["comparison_to_max"], interpret.NOT_ABOVE_MAX)
+        self.assertEqual(zinc["high"]["comparison_to_max"], interpret.ABOVE_MAX)
+        self.assertEqual(nutrient(res, "thiamine-mbw")["minimum"], 1.4)
+        self.assertEqual(nutrient(res, "thiamine-mbw")["entry"]["verdict"], None)
+        # Every limit at 7 decimal places, every other number at 15 significant digits.
+        for rid in sorted(REQS):
+            out = result.get_limits(D, {"requirement": rid, "animal": animal_for(rid)})
+            for n in out["nutrients"]:
+                for key in ("minimum", "verdict_minimum", "maximum", "range_high"):
+                    if n[key] is not None:
+                        self.assertEqual(n[key], numbers.sheet_round(n[key], bands.PLACES),
+                                         (rid, n["id"], key))
+            stack = [out]
+            while stack:
+                x = stack.pop()
+                if isinstance(x, dict):
+                    stack.extend(x.values())
+                elif isinstance(x, list):
+                    stack.extend(x)
+                elif isinstance(x, float):
+                    self.assertEqual(x, float("%.15g" % x), rid)
+
+    def test_minimum_text(self):
+        dog = run("nrc-dog-adult", {"epa-dha": 0.3, "protein": 55},
+                  energy_intake_kcal_per_day=900.0, body_weight_kg=30.0)
+        mbw = nutrient(dog, "epa-dha-mbw")
+        self.assertIsNone(mbw["verdict_minimum"])
+        self.assertEqual(mbw["minimum_text"], "A minimum this checker sets itself, not a "
+                         "standard's (this checker's figure for this requirement; see note "
+                         "n094): a value below it gets no verdict (Implementation Guide open "
+                         "point 6).")
+        self.assertIsNone(nutrient(dog, "epa-dha")["minimum_text"])
+        self.assertIsNone(nutrient(dog, "protein")["minimum_text"])
+        cat = run("nrc-cat-adult", {"vitamin-d2": 300, "energy-density": 4.0, "fiber-total": 10},
+                  body_weight_kg=4.5)
+        self.assertIn("(the vitamin D minimum divided by 0.7, cats' efficiency with vitamin D2",
+                      nutrient(cat, "vitamin-d2")["minimum_text"])
+        self.assertIn("(the same figure for every requirement; see note",
+                      nutrient(cat, "energy-density")["minimum_text"])
+        self.assertIn("(a default, as this requirement's standard prints none",
+                      nutrient(cat, "fiber-total")["minimum_text"])
+        ratio = run("nrc-dog-adult", {"la-aa-to-ala-epa-dha-ratio": 10})
+        self.assertIn("(computed from the limits of the ratio's parts)",
+                      nutrient(ratio, "la-aa-to-ala-epa-dha-ratio")["minimum_text"])
+        self.assertEqual(schema_check.errors(dog, SCHEMA), [])
+
+    def test_computed_maximums_explained(self):
+        dog = run("nrc-dog-adult", {"choline": 450}, energy_intake_kcal_per_day=900.0,
+                  body_weight_kg=30.0)
+        self.assertTrue(nutrient(dog, "choline")["max_type_text"].startswith(
+            "computed by this checker: 1.1 times the higher choline minimum, because that is "
+            "above NRC's presumed safe maximum of 500 mg/Mcal; a range high, not a safe limit. "
+            "Some choline minimums exceed that figure: NRC sets no safe upper limit for "
+            "choline"))
+        psm = nutrient(run("nrc-dog-adult", {"choline": 450}), "choline")["max_type_text"]
+        self.assertTrue(psm.startswith("NRC's presumed safe maximum"))
+        self.assertIn("NRC sets no safe upper limit for choline", psm)
+        puppy = run("nrc-puppy-4-14-wk", {"calcium-large-breed-puppy": 5}, body_weight_kg=20.0,
+                    mature_weight_kg=40.0)
+        self.assertEqual(nutrient(puppy, "calcium-large-breed-puppy")["max_type_text"],
+                         "computed by this checker: 1.1 times this row's minimum, because that "
+                         "minimum is above NRC's calcium safe upper limit of 4.5 g/Mcal; a range "
+                         "high, not a safe limit")
+
+    def test_ratios(self):
+        """Rule 13: a ratio a standard sets is computed from its parts entered; otherwise the
+        input report says why it is not checked."""
+        def report(res):
+            return {(i["reason"], i["input"]): i["text"] for i in res["input_report"]
+                    if i["reason"].startswith("ratio-")}
+        dog = {"adult_dog_type": DOG_TYPE, "body_weight_kg": 12.0}
+        # AAFCO sets Ca:P: computed, and an inverted ratio is deficient.
+        res = run("aafco-dog-adult", {"calcium": 1.3, "phosphorus": 1.6}, **dog)
+        self.assertEqual(report(res), {("ratio-computed", "entries.ca-p-ratio"): "Computed from "
+                         "the calcium and phosphorus entries, as AAFCO Dog Maintenance sets a "
+                         "Ca : P limit: 1.3 ÷ 1.6 = 0.8125."})
+        ratio = nutrient(res, "ca-p-ratio")
+        self.assertEqual((ratio["entry"]["value"], ratio["entry"]["placed"],
+                          ratio["entry"]["verdict"]), (0.8125, "low", "deficient"))
+        self.assertEqual(res["inputs"]["normalized"]["entries"]["ca-p-ratio"], {"low": 0.8125})
+        # Ranges: the lowest and highest ratios they allow (steward, 25 Oct 2026); a single
+        # value counts on both sides.
+        res = run("aafco-dog-adult", {"calcium": {"low": 1.0, "high": 2.2},
+                                      "phosphorus": 1.1}, **dog)
+        ratio = nutrient(res, "ca-p-ratio")
+        self.assertEqual((ratio["low"]["value"], ratio["high"]["value"]),
+                         (float("%.15g" % (1 / 1.1)), 2.0))
+        self.assertIn("Ca : P limit; the lowest and highest ratios the ranges allow: 1 ÷ 1.1 = "
+                      "0.9091 and 2.2 ÷ 1.1 = 2.", report(res)[("ratio-computed",
+                                                                "entries.ca-p-ratio")])
+        # Both parts pass their rows; pairing low with low (1.07 to 1.18) hid 1.3 ÷ 1.5.
+        span = run("aafco-dog-adult", {"calcium": {"low": 1.3, "high": 1.6},
+                                       "phosphorus": {"low": 1.1, "high": 1.5}}, **dog)
+        self.assertEqual([nutrient(span, n)["low"]["verdict"] for n in ("calcium", "phosphorus")],
+                         [None, None])
+        ratio = nutrient(span, "ca-p-ratio")
+        self.assertEqual((ratio["low"]["value"], ratio["low"]["verdict"]),
+                         (float("%.15g" % (1.3 / 1.5)), "deficient"))
+        self.assertEqual(ratio["high"]["value"], float("%.15g" % (1.6 / 1.1)))
+        # Entered: checked as entered; a warning beyond the entered value's rounding.
+        same = run("aafco-dog-adult", {"calcium": 2.6, "phosphorus": 2.1, "ca-p-ratio": 1.24},
+                   **dog)
+        self.assertEqual(report(same), {})
+        differs = run("aafco-dog-adult", {"calcium": 1.3, "phosphorus": 1.6, "ca-p-ratio": 1.2},
+                      **dog)
+        self.assertEqual(nutrient(differs, "ca-p-ratio")["entry"]["value"], 1.2)
+        self.assertEqual(report(differs), {("ratio-differs-from-parts", "entries.ca-p-ratio"):
+                         "The Ca : P ratio entered, 1.2, differs from the calcium and phosphorus "
+                         "entries: 1.3 ÷ 1.6 = 0.8125. The ratio is checked as entered."})
+        whole = run("aafco-dog-adult", {"calcium": 2.4, "phosphorus": 1.0, "ca-p-ratio": 2},
+                    **dog)
+        self.assertIn(("ratio-differs-from-parts", "entries.ca-p-ratio"), report(whole))
+        # A part not entered, or a denominator of 0: not computed.
+        self.assertEqual(report(run("aafco-dog-adult", {"calcium": 1.5}, **dog)), {})
+        zero = run("aafco-dog-adult", {"calcium": 1.3, "phosphorus": 0}, **dog)
+        self.assertEqual(report(zero), {("ratio-not-entered", "entries.ca-p-ratio"):
+                         caveats.fill(caveats.RATIO_NOT_ENTERED["zero-denominator"],
+                                      {"ratio": "Ca : P", "denominator": "phosphorus"})})
+        # A numerator of 0 is a ratio of 0, checked (steward, 25 Oct 2026); 0 / 0 is not
+        # computed; nor is a ratio with a part below 0.
+        none = run("aafco-dog-adult", {"calcium": 0, "phosphorus": 1.6}, **dog)
+        self.assertEqual(nutrient(none, "ca-p-ratio")["entry"]["verdict"], "deficient")
+        self.assertIn("0 ÷ 1.6 = 0.", report(none)[("ratio-computed", "entries.ca-p-ratio")])
+        both = run("aafco-dog-adult", {"calcium": 0, "phosphorus": 0}, **dog)
+        self.assertIn("as phosphorus is 0.", report(both)[("ratio-not-entered",
+                                                           "entries.ca-p-ratio")])
+        below = run("aafco-dog-adult", {"calcium": -1, "phosphorus": 1.2}, **dog)
+        self.assertNotIn("ca-p-ratio", [n["id"] for n in below["nutrients"]])
+        self.assertEqual(report(below), {("ratio-not-entered", "entries.ca-p-ratio"): "Not "
+                         "checked: the Ca : P ratio is not entered and cannot be computed from "
+                         "its parts, as calcium is below 0. A negative amount of calcium is not "
+                         "physically possible and likely represents an entry or input error that "
+                         "should be checked and corrected."})
+        # AAFCO dogs' LA + AA : ALA + EPA + DHA maximum is AAFCO's; LA + AA : EPA + DHA's is
+        # this checker's, so it is not computed.
+        fa = run("aafco-dog-adult", {"linoleic-acid": 3, "arachidonic-acid": 0.1,
+                                     "alpha-linolenic-acid": 0.05, "epa-dha": 0.03}, **dog)
+        self.assertEqual(nutrient(fa, "la-aa-to-ala-epa-dha-ratio")["entry"]["verdict"],
+                         "excess")
+        self.assertIn("(3 + 0.1) ÷ (0.05 + 0.03) = 38.75", report(fa)[
+            ("ratio-computed", "entries.la-aa-to-ala-epa-dha-ratio")])
+        self.assertEqual(report(fa)[("ratio-not-entered", "entries.la-aa-to-epa-dha-ratio")],
+                         caveats.fill(caveats.RATIO_NOT_ENTERED["not-a-standards-ratio"],
+                                      {"ratio": "LA + AA : EPA + DHA"}))
+        # NRC puppies' Ca:P maximum is this checker's; NRC adult cats set no Ca:P.
+        puppy = run("nrc-puppy-4-14-wk", {"calcium": 3.6, "phosphorus": 2.9},
+                    body_weight_kg=1.5, mature_weight_kg=5.0)
+        self.assertNotIn("ca-p-ratio", [n["id"] for n in puppy["nutrients"]])
+        self.assertIn(("ratio-not-entered", "entries.ca-p-ratio"), report(puppy))
+        cat = run("nrc-cat-adult", {"calcium": 2.2, "phosphorus": 2.0}, body_weight_kg=4.5)
+        self.assertEqual(report(cat), {("ratio-not-entered", "entries.ca-p-ratio"): "Not "
+                         "checked: the Ca : P ratio is not entered, and NRC RA Cat Maintenance "
+                         "sets no range for it."})
+        self.assertEqual(nutrient(run("nrc-dog-adult", {"ca-p-ratio": 1.2}), "ca-p-ratio")[
+            "requirement_maximum"]["text"], "NRC RA Dog Maintenance sets no Ca : P ratio "
+            "maximum; limits from other standards or life stages do not apply to this check.")
+        self.assertEqual(schema_check.errors(res, SCHEMA), [])
+
+    def test_advice_checks_full_span(self):
+        """Ranges give the advice checks the lowest and highest ratios they allow (steward, 25
+        Oct 2026); paired low with low, LA 2.8-9 and ALA 0.2-0.5 gave 14 and 18."""
+        res = run("nrc-dog-adult", {"linoleic-acid": {"low": 2.8, "high": 9},
+                                    "alpha-linolenic-acid": {"low": 0.2, "high": 0.5}})
+        c = next(c for c in res["checks"] if c["id"] == "la-ala-ratio")
+        self.assertEqual((c["low"]["result"], c["high"]["result"]), ("ok", "outside"))
+        # The template's rules keep the pairing (parity).
+        r = limits.Request(D.tables, "nrc-dog-adult", animal_for("nrc-dog-adult"),
+                           {"linoleic-acid": {"low": 2.8, "high": 9},
+                            "alpha-linolenic-acid": {"low": 0.2, "high": 0.5}},
+                           template_rules=True)
+        self.assertEqual(outcomes.checks(r)["la-ala-ratio"]["high"].result, "ok")
+
+    def test_body_weight_text_and_below_zero(self):
+        res = run("nrc-dog-adult", {"calcium": -1, "zinc": {"low": -2, "high": 30},
+                                    "phosphorus": 1.0}, energy_intake_kcal_per_day=900.0,
+                  body_weight_kg=30.0)
+        self.assertEqual(res["factors"]["body_weight_text"], caveats.BODY_WEIGHT_TEXT)
+        self.assertIn("it never lowers them", caveats.BODY_WEIGHT_TEXT)
+        warnings = {i["input"]: i["text"] for i in res["input_report"]
+                    if i["reason"] == "below-zero"}
+        self.assertEqual(set(warnings), {"entries.calcium", "entries.zinc"})  # not the twins
+        self.assertEqual(warnings["entries.calcium"], "Calcium is entered below 0. A negative "
+                         "amount is not physically possible and likely represents an entry or "
+                         "input error that should be checked and corrected.")
+        self.assertEqual(nutrient(res, "calcium")["entry"]["verdict"], "deficient")
+        self.assertIsNone(result.check(D, {"entries": {"calcium": 1}})["factors"][
+            "body_weight_text"])
+        self.assertEqual(schema_check.errors(res, SCHEMA), [])
+
+    def test_selenium_and_fat_texts(self):
+        res = run("fediaf-dog-adult-mer110", {"selenium": 95}, body_weight_kg=25.0)
+        texts = {c["id"]: c["depends_on"] for c in nutrient(res, "selenium")["conditions"]}
+        self.assertEqual(texts["source-form-selenium"], "Separate limits on the amount of "
+                         "selenium added (such as AAFCO's additive approval limit and FEDIAF's "
+                         "limit on organic selenium) are not checked: this checker has no input "
+                         "for added selenium.")
+        self.assertIn("neither fat row takes a restriction or an optimal body weight; an intake "
+                      "entered still sets fat's MBW minimum (with a restriction, the intake "
+                      "divided by one minus the restriction). Under adult maintenance",
+                      res["factors"]["energy_rules"])
 
 
 def grid_requests():

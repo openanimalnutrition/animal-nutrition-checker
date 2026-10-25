@@ -272,6 +272,8 @@ def animal_section(res):
         factors += "<li>Energy: %s</li>" % e(f["energy_reason"]["text"])
     if f["optimal_body_weight"]:
         factors += "<li>Optimal body weight: %s</li>" % e(f["optimal_body_weight"]["text"])
+    if f["body_weight_text"]:
+        factors += "<li><small>%s</small></li>" % e(f["body_weight_text"])
     factors += "<li><small>%s</small></li>" % e(f["energy_rules"])
     return ("<section><h3>Animal and energy</h3><ul>%s</ul><ul>%s</ul></section>" % (
         facts or "<li>No animal facts entered</li>", factors))
@@ -299,7 +301,8 @@ def result_page(data, request, res):
                     if n["requirement_maximum"] and not n["requirement_maximum"]["set"]
                     else ""),
                 _num(n["minimum"]) or ("none" if not unavailable else e(unavailable["text"])),
-                _num(n["verdict_minimum"]),
+                _num(n["verdict_minimum"]) + (
+                    "<br><small>%s</small>" % e(n["minimum_text"]) if n["minimum_text"] else ""),
                 "none" if n["range_high"] is None else "%s<br><small>%s, %s: %s</small>" % (
                     _num(n["range_high"]), e(n["max_type"]), e(n["max_provenance"]),
                     e(n["max_type_text"] or "")),

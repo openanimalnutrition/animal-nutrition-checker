@@ -30,7 +30,7 @@ ROOT = os.path.dirname(HERE)
 sys.path.insert(0, ROOT)
 sys.path.insert(0, HERE)
 import schema_check  # noqa: E402
-from oan import caveats, energy, limits, result  # noqa: E402
+from oan import caveats, energy, limits, numbers, result  # noqa: E402
 
 D = result.Data(os.path.join(ROOT, "data"))
 SCHEMA = json.load(open(os.path.join(ROOT, "docs", "result.schema.json"), encoding="utf-8"))
@@ -469,10 +469,12 @@ class RaisedMinimum(Close):
                   adult_cat_type=CAT["overweight"], **self.CAT)
         n = nutrient(res, "protein")
         raise_ = n["minimum_raise"]
-        self.close(raise_["standard_minimum_before_raise"], 65 * 4 / 3.6)
+        # Limits are shown at 7 decimal places, as compared (release 0.7.0).
+        self.assertEqual(raise_["standard_minimum_before_raise"],
+                         numbers.sheet_round(65 * 4 / 3.6, 7))
         self.close(raise_["factor"], res["factors"]["energy_factor"])
-        self.close(n["verdict_minimum"], raise_["standard_minimum_before_raise"] *
-                   raise_["factor"])
+        self.assertEqual(n["verdict_minimum"],
+                         numbers.sheet_round(65 * 4 / 3.6 * raise_["factor"], 7))
         self.assertEqual(raise_["reason"], limits.RAISE_ENERGY)
         self.assertEqual(n["entry"]["verdict"], "deficient")
         status = n["entry"]["status"]

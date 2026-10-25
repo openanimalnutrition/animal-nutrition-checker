@@ -4,7 +4,7 @@ breed,2,fediaf-dog-late-growth,calcium,always,"The breed: for Great Dane puppies
 added-as-additive,3,*,*,range-high-type:L,Whether the amount is added as an additive: FEDIAF's EU legal maximum applies only to that amount.,n005
 source-form-iron,4,*,iron iron-mbw,always,The form added: iron added as oxide or carbonate should not count toward the minimum.,n246
 source-form-copper,4,*,copper copper-mbw copper-wet copper-wet-mbw,always,The form added: copper added as oxide should not count toward the minimum.,n248
-source-form-selenium,4,*,selenium selenium-mbw selenium-wet selenium-wet-mbw,always,Limits on added selenium are not checked.,n255
+source-form-selenium,4,*,selenium selenium-mbw selenium-wet selenium-wet-mbw,always,"Separate limits on the amount of selenium added (such as AAFCO's additive approval limit and FEDIAF's limit on organic selenium) are not checked: this checker has no input for added selenium.",n255
 source-form-phosphorus,4,aafco-cat-adult aafco-cat-growth-reproduction,phosphorus,always,AAFCO's limit on phosphorus from soluble sources is not checked.,n235
 conditional-minimum-vitamin-k,5,feline,vitamin-k1 vitamin-k1-mbw,always,The diet's fish content: AAFCO requires vitamin K for cats only above 25% fish in dry matter; this minimum applies to every diet.,n272
 conditional-minimum-biotin,5,feline,biotin biotin-mbw,always,Antimicrobial or anti-vitamin compounds: the standards require added biotin only then; this minimum applies to every diet.,n280

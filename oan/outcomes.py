@@ -15,9 +15,12 @@ Under the template's rules (limits.Request template_rules) a nutrient not entere
 as in the template. Under the checker's own rules (steward, 24 Oct 2026, after the AI-read
 test of release 0.5.0, which found "LA:ALA is outside NRC's advised ratio" with ALA not
 entered): a nutrient entered as one value counts on both sides, since the placement rule puts
-a lone EPA on the high side and EPA + DHA on the low; a nutrient entered as a range counts
-low with low and high with high; and a check that needs a nutrient not entered is not
-checked (NOT_ENTERED).
+a lone EPA on the high side and EPA + DHA on the low; and a check that needs a nutrient not
+entered is not checked (NOT_ENTERED). From release 0.7.0 (steward, 25 Oct 2026, after an
+AI-read test found low-with-low pairing of ranges hid ratios the ranges allow), ranges give
+the lowest and highest ratios they allow: the low side reads the ratio's numerator (LA, or
+EPA) at its low entry and its denominator (ALA, or EPA + DHA) at its high entry, and the high
+side the reverse.
 """
 
 from collections import namedtuple
@@ -151,9 +154,17 @@ def checks(request):
 
 
 def _check(cid, request, side, figures):
-    values = [check_entry(request, nid, side) for nid in reads(cid)]
+    nids = reads(cid)
+    values = [check_entry(request, nid, side) for nid in nids]
     if None in values:
         return NOT_ENTERED
+    if not request.template_rules:
+        # The lowest (low side) and highest (high side) ratio the ranges allow; one value
+        # counts on both sides, so single values are unchanged.
+        numerator = nids[0] if cid == "la-ala-ratio" else nids[1]
+        other = "high" if side == "low" else "low"
+        values = [check_entry(request, nid, side if nid == numerator else other)
+                  for nid in nids]
     if cid == "la-ala-ratio":
         low = figures["la-ala-ratio-low"]
         high = next(v for k, v in figures.items() if k in limits.LA_ALA_HIGH)

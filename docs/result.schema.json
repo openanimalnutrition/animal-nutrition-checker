@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://openanimalnutrition.org/schema/oan-check-result/2",
   "title": "oan-check-result/2",
-  "description": "The result of the Open Animal Nutrition reference checker (every tool: check_diet, get_limits, list_requirements, describe_inputs, get_notes). Within version 2 a change only adds fields; a breaking change is version 3. Version 2 (release 0.6.0) renamed standard_minimum to verdict_minimum, lets a condition have no limitation (null), and added verdict_text, entries_text, outcomes_text, max_type_text, outcome_text, energies_text, other_row and the notes block's text, and shows a value entered alone as entry (low and high only for a range). The caveats come first and are in every result. Verdicts are proposed, pending ratification.",
+  "description": "The result of the Open Animal Nutrition reference checker (every tool: check_diet, get_limits, list_requirements, describe_inputs, get_notes). Within version 2 a change only adds fields; a breaking change is version 3. Version 2 (release 0.6.0) renamed standard_minimum to verdict_minimum, lets a condition have no limitation (null), and added verdict_text, entries_text, outcomes_text, max_type_text, outcome_text, energies_text, other_row and the notes block's text, and shows a value entered alone as entry (low and high only for a range). Release 0.7.0 added minimum_text and the factors' body_weight_text, and shows each limit at 7 decimal places, as the checker compares it, and every other number at 15 significant digits. The caveats come first and are in every result. Verdicts are proposed, pending ratification.",
   "type": "object",
   "required": ["schema", "caveats", "tool", "code_release", "data_version", "data_sha256", "template_version", "verdict_status", "verdict_text"],
   "properties": {
@@ -108,7 +108,7 @@
     },
     "factors": {
       "type": "object",
-      "required": ["caloric_restriction_percent", "restriction_factor", "aafco_dry_matter_factor", "energy_requirement_kcal_per_day", "energy_used_kcal_per_day", "energy_used_is", "energy_reason", "intake_shortfall", "reference_energy_kcal_per_day", "reference_energy_basis", "energy_fed_kcal_per_day", "energy_fed_is", "energy_factor", "optimal_body_weight", "energies_text", "energy_rules"],
+      "required": ["caloric_restriction_percent", "restriction_factor", "aafco_dry_matter_factor", "energy_requirement_kcal_per_day", "energy_used_kcal_per_day", "energy_used_is", "energy_reason", "intake_shortfall", "reference_energy_kcal_per_day", "reference_energy_basis", "energy_fed_kcal_per_day", "energy_fed_is", "energy_factor", "optimal_body_weight", "energies_text", "body_weight_text", "energy_rules"],
       "additionalProperties": false,
       "properties": {
         "caloric_restriction_percent": {"$ref": "#/$defs/number_or_null"},
@@ -131,6 +131,7 @@
           "properties": {"status": {"enum": ["used", "not-adult", "intake-entered", "no-current-weight", "not-below-current"]}, "text": {"type": "string"}}
         }]},
         "energies_text": {"description": "What each energy above is, and what uses it.", "type": "string"},
+        "body_weight_text": {"description": "That the limits are for the current body weight, what an optimal body weight does, and that intake_shortfall is information only; null with no requirement. From release 0.7.0.", "type": ["string", "null"]},
         "energy_rules": {"type": "string"}
       }
     },
@@ -142,7 +143,7 @@
     },
     "nutrient": {
       "type": "object",
-      "required": ["id", "name", "unit", "basis", "ig_code", "minimum", "verdict_minimum", "maximum", "range_high", "max_type", "max_provenance", "max_type_text", "limits_unavailable", "mbw", "requirement_maximum", "conditions", "notes"],
+      "required": ["id", "name", "unit", "basis", "ig_code", "minimum", "verdict_minimum", "minimum_text", "maximum", "range_high", "max_type", "max_provenance", "max_type_text", "limits_unavailable", "mbw", "requirement_maximum", "conditions", "notes"],
       "additionalProperties": false,
       "properties": {
         "id": {"type": "string"},
@@ -152,6 +153,7 @@
         "ig_code": {"type": ["string", "null"]},
         "minimum": {"$ref": "#/$defs/number_or_null"},
         "verdict_minimum": {"description": "The minimum below which a value is deficient: the applied standard's minimum, including any raise this checker applies (see minimum_raise). Null where the whole minimum is this checker's own, which gives no verdict; on an open point (open_reason), a value below it also gets no verdict. Named standard_minimum before schema 2.", "$ref": "#/$defs/number_or_null"},
+        "minimum_text": {"description": "Where the minimum is this checker's own (verdict_minimum null), what it is and that a value below it gets no verdict; else null. From release 0.7.0.", "type": ["string", "null"]},
         "minimum_raise": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/minimum_raise"}]},
         "maximum": {"$ref": "#/$defs/number_or_null"},
         "range_high": {"$ref": "#/$defs/number_or_null"},

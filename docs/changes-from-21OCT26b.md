@@ -78,6 +78,66 @@ version; every result states both (`code_release`, `data_version`).
   From a fifth test (again no misreading): the dry matter condition (`dry-matter-basis`) is on
   every row the AAFCO dry matter factor raises, minimum or maximum, not only on rows with an
   AAFCO maximum.
+- 0.7.0 (25 Oct 2026): data version 21OCT26b.9. From an AI-read test of 0.6.0 with five new
+  cases (a FEDIAF requirement, a range entry, a canned cat food on the wet taurine row, a
+  small-breed NRC puppy and an entered intake), in which no model misread a result (steward,
+  25 Oct 2026):
+  - Rule 13: a ratio a standard sets is computed from its parts entered, so an inverted Ca : P
+    is no longer missed when only calcium and phosphorus are entered; an entered ratio that
+    disagrees with its parts gets a warning. Parts entered as ranges give the lowest and
+    highest ratios they allow, and so do NRC's fatty acid advice checks (rule 9): paired low
+    with low and high with high, calcium 1.3-1.6 and phosphorus 1.1-1.5 g/Mcal gave 1.07-1.18,
+    and the ranges allow 0.87, below AAFCO's 1:1 (both models, after a retest of this release
+    before it was merged). This adds verdicts and changes advice check results for ranges; no
+    other verdict changed.
+  - Numbers are shown as the checker compares them: each limit at 7 decimal places, as every
+    band test and comparison rounds it, and every other number at 15 significant digits. NRC's
+    zinc maximum for adult cats, printed as greater than 150 mg/Mcal (600 mg/kg DM), read
+    "150.000000001" (the template's own value, which the checker still computes with), and MBW
+    limits read "45.00000000000001"; both models took them for bugs. Its `max_type_text` says
+    a value at the figure shown is not above it.
+  - A new field, `minimum_text`, says where a minimum is this checker's own (`verdict_minimum`
+    null) what it is and that a value below it gets no verdict (open point 6); before, only
+    the status of a value below it said so (EPA + DHA MBW under NRC's adult dog, wet taurine
+    MBW under NRC's adult cat).
+  - The two range highs computed from a minimum where it replaces NRC's figure (the NRC dog
+    choline maximum and the large-breed puppy calcium row's) say so on their row
+    (`max_type_text`), not only in the energy rules.
+  - A ratio row not entered or computed while every part of it is entered gets a warning in
+    the input report saying why it is not checked: the standard does not set it (rule 13), the
+    requirement sets no range for it, a part entered is below 0, or a denominator entered is 0.
+    Calcium and phosphorus
+    were entered and nothing said why Ca:P was not checked.
+  - The energy rules text says that an intake entered still sets fat's MBW minimum (with a
+    restriction, the intake divided by one minus the restriction); it said only that neither
+    fat row takes a restriction or an optimal body weight.
+  - The condition on added selenium (`source-form-selenium`) names the separate limits it
+    means (AAFCO's additive approval limit, FEDIAF's limit on organic selenium): beside
+    FEDIAF's EU legal maximum, which applies to added selenium, "Limits on added selenium are
+    not checked" read as a contradiction.
+  - "sets no ca : P ratio maximum" keeps the symbol's capital: "Ca : P ratio".
+
+  From a retest of this release before it was merged, in which one model told an owner that
+  entering an optimal body weight "would lower the daily nutrient requirements":
+  - A new text in the factors, `body_weight_text`: the limits are for the current body weight;
+    an optimal body weight (adult maintenance, no intake entered) lowers the energy fed and so
+    raises the minimums, never lowers them; and `intake_shortfall` is information only, not
+    read as a restriction, weight loss or underfeeding.
+  - An entry below 0 gets a warning in the input report: a negative amount is not physically
+    possible and likely an entry error. Verdicts are unchanged.
+
+  From a second retest (no misreading):
+  - The computed-ratio line names why the ratio is computed ("as AAFCO Dog Maintenance sets a
+    Ca : P limit"); one model guessed it was computed because the entries were ranges.
+  - The text of a maximum NRC prints as greater than a figure says so plainly ("printed as a
+    lower bound" read as confusing), and `outcomes_text` says that on a row with no minimum the
+    bands run from 0 to the range high.
+  - Where the choline minimum lifts the computed choline range high above NRC's 500 mg/Mcal,
+    its text says why a minimum can exceed that figure: NRC sets no safe upper limit for
+    choline, the data behind the minimum are stronger than any for a maximum, and NRC's
+    presumed safe maximum (2,000 mg per kg of diet as fed, no energy density stated) is the
+    highest amount known to have been fed safely. Three rounds of both models called the
+    conflict unresolved. The text of NRC's 500 mg/Mcal itself says the same.
 
 ## Where the template's own text is kept
 
@@ -92,7 +152,7 @@ version; every result states both (`code_release`, `data_version`).
 ## 1. Rules
 
 From 23 Oct 2026 (rules 2 and 8 completed on 24 Oct 2026, rule 9 from release 0.5.1, rules 10
-to 12 from release 0.6.0) the checker's own rules differ from
+to 12 from release 0.6.0, rule 13 from release 0.7.0) the checker's own rules differ from
 the template's (`oan/energy.py`,
 `oan/limits.py`; tested by `tests/test_phase5_energy.py`). The parity check still compares the
 template's computation: the code keeps the template's rules for that check only
@@ -177,7 +237,12 @@ tests).
    Range") puts a lone EPA value on the high side and EPA + DHA on the low, a diet entered as
    one value each was never compared, EPA at 20% of EPA + DHA reading as "EPA is not included"
    for adult cats (steward, 24 Oct 2026, after the AI-read test of release 0.5.0;
-   `oan/outcomes.py`, tested by `tests/test_phase5.py`).
+   `oan/outcomes.py`, tested by `tests/test_phase5.py`). From release 0.7.0, nutrients entered
+   as ranges give the lowest and highest ratios they allow: the low side reads the ratio's
+   numerator (LA, or EPA) at its low entry and its denominator (ALA, or EPA + DHA) at its high
+   entry, and the high side the reverse. Paired low with low, LA 2.8-9 and ALA 0.2-0.5 g/Mcal
+   gave 14 and 18, inside NRC's adult dog 2.6-26; the ranges allow up to 45 (steward, 25 Oct
+   2026, after an AI-read test found the same pairing hid an inverted Ca : P, rule 13).
 
 10. A value entered on one of a nutrient's two rows, per Mcal and MBW, is also checked on the
     other when that one is not entered and has a limit under the requirement: both rows take
@@ -200,6 +265,22 @@ tests).
     so a value above one is excess. The template kept them per Mcal, conditional (its known
     limitation 8), so a food could read above a maximum it met on dry matter (steward, 24 Oct
     2026; the IG's other rules proposed for the code version).
+13. A ratio that the requirement's standard sets (Ca : P under the AAFCO and FEDIAF
+    requirements; LA + AA : ALA + EPA + DHA under AAFCO's dog requirements), not entered while
+    every part of it is, is computed from the parts and checked as an entry, and the input
+    report shows the computation. A part entered as one value counts on both sides; parts
+    entered as ranges give the lowest and highest ratios they allow (the numerator's low over
+    the denominator's high, and the reverse), as the advice checks do (rule 9);
+    a part not entered is never 0; a numerator of 0 gives a ratio of 0, which is checked, and a
+    denominator of 0 or a part below 0 gives none, and the report says why. An entered ratio is
+    checked as entered, with a warning when its parts, all single values, give another ratio at
+    the entered value's decimal places (at least one). Ratios the template or this checker
+    computes a range for (NRC's) are not computed from the parts. The template checked a ratio
+    only as typed, so a diet whose calcium and phosphorus each passed could have an inverted
+    Ca : P that nothing reported: under AAFCO's adult dog, calcium 1.3 and phosphorus 1.6 g/Mcal
+    pass their rows, and Ca : P is 0.81, below AAFCO's 1:1 (steward, 25 Oct 2026, after the
+    AI-read test of release 0.6.0 with new cases; `oan/result.py`, tested by
+    `tests/test_phase5.py`).
 
 ## 2. Notes (data versions 21OCT26b.6 to 21OCT26b.8)
 
