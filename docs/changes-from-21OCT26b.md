@@ -183,6 +183,29 @@ version; every result states both (`code_release`, `data_version`).
     be under-reported (a calculated profile counting missing composition data as zero); neither
     model passed on the recipe report's warning.
 
+- 0.9.0 (25 Oct 2026): data version 21OCT26b.10. From a real-client test of 0.8.0 on the live
+  address: claude.ai (custom connector) and ChatGPT (custom MCP server), with the steward as the
+  owner, five cases each (steward, 25 Oct 2026). Both connected with no authentication and
+  converted units right in every final answer. The rules and verdicts are unchanged; the steward
+  approved:
+  - The missing-input error asks the model to ask the user for the inputs rather than assume
+    values, as the limits can depend on them: three models (two clients and a model of the
+    live-call test) checked with a body weight and an activity level they filled in themselves.
+  - check_diet's description says that a label's guaranteed minimum below a requirement's
+    minimum is still the finding to report (higher actual amounts would be an assumption, not a
+    guarantee), as computed ratios already said: one reply called a protein minimum below
+    AAFCO's "not proof" of a deficiency; another, Ca and P minimums below a puppy's "may not be
+    a real shortfall".
+  - Results are written as compact JSON (the GUI's download and the MCP's text block, still the
+    same bytes), and an MBW row the requirement sets no limits on, entered with the same value
+    as its per-Mcal row, gets one input-report line for all such rows instead of a row of its
+    own ("No range"): one model entered every MBW twin of a recipe's profile under AAFCO, and
+    the 321 KB result went to a file the model read with its own code rather than to the model.
+    The same request now gives about 75 KB.
+  - An entered ratio is warned as differing from its parts only when no ratio the parts allow
+    within their rounding comes within the entered value's rounding: 0.50 ÷ 0.62 = 0.8065,
+    entered with the parts rounded to 1.299 and 1.61, was warned as differing from 0.8068.
+
 ## Where the template's own text is kept
 
 - [template-21OCT26b-notes.csv](template-21OCT26b-notes.csv): all 301 template notes word for

@@ -354,6 +354,17 @@ RATIO_COMPUTED_STATUS = ("Computed from its parts entered: if they are a label's
 UNDER_REPORTED_TEXT = ("If the source warns that some values may be under-reported (for example, "
                        "a calculated profile that counts missing composition data as zero), "
                        "pass that warning on with the result.")
+# Steward, 25 Oct 2026, after the real-client test of release 0.8.0 (claude.ai and ChatGPT on the
+# live address): a label's guaranteed minimum below a single row's minimum was softened ("the
+# actual levels in the bag are usually higher"; "does not prove the food is actually
+# protein-deficient"), where RATIO_COMPUTED_STATUS covers only computed ratios; and three models
+# filled in a body weight and an activity level after the missing-input error instead of asking.
+GUARANTEED_MINIMUM_TEXT = ("If a value entered is a label's guaranteed minimum and is below the "
+                           "requirement's minimum, that is still the finding to report: the actual "
+                           "amount may be higher, but that would be an assumption, not a "
+                           "guarantee.")
+MISSING_INPUTS_ASK = ("Ask the user for these rather than assuming values: the limits can depend "
+                      "on them.")
 # In every check_diet result, next to the entries (steward, 24 Oct 2026: low and high name the
 # template's two entry columns, a context the result did not carry; then one value is shown as
 # entry, and low and high only for a range).
@@ -383,6 +394,12 @@ MAXIMUM_ON_OTHER_ROW = ("{requirement} sets its {nutrient} maximum on the {basis
 # nutrient's per-Mcal and MBW rows is checked on both). {source}, {value} and {unit} are filled.
 TWIN_ENTRY_TEXT = ("Checked with the {source} entry, {value} {unit}: both rows take the diet's "
                    "{unit}.")
+# MBW rows the requirement sets no limits on, entered with the same value as their per-Mcal rows
+# (steward, 25 Oct 2026, after the real-client test of release 0.8.0: one model entered every
+# MBW twin under AAFCO, and the result, 321 KB, held 38 rows that said only "No range").
+# {requirement} and {ids} are filled.
+MBW_ROWS_NOT_SHOWN = ("{requirement} sets no limits on the MBW rows {ids}; each has the same value "
+                      "as its per-Mcal row, which is checked there, so they are not shown as rows.")
 PUPPY_BODY_WEIGHT_NOT_USED = ("Not used: the large-breed puppy calcium row uses the current body "
                               "weight, which is the puppy's.")
 ENERGY_ENTRY_TEXT = ("the energy the diet supplies, kcal per day; to replace the requirement's "

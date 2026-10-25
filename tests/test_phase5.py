@@ -760,6 +760,28 @@ class AIReadRound3(unittest.TestCase):
                   adult_dog_type=DOG_TYPE)
         self.assertEqual([n["id"] for n in res["nutrients"]], ["calcium"])
 
+    def test_mbw_rows_without_limits_not_shown(self):
+        # Real-client test of 0.8.0: every MBW twin entered under AAFCO with the same value as
+        # its per-Mcal row; one input-report line instead of a "No range" row each.
+        dog = {"body_weight_kg": 20.0, "adult_dog_type": DOG_TYPE}
+        res = run("aafco-dog-adult", {"calcium": 1.5, "calcium-mbw": 1.5, "zinc": 30,
+                                      "zinc-mbw": {"low": 30}}, **dog)
+        self.assertEqual([n["id"] for n in res["nutrients"]], ["calcium", "zinc"])
+        self.assertEqual(self.report(res, "mbw-rows-not-shown"), {
+            "entries": "AAFCO Dog Maintenance sets no limits on the MBW rows calcium-mbw, "
+                       "zinc-mbw; each has the same value as its per-Mcal row, which is checked "
+                       "there, so they are not shown as rows."})
+        self.assertFalse([i for i in res["input_report"]
+                          if i["input"] in ("entries.calcium-mbw", "entries.zinc-mbw")])
+        self.assertNotIn("calcium-mbw", res["inputs"]["normalized"]["entries"])
+        # A different value is kept, on its own row; so is an MBW row with limits (NRC).
+        res = run("aafco-dog-adult", {"calcium": 1.5, "calcium-mbw": 1.6}, **dog)
+        self.assertEqual(nutrient(res, "calcium-mbw")["entry"]["outcome"], "no-range")
+        self.assertEqual(self.report(res, "mbw-rows-not-shown"), {})
+        res = run("nrc-dog-adult", {"calcium": 1.5, "calcium-mbw": 1.5}, **self.DOG_A)
+        self.assertEqual(nutrient(res, "calcium-mbw")["entry"]["value"], 1.5)
+        self.assertEqual(self.report(res, "mbw-rows-not-shown"), {})
+
     def test_large_breed_puppy_calcium(self):
         rid = "nrc-puppy-4-14-wk"
         big = run(rid, {"calcium": 3.2}, body_weight_kg=8.0, mature_weight_kg=35.0)
@@ -983,6 +1005,16 @@ class AIReadRound7(unittest.TestCase):
         whole = run("aafco-dog-adult", {"calcium": 2.4, "phosphorus": 1.0, "ca-p-ratio": 2},
                     **dog)
         self.assertIn(("ratio-differs-from-parts", "entries.ca-p-ratio"), report(whole))
+        # Within the parts' rounding, no warning (real-client test of 0.8.0): 0.50 ÷ 0.62 =
+        # 0.8065 entered, with the parts rounded to 1.299 and 1.61 (0.8068).
+        rounded = run("aafco-dog-adult", {"calcium": 1.299, "phosphorus": 1.61,
+                                          "ca-p-ratio": 0.8065}, **dog)
+        self.assertEqual(report(rounded), {})
+        self.assertEqual(report(run("aafco-dog-adult", {"calcium": 1.97, "phosphorus": 1.96,
+                                                        "ca-p-ratio": 1.01}, **dog)), {})
+        self.assertIn(("ratio-differs-from-parts", "entries.ca-p-ratio"),
+                      report(run("aafco-dog-adult", {"calcium": 1.97, "phosphorus": 1.96,
+                                                     "ca-p-ratio": 1.03}, **dog)))
         # A part not entered, or a denominator of 0: not computed.
         self.assertEqual(report(run("aafco-dog-adult", {"calcium": 1.5}, **dog)), {})
         zero = run("aafco-dog-adult", {"calcium": 1.3, "phosphorus": 0}, **dog)
@@ -1246,6 +1278,9 @@ class Contract(unittest.TestCase):
         b = result.to_json(run(rid, copy.deepcopy(entries)))
         self.assertEqual(a, b)
         self.assertNotIn("NaN", a)
+        # Compact, no indentation (real-client test of 0.8.0): one line.
+        self.assertEqual(a.count("\n"), 1)
+        self.assertTrue(a.endswith("}\n"))
         self.assertEqual(json.loads(a)["schema"], "oan-check-result/2")
 
 
