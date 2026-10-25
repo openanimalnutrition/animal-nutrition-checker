@@ -73,6 +73,16 @@ docker run --rm --read-only --tmpfs /tmp --cpus 1 --memory 512m -p 127.0.0.1:879
 Then open http://127.0.0.1:8790/ for the web page; the MCP server is at
 http://127.0.0.1:8790/mcp.
 
+Or run the published image instead of building it. Every push to main publishes it, once
+the contract tests pass, as `ghcr.io/openanimalnutrition/animal-nutrition-checker`, with
+the tags `main` (the newest) and `sha-<commit>`, and labels giving the code release and the
+data version (`.github/workflows/image.yml`). The hosted checker is to run this image,
+pinned by its digest.
+
+```
+docker run --rm --read-only --tmpfs /tmp --cpus 1 --memory 512m -p 127.0.0.1:8790:8790 ghcr.io/openanimalnutrition/animal-nutrition-checker:main
+```
+
 From Python (3.9 or later, standard library only), in this folder:
 
 ```python
@@ -125,6 +135,7 @@ The rest of this page is for those who maintain or check the code.
 | `tools/impact_report.py` | The impact report of a data change, old data against new: evidence for the steward |
 | `tools/` (other) | The one-time converters from the template (the table, the export's cell values), the source finder, the validator runner |
 | `.github/workflows/checks.yml` | Runs `tools/check.py` on every pull request and on main |
+| `.github/workflows/image.yml` | On main: runs the contract tests, then publishes the server's image to GitHub's container registry |
 | `.github/ISSUE_TEMPLATE/` | The two issue forms: challenge a rule, report a data error |
 | `LICENSE`, `NOTICE` | CC0 1.0; the standards and other cited works remain their publishers' |
 | `docs/parity-21OCT26b.md` | The parity gate: what was compared with the template, and every difference with its reason |

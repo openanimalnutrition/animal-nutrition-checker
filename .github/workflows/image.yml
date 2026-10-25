@@ -1,0 +1,68 @@
+# Publishes the server's image (the Dockerfile's runtime target) to GitHub's container
+# registry on every push to main, once the contract tests pass in the test image built from
+# the same Dockerfile. The hosted checker (phase 6, an AWS Lightsail container service) is to
+# pull this public image, pinned by its digest, so anyone can check that what runs was built
+# here, from the public code of a named commit; no AWS key is kept outside AWS.
+#
+# Written in phase 6 (25 Oct 2026). The only workflow whose token can write, and then only
+# packages; it runs on main (a pull request cannot publish) or by hand from the Actions tab.
+# Tags: `main` (moves with each push) and `sha-<commit>` (one commit's image); the labels give
+# the code release and the data version. One linux/amd64 image with no provenance
+# attestation beside it, which some AWS services refuse.
+name: image
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+# One run at a time, in order, so `main` always ends on the newest commit's image.
+concurrency:
+  group: image
+  cancel-in-progress: false
+
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    env:
+      IMAGE: ghcr.io/openanimalnutrition/animal-nutrition-checker
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the test image
+        run: docker build --target test -t oan-checker:test .
+      - name: Contract tests
+        run: docker run --rm --network none --read-only --tmpfs /tmp oan-checker:test
+      - name: Build the runtime image
+        run: |
+          code_release=$(sed -n 's/^CODE_RELEASE = "\(.*\)"$/\1/p' oan/result.py)
+          data_version=$(sed -n 's/^data_version=//p' data/RELEASE)
+          [ -n "$code_release" ] || { echo "no CODE_RELEASE in oan/result.py"; exit 1; }
+          [ -n "$data_version" ] || { echo "no data_version in data/RELEASE"; exit 1; }
+          echo "CODE_RELEASE=$code_release" >> "$GITHUB_ENV"
+          echo "DATA_VERSION=$data_version" >> "$GITHUB_ENV"
+          docker build --target runtime --provenance=false \
+            --label "org.opencontainers.image.source=https://github.com/openanimalnutrition/animal-nutrition-checker" \
+            --label "org.opencontainers.image.revision=$GITHUB_SHA" \
+            --label "org.opencontainers.image.version=$code_release" \
+            --label "org.opencontainers.image.licenses=CC0-1.0" \
+            --label "org.openanimalnutrition.code-release=$code_release" \
+            --label "org.openanimalnutrition.data-version=$data_version" \
+            -t "$IMAGE:sha-$GITHUB_SHA" -t "$IMAGE:main" .
+      - name: Publish
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "$TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          docker push "$IMAGE:sha-$GITHUB_SHA"
+          docker push "$IMAGE:main"
+          ref=$(docker inspect --format '{{index .RepoDigests 0}}' "$IMAGE:sha-$GITHUB_SHA")
+          {
+            echo "Published \`$ref\`"
+            echo
+            echo "Code release $CODE_RELEASE, data version $DATA_VERSION, commit $GITHUB_SHA;"
+            echo "tags \`main\` and \`sha-$GITHUB_SHA\`."
+          } >> "$GITHUB_STEP_SUMMARY"
