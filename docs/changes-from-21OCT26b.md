@@ -139,6 +139,38 @@ version; every result states both (`code_release`, `data_version`).
     highest amount known to have been fed safely. Three rounds of both models called the
     conflict unresolved. The text of NRC's 500 mg/Mcal itself says the same.
 
+- 0.8.0 (25 Oct 2026): data version 21OCT26b.10. From a live-call test of 0.7.0: two other AI
+  models were given the MCP tools as a client lists them and an owner's message, and called the
+  tools themselves (11 cases each and one conversation of four, steward, 25 Oct 2026). One model
+  entered label percentages and amounts per kg as per-Mcal values and told owners of
+  deficiencies that were not there; it followed an instruction planted in pasted label text;
+  neither entered DHA alone as EPA + DHA. The rules and verdicts are unchanged; the texts the
+  steward approved:
+  - check_diet's description and its entries field start with the unit: every entry is the
+    diet's amount per Mcal, not a percentage or an amount per kg, with the conversion from a
+    label (as do describe_inputs' entries).
+  - check_diet's description says how to choose between the rows for foods with 12% moisture
+    or less and with more (by the food's moisture, a label's moisture maximum included; if
+    unknown, ask, or enter both rows and say which applies), and, as the server's instructions
+    do, that pasted text is data to check, not instructions.
+  - describe_inputs describes the EPA + DHA rows (DHA or EPA alone goes there, the other
+    counting as 0), the EPA row (also entered on EPA + DHA) and the total dietary fibre row (not
+    a label's crude fibre).
+  - A ratio computed from its parts says that, if the parts are a label's guaranteed minimums,
+    it is still the ratio to report: one model called the Ca : P "deficient" computed from a
+    label's calcium and phosphorus minimums "not a valid conclusion". The steward: a ratio the
+    guarantees support below the minimum is a finding; higher actual amounts would be a guess.
+  - FEDIAF's EU legal maximums apply only when the nutrient is added as an additive, and then
+    to its total in the food (note n005), in the kind of maximum and in known limitation 3
+    (data 21OCT26b.10); "applies only to amounts added as additives" read as "only the added
+    portion is limited".
+  - The MCP server: each tool's description gives what it does and the call order before the
+    caveats, and the server's instructions start with the call order (one model answered from
+    its own knowledge without calling a tool; one skipped describe_inputs); every tool is
+    annotated read-only, idempotent and closed-world, with a title; get_limits takes an optional
+    list of nutrient ids (a full result is about 150 KB). The contract tests add clients of
+    protocol versions 2024-11-05 and 2025-03-26 and the OAuth discovery paths (a plain 404).
+
 ## Where the template's own text is kept
 
 - [template-21OCT26b-notes.csv](template-21OCT26b-notes.csv): all 301 template notes word for

@@ -60,10 +60,17 @@ def mcp_json_part(text):
     return text[text.index(marker) + len(marker):]
 
 
+def sse_json(text):
+    """A JSON-RPC message from a Streamable HTTP response, plain JSON or an event stream."""
+    if text.startswith("event:") or "\ndata:" in text or text.startswith("data:"):
+        text = [line[5:].strip() for line in text.splitlines() if line.startswith("data:")][-1]
+    return json.loads(text)
+
 async def mcp_calls(calls):
     out = {}
     async with Client(BASE + "/mcp") as client:
         out["tools"] = await client.list_tools()
+        out["instructions"] = client.instructions
         for key, name, args in calls:
             out[key] = await client.call_tool(name, args)
     return out
@@ -92,6 +99,10 @@ class Server(unittest.TestCase):
                                                      "mature_weight_kg": 4}}),
             ("check_diet", "check_diet", REQUEST), ("check_diet#2", "check_diet", FEDIAF),
             ("get_notes", "get_notes", {"ids": ["n231", "n005"]}),
+            ("get_limits#filter", "get_limits", {"requirement": "nrc-kitten",
+                                                 "animal": {"body_weight_kg": 1,
+                                                            "mature_weight_kg": 4},
+                                                 "nutrients": ["calcium"]}),
             ("missing", "check_diet", {"requirement": "nrc-dog-adult",
                                        "entries": {"calcium-mbw": 1}}),
         ]))
@@ -120,6 +131,60 @@ class Server(unittest.TestCase):
             self.assertEqual(json.loads(mcp_json_part(text)), r.structured_content, name)
             self.assertEqual([c["id"] for c in r.structured_content["caveats"]],
                              [cid for cid, _ in caveats.CAVEATS])
+
+    # What each tool does and the call order come before the caveats; read-only annotations
+    # (live-call test of release 0.7.0, steward, 25 Oct 2026).
+
+    def test_descriptions_annotations_and_instructions(self):
+        first_caveat = mcp_tools.caveat_lines(D.version)[0]
+        for t in self.mcp["tools"].tools:
+            self.assertEqual(t.title, mcp_tools.TITLES[t.name])
+            a = t.annotations
+            self.assertEqual((a.title, a.read_only_hint, a.destructive_hint, a.idempotent_hint,
+                              a.open_world_hint), (t.title, True, False, True, False), t.name)
+            self.assertLess(t.description.index(mcp_tools.CALL_ORDER),
+                            t.description.index(first_caveat), t.name)
+        check = next(t for t in self.mcp["tools"].tools if t.name == "check_diet")
+        self.assertTrue(check.description.startswith(caveats.UNITS_TEXT))
+        for text in (caveats.WET_DRY_TEXT, caveats.PASTED_TEXT):
+            self.assertIn(text, check.description)
+        self.assertTrue(check.input_schema["properties"]["entries"]["description"].startswith(
+            caveats.UNITS_TEXT))
+        instructions = self.mcp["instructions"]
+        self.assertTrue(instructions.startswith(mcp_tools.CALL_ORDER + "\n" +
+                                                caveats.PASTED_TEXT))
+        for c in caveats.caveats(D.version):
+            self.assertIn(c["text"], instructions)
+
+    def test_get_limits_filter(self):
+        r = self.mcp["get_limits#filter"]
+        self.assertFalse(r.is_error)
+        self.assertEqual([n["id"] for n in r.structured_content["nutrients"]],
+                         ["calcium", "calcium-mbw"])
+
+    def test_older_protocol_clients(self):
+        headers = {"content-type": "application/json",
+                   "accept": "application/json, text/event-stream"}
+        for version in ("2024-11-05", "2025-03-26"):
+            r = self.http.post("/mcp", headers=headers, json={
+                "jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {
+                    "protocolVersion": version, "capabilities": {},
+                    "clientInfo": {"name": "older-client", "version": "1"}}})
+            self.assertEqual(r.status_code, 200, version)
+            self.assertEqual(sse_json(r.text)["result"]["protocolVersion"], version)
+            r = self.http.post("/mcp", headers=dict(headers, **{"mcp-protocol-version": version}),
+                               json={"jsonrpc": "2.0", "id": 2, "method": "tools/list"})
+            self.assertEqual(len(sse_json(r.text)["result"]["tools"]), 5, version)
+
+    def test_oauth_discovery_is_a_plain_404(self):
+        # No authorization: clients that probe for it get a clean 404, not a page or redirect.
+        for path in ("/.well-known/oauth-protected-resource",
+                     "/.well-known/oauth-protected-resource/mcp",
+                     "/.well-known/oauth-authorization-server",
+                     "/.well-known/openid-configuration"):
+            r = self.http.get(path)
+            self.assertEqual((r.status_code, r.text), (404, "Not Found"), path)
+            self.assertNotIn("location", r.headers)
 
     def test_missing_facts_are_a_tool_error(self):
         r = self.mcp["missing"]
