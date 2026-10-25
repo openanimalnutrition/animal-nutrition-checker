@@ -15,7 +15,7 @@ RUN useradd --uid 10001 --no-create-home --shell /usr/sbin/nologin oan
 USER 10001
 EXPOSE 8790
 CMD ["python", "-I", "-B", "-m", "uvicorn", "--app-dir", "/app/server", "app:app", \
-     "--host", "0.0.0.0", "--port", "8790", "--no-access-log", \
+     "--host", "0.0.0.0", "--port", "8790", "--no-access-log", "--no-server-header", \
      "--limit-concurrency", "16", "--timeout-keep-alive", "5"]
 
 # The contract tests (plan, "Verification"): the same image plus the tests.

@@ -2,12 +2,14 @@
 
 Routes: GET / (choose a requirement, then the inputs), POST /parse (pasted lines, shown
 parsed), POST /check (the result page), POST /check.json (the result's JSON, the same bytes as
-the MCP's check_diet), POST /edit (back to the inputs), GET /static/style.css, and /mcp (MCP,
-stateless Streamable HTTP).
+the MCP's check_diet), POST /edit (back to the inputs), GET /about (hosting, privacy and
+contact, from pages/about.html), GET /static/style.css, and /mcp (MCP, stateless Streamable
+HTTP).
 
 Limits: request bodies of at most 32 KB; known fields only; Host checked on every request and
 Origin on every POST; a content security policy with no scripts; no cross-origin access. The
-server logs no request bodies (run uvicorn with --no-access-log) and fetches no URLs.
+server logs no request bodies (run uvicorn with --no-access-log; the About page says so) and
+fetches no URLs.
 
 Environment: OAN_DATA (the data folder, default ../data), OAN_HOSTS (allowed host names,
 comma-separated, default localhost,127.0.0.1), OAN_ORIGINS (allowed origins, default
@@ -48,6 +50,7 @@ HEADERS = {
     # form, which the Origin check must refuse (found in the steward's GUI review, 22 Oct).
     "Referrer-Policy": "same-origin",
     "Cache-Control": "no-store",
+    "Strict-Transport-Security": "max-age=31536000",
 }
 
 
@@ -103,6 +106,14 @@ async def form_items(request):
 
 def bad(text):
     return HTMLResponse(gui.page(DATA, "<p class=\"error\">%s</p>" % gui.e(text)), 400)
+
+
+with open(os.path.join(HERE, "pages", "about.html"), encoding="utf-8") as f:
+    ABOUT = f.read()
+
+
+async def about(request):
+    return HTMLResponse(gui.page(DATA, ABOUT))
 
 
 async def home(request):
@@ -188,6 +199,7 @@ app = Starlette(
         Route("/check", check, methods=["POST"]),
         Route("/check.json", check_json, methods=["POST"]),
         Route("/edit", edit, methods=["POST"]),
+        Route("/about", about, methods=["GET"]),
         Mount("/static", StaticFiles(directory=os.path.join(HERE, "static")), name="static"),
         Route("/mcp", MCPEndpoint(), methods=["GET", "POST", "DELETE"]),
     ],

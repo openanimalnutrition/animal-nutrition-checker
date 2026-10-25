@@ -29,7 +29,7 @@ from . import (bands, caveats, conditions, energy, inputs, interpret, limits, nu
                outcomes, release, table)
 
 SCHEMA = "oan-check-result/2"
-CODE_RELEASE = "0.9.0"
+CODE_RELEASE = "0.9.1"
 SUBJECTS = ("diet", "requirement range")
 REQUEST_FIELDS = ("requirement", "animal", "entries", "subject")
 ENERGY_NAME, ENERGY_UNIT = "Energy", "kcal/day"
