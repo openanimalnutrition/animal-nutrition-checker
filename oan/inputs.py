@@ -22,9 +22,9 @@ LIFE_STAGES = (
     "Gestation: weeks 1-4",
     "Gestation: week 5 to birth",
     "Lactation: bitch",
-    "<3 Kittens",
-    "3-4 Kittens",
-    ">4 Kittens",
+    "<3 Kittens Nursing",
+    "3-4 Kittens Nursing",
+    ">4 Kittens Nursing",
 )
 # field -> (kind, rule). kinds: "number" (low, high), "whole" (low, high), "restriction",
 # "list" (a function giving the items from the data), "life-stage", "requirement".

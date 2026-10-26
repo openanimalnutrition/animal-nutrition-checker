@@ -125,9 +125,9 @@ GESTATION_WEEKS_1_4 = "Gestation: weeks 1-4"
 GESTATION_WEEK_5_ON = "Gestation: week 5 to birth"
 LACTATION_BITCH = "Lactation: bitch"
 KITTENS = {
-    "<3 Kittens": "kittens-under-3",
-    "3-4 Kittens": "kittens-3-to-4",
-    ">4 Kittens": "kittens-over-4",
+    "<3 Kittens Nursing": "kittens-under-3",
+    "3-4 Kittens Nursing": "kittens-3-to-4",
+    ">4 Kittens Nursing": "kittens-over-4",
 }
 GROWTH = (NONE, GROWTH_TO_4_MONTHS, GROWTH_TO_ADULT)
 GESTATION = (GESTATION_WEEKS_1_4, GESTATION_WEEK_5_ON)

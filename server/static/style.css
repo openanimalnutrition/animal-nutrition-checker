@@ -1,10 +1,201 @@
-body { font-family: system-ui, sans-serif; margin: 1.5rem; max-width: 90rem; }
-.caveats { border: 2px solid #8a5a00; background: #fff8e6; padding: 0.5rem 1rem; }
-.caveats h2 { margin-top: 0.2rem; font-size: 1.1rem; }
-table { border-collapse: collapse; margin: 0.5rem 0; }
-th, td { border: 1px solid #bbb; padding: 0.2rem 0.4rem; vertical-align: top; text-align: left; }
-td.deficient, td.excess { font-weight: bold; }
-.error { color: #a00; font-weight: bold; }
-.parsed { border: 1px solid #4a7; padding: 0.5rem; }
-footer { margin-top: 2rem; color: #555; font-size: 0.85rem; }
-small { color: #444; }
+/* Open Animal Nutrition checker. One stylesheet: no scripts, images, icons or web fonts.
+   From docs/mockups/oan-checker/style.css (round 2). */
+:root {
+  --ink: #0b0c0c;
+  --muted: #484f53;
+  --rule: #b1b4b6;
+  --paper: #ffffff;
+  --shade: #f3f2f1;
+  --link: #1d4f91;
+  --link-hover: #0f2f5c;
+  --visited: #4c2c92;
+  --focus: #ffdd00;
+  --deficient: #fcd9c4;
+  --excess: #d2e3f5;
+  --edge: max(1rem, calc((100% - 62rem) / 2));
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 1rem/1.5 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  overflow-wrap: break-word;
+}
+
+/* Page frame */
+.site-header, main, .site-footer { padding-left: var(--edge); padding-right: var(--edge); }
+.site-header { border-bottom: 4px solid var(--ink); padding-top: .75rem; padding-bottom: .75rem; }
+.site-header p { margin: 0; }
+.site-name, .site-name:visited { color: var(--ink); font-size: 1.125rem; font-weight: 700; text-decoration: none; }
+.site-name:hover { text-decoration: underline; }
+.site-footer { border-top: 1px solid var(--rule); margin-top: 3rem; padding-top: 1.5rem; padding-bottom: 2rem; }
+
+/* Text */
+h1, h2, h3 { line-height: 1.25; margin: 2rem 0 1rem; }
+h1 { font-size: 2rem; margin-top: 1.5rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.1875rem; }
+h3 small { font-size: 1rem; font-weight: 400; }
+p, ul, ol, dl { margin: 0 0 1rem; }
+p, li { max-width: 46rem; }
+li { margin-bottom: .25rem; }
+.plain { list-style: none; padding: 0; }
+:target { background: var(--shade); }
+
+/* Links and keyboard focus */
+a { color: var(--link); text-underline-offset: .15em; overflow-wrap: anywhere; }
+a:visited { color: var(--visited); }
+a:hover { color: var(--link-hover); text-decoration-thickness: 3px; }
+:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+a:focus-visible { background: var(--focus); color: var(--ink); outline-offset: 0; }
+
+/* Caveats: always open, body size, full contrast */
+.caveats { border: 4px solid var(--ink); margin: 1.5rem var(--edge); padding: 1rem 1.25rem; }
+.caveats h2 { margin: 0 0 .75rem; }
+.caveats ol { margin: 0; padding-left: 1.5rem; }
+.caveats li { margin-bottom: .75rem; }
+.caveats li:last-child { margin-bottom: 0; }
+
+/* Forms (value boxes are text inputs: the checker, not the browser, rejects a value) */
+label, legend { display: block; font-weight: 700; }
+legend { font-size: 1.5rem; line-height: 1.25; margin: 2rem 0 1rem; padding: 0; }
+fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+.field { margin: 0 0 1.5rem; }
+.field label { margin-bottom: .25rem; }
+.hint { display: block; color: var(--muted); font-size: 1rem; margin-bottom: .375rem; max-width: 46rem; }
+input, select, textarea, button { font: inherit; }
+input, select, textarea {
+  display: block; max-width: 100%; min-height: 2.75rem; padding: .375rem .5rem;
+  border: 2px solid var(--ink); border-radius: 0; background: var(--paper); color: var(--ink);
+}
+input { width: 9rem; }
+select { width: 36rem; }
+textarea { width: 46rem; }
+button {
+  min-height: 2.75rem; padding: .5rem 1.25rem; border: 2px solid var(--link); border-radius: 0;
+  background: var(--link); color: #fff; font-weight: 700; cursor: pointer;
+}
+button:hover { background: var(--link-hover); border-color: var(--link-hover); }
+button.secondary { background: var(--paper); color: var(--link); }
+button.secondary:hover { background: var(--shade); color: var(--link-hover); }
+button.link, button.link:hover {
+  padding: 0; border: 0; background: none; color: var(--link);
+  font-weight: 400; text-decoration: underline; text-underline-offset: .15em;
+}
+.error { border-left: 4px solid var(--ink); padding-left: .75rem; font-weight: 700; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; margin: 1rem 0 1.5rem; }
+.split { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0 1rem; }
+
+/* Label/value lists ("check answers") */
+.summary { display: grid; grid-template-columns: minmax(0, 1fr); margin: 0 0 1.5rem; border-top: 1px solid var(--rule); }
+.summary dt { font-weight: 700; padding-top: .5rem; }
+.summary dd { margin: 0; padding: .125rem 0 .5rem; border-bottom: 1px solid var(--rule); }
+.summary .sub { padding-left: 1rem; }
+.summary ul { margin: 0; padding-left: 1.25rem; }
+
+/* Verdicts: the word is always present; colour only repeats it */
+.verdict { display: inline-block; padding: 0 .375rem; border: 2px solid var(--ink); font-weight: 700; letter-spacing: .03em; }
+.deficient { background: var(--deficient); }
+.excess { background: var(--excess); }
+
+/* One nutrient's result; notes (dl) inside a closed details */
+.nutrient { border-top: 2px solid var(--ink); margin: 0 0 2.5rem; }
+.nutrient h3 { margin: .75rem 0; }
+details { margin: 0 0 1rem; }
+summary { color: var(--link); cursor: pointer; text-decoration: underline; text-underline-offset: .15em; }
+summary:hover { color: var(--link-hover); }
+details[open] > summary { margin-bottom: .5rem; }
+details dl { margin: 0; }
+details dt { margin-top: .75rem; }
+details dd { margin: 0; max-width: 46rem; }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; margin: 0 0 1.5rem; font-variant-numeric: tabular-nums; }
+caption { text-align: left; font-size: 1.1875rem; font-weight: 700; margin-bottom: .5rem; }
+th, td {
+  text-align: left; vertical-align: middle; padding: .5rem 1rem .5rem 0;
+  border-bottom: 1px solid var(--rule); overflow-wrap: break-word;
+}
+thead th { border-bottom: 2px solid var(--ink); vertical-align: bottom; }
+tbody th { font-weight: 400; }
+td input { width: 8rem; }
+.inline { display: flex; flex-wrap: wrap; gap: .25rem 1.5rem; list-style: none; padding: 0; }
+.inline li { margin: 0; }
+
+/* Life-stage fields: a field the chosen life stage does not use is hidden, without a script.
+   Option class ls-<n> is the life stage's index in oan/inputs.py LIFE_STAGES (ls-x: none
+   chosen); a field with class dep is used only under the stages of its s-<n> classes.
+   Browsers without :has() show every field. */
+@supports selector(:has(*)) {
+  form:has(option.ls-x:checked) .dep,
+  form:has(option.ls-0:checked) .dep:not(.s-0),
+  form:has(option.ls-1:checked) .dep:not(.s-1),
+  form:has(option.ls-2:checked) .dep:not(.s-2),
+  form:has(option.ls-3:checked) .dep:not(.s-3),
+  form:has(option.ls-4:checked) .dep:not(.s-4),
+  form:has(option.ls-5:checked) .dep:not(.s-5),
+  form:has(option.ls-6:checked) .dep:not(.s-6),
+  form:has(option.ls-7:checked) .dep:not(.s-7),
+  form:has(option.ls-8:checked) .dep:not(.s-8) { display: none; }
+}
+
+@media (min-width: 40rem) {
+  .summary { grid-template-columns: minmax(8rem, 1fr) minmax(0, 3fr); }
+  .summary dt, .summary dd { padding: .5rem 1rem .5rem 0; border-bottom: 1px solid var(--rule); }
+}
+@media (min-width: 50rem) {
+  .nutrient { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); column-gap: 2rem; align-items: start; }
+  .nutrient > header { grid-row: 1 / span 2; }
+  .nutrient > dl, .nutrient > details { grid-column: 2; }
+  .nutrient > dl { margin-top: .75rem; }
+}
+
+/* Phones: stacked tables (labels from td[data-label]) */
+@media (max-width: 39.99rem) {
+  h1 { font-size: 1.625rem; }
+  h2, legend { font-size: 1.3125rem; }
+  .caveats { padding: .75rem; }
+  .caveats ol { padding-left: 1.25rem; }
+  .stack, .stack tbody, .stack caption { display: block; }
+  .stack thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .stack tr {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: .25rem 1rem;
+    padding: .75rem 0; border-bottom: 1px solid var(--rule);
+  }
+  .stack th, .stack td { display: block; padding: 0; border: 0; }
+  .stack tbody th, .stack .wide { grid-column: 1 / -1; }
+  .stack tbody th { font-weight: 700; }
+  .stack td::before { content: attr(data-label); display: block; color: var(--muted); }
+  .stack td input { width: 100%; }
+}
+
+@media print {
+  body { font-size: 12pt; }
+  .site-header, main, .site-footer { padding-left: 0; padding-right: 0; }
+  .caveats { margin: 1rem 0; break-inside: avoid; }
+  .actions, .noprint, button { display: none; }
+  a, a:visited, summary { color: var(--ink); }
+  .site-footer a[href^="http"]::after { content: " (" attr(href) ")"; }
+  .nutrient, .summary dd, tr { break-inside: avoid; }
+  h2, h3, caption { break-after: avoid; }
+  .verdict { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+
+/* Classes
+   site-header, site-name, site-footer  page frame
+   caveats                              the four caveats (one bordered block, never collapsible)
+   field, hint                          form field (a p) and its help or allowed values (a small)
+   dep, s-<n>, ls-<n>, ls-x             life-stage fields (see "Life-stage fields")
+   error                                a request the server refused
+   actions                              row of buttons; hidden in print
+   split                                heading with a Change button beside it
+   secondary, link                      button variants (plain button = primary)
+   summary, sub                         label/value list (dl); sub = row indented under a Value, Low or High row
+   verdict, deficient, excess           verdict word; "none" is plain text
+   nutrient                             one nutrient's result block (header = name and texts under it)
+   stack, wide                          table that stacks on phones via td[data-label]; wide = full-width cell
+   plain                                list without markers (known limitations carry their own numbers)
+   inline                               horizontal list (footer links)
+   noprint                              hidden in print */

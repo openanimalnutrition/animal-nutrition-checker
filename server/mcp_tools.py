@@ -47,7 +47,8 @@ def animal_schema(data):
         if kind in ("number", "whole", "restriction"):
             props[name] = {"type": "number", "description": "range %s to %s%s%s" % (
                 rule[0], rule[1], " (or 0 for none)" if kind == "restriction" else "",
-                ". " + caveats.FACT_TEXTS[name][1] if name in caveats.FACT_TEXTS else "")}
+                ". " + caveats.FACT_TEXTS[name][1]
+                if caveats.FACT_TEXTS.get(name, (None, None))[1] else "")}
         elif kind == "life-stage":
             props[name] = {"type": "string", "enum": list(rule)}
         else:

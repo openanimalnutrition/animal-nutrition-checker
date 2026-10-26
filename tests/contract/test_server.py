@@ -15,6 +15,7 @@ Run (in the test image): python -I -B tests/contract/test_server.py
 import asyncio
 import json
 import os
+import re
 import socket
 import subprocess
 import sys
@@ -215,14 +216,15 @@ class Server(unittest.TestCase):
 
     def test_gui_page_has_the_caveats_first(self):
         page = self.http.post("/check", data=dict(form_of(REQUEST))).text
-        self.assertIn("<details><summary>Notes (", page)
-        self.assertIn("<h3>Animal and energy</h3>", page)
-        self.assertIn("Current body weight (kg): 20", page)
-        self.assertIn("Energy used, kcal/day:", page)
+        self.assertIn("<summary>Notes (", page)
+        self.assertIn('<h2 id="ae-title">Animal and energy</h2>', page)
+        self.assertIn("<dt>Current body weight (kg)</dt><dd>20</dd>", page)
+        self.assertIn("<dt>Energy used, kcal/day</dt>", page)
         self.assertIn("NRC RA Dog Maintenance sets no calcium maximum", page)
         first = page.index("Caveats")
+        plain = re.sub(r"<[^>]+>", "", page)
         for c in caveats.caveats(D.version):
-            self.assertIn(c["text"].replace("'", "&#x27;"), page)
+            self.assertIn(c["text"].replace("'", "&#x27;"), plain)
         self.assertLess(first, page.index("Input report"))
 
     # No excess above a non-authoritative maximum.
@@ -304,8 +306,9 @@ class Server(unittest.TestCase):
     def test_about(self):
         self.assertIn('<a href="/about">', self.http.get("/").text)
         page = self.http.get("/about").text
-        self.assertLess(page.index("Caveats"), page.index("<h3>Privacy</h3>"))
-        for text in ("<h3>Hosting</h3>", "<h3>Contact</h3>", "mailto:"):
+        self.assertLess(page.index("Caveats"), page.index("<h2>Privacy</h2>"))
+        for text in ("<h2>Hosting</h2>", '<h2 id="contact">Contact</h2>', "mailto:",
+                     "https://checker.openanimalnutrition.org/mcp"):
             self.assertIn(text, page)
 
     def test_steps(self):

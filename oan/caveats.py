@@ -507,7 +507,18 @@ FACT_TEXTS = {
                                "weight. The minimums then rise so that the diet still supplies "
                                "the daily amounts for the current body weight. Adult "
                                "maintenance only; not used when an intake is entered."),
+    # Labels without a description: the steward, 26 Oct 2026.
+    "mature_weight_kg": ("Expected mature body weight (kg)", None),
+    "puppies_nursing": ("Number of puppies nursing", None),
+    "lactation_week": ("Week of lactation", None),
+    "life_stage": ("Life stage, or a lactating queen's kittens", None),
+    "adult_dog_type": ("Type of adult dog", None),
+    "adult_cat_type": ("Type of adult cat", None),
+    "energy_intake_kcal_per_day": ("Energy intake (kcal/day), if known", None),
+    "caloric_restriction_percent": ("Caloric restriction (%), optional", None),
 }
+# The life stage's label where a requirement's list has no kittens (steward, 26 Oct 2026).
+LIFE_STAGE_LABEL_NO_KITTENS = "Life stage"
 
 # A requirement that sets no maximum for a nutrient, on either basis (steward, 22 Oct 2026: AI
 # readers brought in other standards' or life stages' limits from memory).

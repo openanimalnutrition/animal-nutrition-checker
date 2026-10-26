@@ -29,7 +29,7 @@ from . import (bands, caveats, conditions, energy, inputs, interpret, limits, nu
                outcomes, release, table)
 
 SCHEMA = "oan-check-result/2"
-CODE_RELEASE = "0.9.1"
+CODE_RELEASE = "0.10.0"
 SUBJECTS = ("diet", "requirement range")
 REQUEST_FIELDS = ("requirement", "animal", "entries", "subject")
 ENERGY_NAME, ENERGY_UNIT = "Energy", "kcal/day"
@@ -1046,27 +1046,45 @@ PROBED = ("mature_weight_kg", "adult_dog_type", "adult_cat_type", "life_stage",
           "lactation_week", "puppies_nursing")
 
 
+def _probe(tables, rid, stage):
+    """(energy, the probed facts it reads) for a life stage, from sample facts. The sample dog
+    type is not NRC's average (130 * kg BW^0.75), which is also what a blank type gives in
+    late gestation, so a blank and the sample differ wherever the type is used."""
+    req = next(r for r in tables["requirements"] if r["id"] == rid)
+    facts = {"body_weight_kg": 10.0 if req["species"] == "canine" else 4.0,
+             "mature_weight_kg": 30.0 if req["species"] == "canine" else 5.0,
+             "adult_dog_type": energy.dog_type_labels(tables)[1],
+             "adult_cat_type": energy.cat_type_labels(tables)[2],
+             "lactation_week": 3, "puppies_nursing": 4, "life_stage": stage}
+    whole = energy.requirement_energy(tables, rid, facts)
+    used = [f for f in PROBED if energy.requirement_energy(
+        tables, rid, {k: v for k, v in facts.items() if k != f}) != whole]
+    return whole, used
+
+
+def life_stage_use(data, rid):
+    """[(life stage, the facts it reads besides the life stage)] for each life stage the
+    requirement covers (its energy can be computed), in inputs.LIFE_STAGES order; None when
+    the requirement does not read the life stage."""
+    if "life_stage" not in facts_read(data, rid):
+        return None
+    out = []
+    for stage in inputs.LIFE_STAGES:
+        whole, used = _probe(data.tables, rid, stage)
+        if whole.kcal is not None:
+            out.append((stage, [f for f in used if f != "life_stage"]))
+    return out
+
+
 def facts_read(data, rid):
     """The animal facts a requirement reads: those that change its energy (or the reason it
     has none) when left out, found by trying each life stage; the puppy body weight where the
     large-breed puppy calcium row applies; the expected mature body weight where a rule
     chooses a figure by it."""
     tables = data.tables
-    req = next(r for r in tables["requirements"] if r["id"] == rid)
-    full = {"body_weight_kg": 10.0 if req["species"] == "canine" else 4.0,
-            "mature_weight_kg": 30.0 if req["species"] == "canine" else 5.0,
-            "adult_dog_type": energy.dog_type_labels(tables)[3],
-            "adult_cat_type": energy.cat_type_labels(tables)[2],
-            "lactation_week": 3, "puppies_nursing": 4}
     read = set(ALWAYS_READ)
     for stage in inputs.LIFE_STAGES:
-        facts = dict(full, life_stage=stage)
-        whole = energy.requirement_energy(tables, rid, facts)
-        for f in PROBED:
-            less = dict(facts)
-            less.pop(f)
-            if energy.requirement_energy(tables, rid, less) != whole:
-                read.add(f)
+        read.update(_probe(tables, rid, stage)[1])
     if energy.RULES[rid] in energy.ADULT_RULES:
         read.add("optimal_body_weight_kg")
     if any(row["min_rule"] == "fediaf-late-growth-by-mature-weight" or
@@ -1114,7 +1132,9 @@ def describe_inputs(data):
             continue
         item = {"name": name, "kind": kind}
         if name in caveats.FACT_TEXTS:
-            item["label"], item["description"] = caveats.FACT_TEXTS[name]
+            item["label"], description = caveats.FACT_TEXTS[name]
+            if description:
+                item["description"] = description
         if kind in ("number", "whole", "restriction"):
             item["range"] = list(rule)
         elif kind == "life-stage":

@@ -178,7 +178,7 @@ class Core(unittest.TestCase):
         self.assertEqual(reason("nrc-dog-gestation-lactation", life_stage="Lactation: bitch",
                                 puppies_nursing=3.0, lactation_week=5.0),
                          "no-estimate-after-lactation-week-4")
-        self.assertEqual(reason("nrc-cat-peak-lactation", life_stage="3-4 Kittens"),
+        self.assertEqual(reason("nrc-cat-peak-lactation", life_stage="3-4 Kittens Nursing"),
                          "lactation-week-and-kittens-needed")
         self.assertEqual(set(energy.REASONS) - {"body-weight-needed"},
                          set(sheet_map.ENERGY_MESSAGES))
