@@ -105,7 +105,7 @@ async def form_items(request):
 
 
 def bad(text):
-    return HTMLResponse(gui.page(DATA, "<p class=\"error\">%s</p>" % gui.e(text)), 400)
+    return HTMLResponse(gui.page(DATA, "<p class=\"error\">%s</p>" % gui.e(text), "Error"), 400)
 
 
 with open(os.path.join(HERE, "pages", "about.html"), encoding="utf-8") as f:
@@ -113,14 +113,14 @@ with open(os.path.join(HERE, "pages", "about.html"), encoding="utf-8") as f:
 
 
 async def about(request):
-    return HTMLResponse(gui.page(DATA, ABOUT))
+    return HTMLResponse(gui.page(DATA, ABOUT, "About"))
 
 
 async def home(request):
     rid = request.query_params.get("requirement")
     if rid and any(r["id"] == rid for r in DATA.tables["requirements"]):
-        return HTMLResponse(gui.page(DATA, gui.step2(DATA, rid)))
-    return HTMLResponse(gui.page(DATA, gui.step1(DATA)))
+        return HTMLResponse(gui.page(DATA, gui.step2(DATA, rid), "Enter values"))
+    return HTMLResponse(gui.page(DATA, gui.step1(DATA), "Choose a requirement"))
 
 
 async def parse(request):
@@ -135,8 +135,8 @@ async def parse(request):
     paste = next((v for k, v in items if k == "paste"), "")
     entries, parsed, not_understood = gui.parse_paste(DATA, paste)
     req["entries"] = entries
-    return HTMLResponse(gui.page(DATA, gui.step2(DATA, rid, req,
-                                                 gui.parsed_message(parsed, not_understood))))
+    return HTMLResponse(gui.page(DATA, gui.step2(
+        DATA, rid, req, gui.parsed_message(DATA, parsed, not_understood)), "Enter values"))
 
 
 async def _checked(request):
@@ -170,8 +170,8 @@ async def edit(request):
         return bad(str(err))
     rid = req.get("requirement")
     if not any(r["id"] == rid for r in DATA.tables["requirements"]):
-        return HTMLResponse(gui.page(DATA, gui.step1(DATA)))
-    return HTMLResponse(gui.page(DATA, gui.step2(DATA, rid, req)))
+        return HTMLResponse(gui.page(DATA, gui.step1(DATA), "Choose a requirement"))
+    return HTMLResponse(gui.page(DATA, gui.step2(DATA, rid, req), "Enter values"))
 
 
 session_manager = StreamableHTTPSessionManager(app=mcp_tools.build(DATA), stateless=True,

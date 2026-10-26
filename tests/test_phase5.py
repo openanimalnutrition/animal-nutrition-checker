@@ -62,7 +62,7 @@ def animal_for(rid):
     if rid == "nrc-dog-gestation-lactation":
         a["life_stage"] = "Gestation: week 5 to birth"
     if rid in ("nrc-cat-peak-lactation", "fediaf-cat-reproduction"):
-        a.update(life_stage="3-4 Kittens", lactation_week=3)
+        a.update(life_stage="3-4 Kittens Nursing", lactation_week=3)
     if req["species"] == "feline":
         a["body_weight_kg"] = 4.0
     return a
@@ -89,7 +89,7 @@ class Data21OCT26b10(unittest.TestCase):
     def test_release(self):
         from oan import release
         r = release.read_release(DATA_DIR)
-        self.assertEqual(r["data_version"], "21OCT26b.10")
+        self.assertEqual(r["data_version"], "21OCT26b.11")
         self.assertEqual(r["content_sha256"], release.content_hash(DATA_DIR))
 
     def test_validator_clean(self):

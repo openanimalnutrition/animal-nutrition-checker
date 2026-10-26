@@ -65,9 +65,9 @@ FACTS = {
     "nrc-cat-late-gestation": {"body_weight_kg": 4.0, "adult_cat_type": CAT,
                                "life_stage": "Gestation: week 5 to birth"},
     "nrc-cat-peak-lactation": {"body_weight_kg": 4.0, "adult_cat_type": CAT,
-                               "life_stage": "3-4 Kittens", "lactation_week": 3},
+                               "life_stage": "3-4 Kittens Nursing", "lactation_week": 3},
     "fediaf-cat-reproduction": {"body_weight_kg": 4.0, "adult_cat_type": CAT,
-                                "life_stage": "3-4 Kittens", "lactation_week": 3},
+                                "life_stage": "3-4 Kittens Nursing", "lactation_week": 3},
 }
 RESTRICTION = 25.0
 ENERGY_DENSITY = 3.5

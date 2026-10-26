@@ -65,7 +65,9 @@ def check_cell(cell, value, data):
     """The input rule's Verdict for a value in a Standards tab input cell, or None for a
     cell not mapped yet."""
     if cell in sheet_map.INPUT_CELLS:
-        return inputs.check_fact(sheet_map.INPUT_CELLS[cell], value, data)
+        field = sheet_map.INPUT_CELLS[cell]
+        return inputs.check_fact(field, sheet_map.checker_value(field, value),
+                                 data)
     col, row = cell[:1], cell[1:]
     if row == str(sheet_map.ENERGY_ROW) and col in sheet_map.ENTRY_COLUMNS:
         return inputs.check_entry(inputs.ENERGY_ENTRY, value, data)

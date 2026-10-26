@@ -172,6 +172,25 @@ INPUT_CELLS = {
     'G10': 'caloric_restriction_percent',
     'G65': 'puppy_body_weight_kg',
 }
+# Template values the checker names differently (steward, 26 Oct 2026): the export and the
+# template's test cases keep the template's; the checker's input is the right-hand value.
+CHECKER_VALUES = {
+    'life_stage': {'<3 Kittens': '<3 Kittens Nursing', '3-4 Kittens': '3-4 Kittens Nursing',
+                   '>4 Kittens': '>4 Kittens Nursing'},
+}
+
+
+def checker_value(field, value):
+    """A template input value as the checker takes it, matched as the template matches a
+    typed item (trimmed, without case)."""
+    from oan import inputs
+    if not isinstance(value, str):
+        return value
+    typed = inputs.fold(inputs.trim(value))
+    return next((new for old, new in CHECKER_VALUES.get(field, {}).items()
+                 if inputs.fold(old) == typed), value)
+
+
 # Cells that are no longer inputs: some older test scenarios still set them.
 RETIRED_CELLS = {
     'I3': 'cleared by the energy changes of 21OCT26; no formula reads it',

@@ -9,6 +9,7 @@ tested, because the code has no such construct: INDEX of a one-row array, IFERRO
 branches IF and AND evaluate; the sheet view renders their results in phase 3.
 """
 
+import ast
 import collections
 import contextlib
 import copy
@@ -23,6 +24,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(HERE))
 sys.path.insert(0, HERE)
 import run_vectors  # noqa: E402
+import sheet_map  # noqa: E402
 from oan import inputs, numbers, table  # noqa: E402
 
 BASELINE = run_vectors.BASELINE
@@ -148,7 +150,7 @@ class Semantics(unittest.TestCase):
         self.assertEqual(fact("mature_weight_kg", "abc").status, "reject")
 
     def test_trim_removes_spaces_only_assumed(self):
-        self.assertEqual(inputs.trim("  >4   Kittens "), ">4 Kittens")
+        self.assertEqual(inputs.trim("  >4   Kittens  Nursing "), ">4 Kittens Nursing")
         self.assertEqual(inputs.trim("Lactation:\u00a0bitch"), "Lactation:\u00a0bitch")
         self.assertEqual(fact("life_stage", "Lactation:\u00a0bitch").status, "reject")
         self.assertEqual(fact("life_stage", "\tNone").status, "reject")
@@ -181,9 +183,11 @@ class InputRules(unittest.TestCase):
             for tag in case["tags"]:
                 if tag.startswith("m3-variant: "):
                     typed, item = tag[len("m3-variant: "):].split(" reads as ")
-                    verdict = fact("life_stage", case["inputs"]["M3"])
-                    self.assertEqual(repr(case["inputs"]["M3"]), typed)
-                    self.assertEqual(repr(verdict.value), item)
+                    m3 = case["inputs"]["M3"]
+                    verdict = fact("life_stage", sheet_map.checker_value("life_stage", m3))
+                    self.assertEqual(repr(m3), typed)
+                    self.assertEqual(verdict.value, sheet_map.checker_value(
+                        "life_stage", ast.literal_eval(item)))
                     seen += 1
         self.assertEqual(seen, 70)
 

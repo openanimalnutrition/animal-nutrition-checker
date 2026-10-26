@@ -115,7 +115,8 @@ class EnergyView:
             col, row = cell[:1], cell[1:]
             if cell in sheet_map.INPUT_CELLS:
                 field = sheet_map.INPUT_CELLS[cell]
-                verdict = inputs.check_fact(field, value, data)
+                verdict = inputs.check_fact(
+                    field, sheet_map.checker_value(field, value), data)
                 target, key = self.facts, field
             elif row == str(sheet_map.ENERGY_ROW) and col in sheet_map.ENTRY_COLUMNS:
                 verdict = inputs.check_entry(inputs.ENERGY_ENTRY, value, data)
@@ -223,7 +224,8 @@ class StandardsView:
             col, row = cell[:1], cell[1:]
             if cell in sheet_map.INPUT_CELLS:
                 field = sheet_map.INPUT_CELLS[cell]
-                verdict = inputs.check_fact(field, value, data)
+                verdict = inputs.check_fact(
+                    field, sheet_map.checker_value(field, value), data)
                 self.facts[field] = verdict.value
                 energy_cells[cell] = value
             elif col in sheet_map.ENTRY_COLUMNS and row == str(sheet_map.ENERGY_ROW):

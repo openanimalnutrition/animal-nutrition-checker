@@ -30,8 +30,8 @@ and not veterinary advice; every result says so first.
   for by DVM Consulting, Inc., the provisional steward (disclosure of interest).
 - The steward keeps working on the checker. Every change goes through a pull request, is
   recorded with its reason in `docs/changes-from-21OCT26b.md`, and gets a new data version
-  when the data change (`data/RELEASE`; now 21OCT26b.10) and a new release number when the
-  code's rules change (`oan/result.py`; now 0.9.1). Every result states both
+  when the data change (`data/RELEASE`; now 21OCT26b.11) and a new release number when the
+  code's rules change (`oan/result.py`; now 0.10.0). Every result states both
   (`code_release`, `data_version`).
 
 ## Where the reasoning is
@@ -226,6 +226,7 @@ Version 21OCT26b. The frozen baseline in `tests/parity/` is never edited.
 | 21OCT26b.8 | Row names and conditions for AI readers (steward, 24 Oct 2026, after the AI-read test of release 0.5.1): the dry rows of taurine (per Mcal and MBW), copper and selenium are named "(For 12% or Less Moisture Foods)", and the moisture condition says on each row which foods it is for and whether the wet and dry limits differ under the requirement; template instructions left the vitamin D, vitamin D2, arginine and vitamin E names ("Cats: 1.43X if Vit D2" read as "multiply a D2 entry by 1.43"), with two new conditions (cat vitamin D form; arginine without protein); 15 notes follow the new names. Then, after a second AI-read test: the large-breed puppy calcium row's name and notes (n098, n233, n234) and a condition on the general calcium row (rule 11); AAFCO's dry matter maximums in conditions and limitation 8 (rule 12); the ten known limitations cite note ids, not template cells. No requirement figure changed |
 | 21OCT26b.9 | `conditions.csv`: the condition on added selenium (`source-form-selenium`) names the separate limits it means, AAFCO's additive approval limit and FEDIAF's limit on organic selenium (steward, 25 Oct 2026, after the AI-read test of release 0.6.0 with new cases: beside FEDIAF's EU legal maximum, which applies to added selenium, "Limits on added selenium are not checked" read as a contradiction). No requirement figure changed |
 | 21OCT26b.10 | `limitations.csv`: known limitation 3 says that FEDIAF's EU legal maximums apply only when the nutrient is added as an additive, and then to its total in the food (note n005) (steward, 25 Oct 2026, after the live-call test of release 0.7.0: "apply only to amounts added as additives" read as "only the added portion is limited"). No requirement figure changed |
+| 21OCT26b.11 | `notes.csv`: the lactating queen's life stages are named "<3 Kittens Nursing", "3-4 Kittens Nursing" and ">4 Kittens Nursing" in notes n045, n051, n178 and n179, as the checker now names them (steward, 26 Oct 2026, with the GUI rebuild of release 0.10.0). No value changed |
 
 The frozen baseline gained the same `energy.csv` once, in phase 2, and the same
 `template.csv` once, in phase 3 (steward, 21 Oct 2026 both times), so the 21OCT26b cases
@@ -362,7 +363,11 @@ The MCP tools (stateless Streamable HTTP at `/mcp`): `list_requirements`, `descr
 content and as a text block whose first lines are the caveats. Each tool's description, and
 the server's instructions, give what it does and the call order before the caveats; the tools
 are annotated read-only, and `get_limits` takes an optional list of nutrient ids. The GUI (`/`)
-takes the same inputs and its "download JSON" gives the same bytes.
+takes the same inputs and its "download JSON" gives the same bytes. Its pages follow the
+mockups in `docs/mockups/oan-checker` (release 0.10.0): plain HTML and one stylesheet, no
+script. A requirement's form shows only the animal facts it reads, and, once a life stage is
+chosen, only those that life stage uses (in browsers without the CSS `:has()` selector,
+every one).
 
 To run it, see [Run it](#run-it) above.
 

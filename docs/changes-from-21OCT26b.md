@@ -217,6 +217,33 @@ version; every result states both (`code_release`, `data_version`).
   sends `Strict-Transport-Security` and no longer names its software (`server: uvicorn`).
   How the hosted checker runs: `docs/OPERATIONS.md`.
 
+- 0.10.0 (26 Oct 2026): data version 21OCT26b.11. The GUI rebuilt from the page mockups
+  (`docs/mockups/oan-checker`), with the steward's decisions of 26 Oct 2026. The rules and
+  verdicts are unchanged:
+  - The adult dog type is now listed as read by NRC RA Dog Late Gestation & Peak Lactation
+    (late gestation) and AAFCO Dog Growth (Small & Medium) and Reproduction (gestation), whose
+    energy uses it (notes n047 and n039). The checker finds the facts a requirement reads by trying a
+    sample of each, and the sample dog type was NRC's average (130 * kg BW^0.75), which is also
+    the energy used when no type is chosen, so the type looked unused: the GUI did not offer
+    it, and `list_requirements` did not list it. A GUI check therefore always used the average
+    (991 instead of 794 kcal/day for an inactive 10 kg bitch in late gestation); a request
+    through the MCP that gave the type was computed with it.
+  - The lactating queen's life stages are named "<3 Kittens Nursing", "3-4 Kittens Nursing"
+    and ">4 Kittens Nursing" (section 4), in the inputs and in notes n045, n051, n178 and n179
+    (data version 21OCT26b.11). A request with the template's names gets the input error that
+    lists the life stages.
+  - The eight animal facts that had no label have one (section 4); `describe_inputs` gives
+    them as `label`.
+  - The GUI's pages: the caveats on top of every page, as before; Screen B shows a
+    requirement's animal facts body weight first (as a veterinarian describes a patient), only
+    the life stages the requirement covers, and, once a life stage is chosen, only the facts it
+    uses (CSS only: a browser without the `:has()` selector shows every fact, and a value in a
+    hidden field cannot change a result, which a test checks); the value rows in six groups
+    (Energy, Protein and amino acids, Fat and fatty acids, Minerals, Vitamins, Other), each
+    group's MBW rows folded under it; the result in one block per nutrient, with the band,
+    verdict and status under each value entered; the About page adds "Use with AI" (the MCP
+    address), and every page's "Report an error" links to its Contact section.
+
 ## Where the template's own text is kept
 
 - [template-21OCT26b-notes.csv](template-21OCT26b-notes.csv): all 301 template notes word for
@@ -447,3 +474,28 @@ moisture condition became four: `moisture-dry` and `moisture-wet` where the two 
 differ under the requirement, `moisture-same` where they do not (with the alert that some
 standards set different copper, selenium and taurine limits by moisture or format), and
 `moisture-any` on the copper and selenium MBW rows.
+
+## 4. Input names and labels (release 0.10.0)
+
+The life stage items of a lactating queen say what they count (steward, 26 Oct 2026). The
+template's names are kept in its test cases (`tests/parity/`), which the test side translates.
+
+| Template item | Checker item |
+|---|---|
+| <3 Kittens | <3 Kittens Nursing |
+| 3-4 Kittens | 3-4 Kittens Nursing |
+| >4 Kittens | >4 Kittens Nursing |
+
+The labels of the animal facts that had none (steward, 26 Oct 2026). Each input's allowed
+values are shown beside it, so no label repeats them.
+
+| Input | Template label | Checker label |
+|---|---|---|
+| mature_weight_kg | Expected Mature BW (kg): | Expected mature body weight (kg) |
+| puppies_nursing | # Puppies Nursing: | Number of puppies nursing |
+| lactation_week | Week of Lactation (1-7): | Week of lactation |
+| life_stage | Life Stage or Lactating Queen's Kittens: | Life stage, or a lactating queen's kittens ("Life stage" where a requirement's list has no kittens) |
+| adult_dog_type | Type of Adult Dog: | Type of adult dog |
+| adult_cat_type | Type of Adult Cat: | Type of adult cat |
+| energy_intake_kcal_per_day | Overwrite & Use This Instead (kcal/day): | Energy intake (kcal/day), if known |
+| caloric_restriction_percent | 100% Minus % Caloric Restriction Adjustment For Weight Loss | Caloric restriction (%), optional |
