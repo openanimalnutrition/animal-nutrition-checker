@@ -1,7 +1,7 @@
 # Operations: the hosted checker
 
 How the hosted checker runs, what it costs, how to release, roll back or take it offline, and
-what it keeps. For maintainers. Facts as of 25 Oct 2026; a change to any of them updates this
+what it keeps. For maintainers. Facts as of 26 Oct 2026; a change to any of them updates this
 file in the same pull request.
 
 ## Who
@@ -17,13 +17,13 @@ file in the same pull request.
 
 | What | Where |
 |---|---|
-| AWS account | 950607791713, "Open Animal Nutrition Production", in DVM Consulting's AWS organization. Root email admin+awsoan@dvmconsulting.com, with MFA. Day-to-day: the AWS access portal, the management account, then switch role `OrganizationAccountAccessRole` into 950607791713 ("OAN Prod"). |
+| AWS account | 950607791713, "Open Animal Nutrition Production", in DVM Consulting's AWS organization. Root email admin+awsoan@dvmconsulting.com, with MFA. Day-to-day: the AWS access portal (IAM Identity Center), account 950607791713, permission set `AWSAdministratorAccess`. |
 | Service | Amazon Lightsail container service `oan-checker`, us-east-1, power Nano (0.25 vCPU, 512 MB), scale 1. |
 | Image | `ghcr.io/openanimalnutrition/animal-nutrition-checker` (public), built by `.github/workflows/image.yml` on every push to main after the contract tests pass. The deployment pins it by digest. |
 | Deployment | Container `checker`; port 8790, HTTP; public endpoint `checker:8790`; health check path `/`, success codes 200-499 (the health check arrives with an internal Host, which the Host check answers with 400). Environment below. |
-| Names | openanimalnutrition.org, www.openanimalnutrition.org and checker.openanimalnutrition.org serve the GUI; the MCP address to publish is https://checker.openanimalnutrition.org/mcp. The service's own address, oan-checker.c5kapc540385r.us-east-1.cs.amazonlightsail.com, also works. |
-| Certificate | Lightsail certificate `oan-checker-domains` for the three names, attached to the service. It renews automatically while its validation CNAMEs stay in DNS. |
-| DNS | Route 53 hosted zone Z01009783JJPPE1GBH7KU, in the same account: the 3 certificate-validation CNAMEs, 3 A alias records to the Lightsail us-east-1 container zone Z06246771KYU0IRHI74W4, and GitHub's organization-verification TXT. Alias records to Lightsail can be made only with the AWS CLI (CloudShell), not in the Route 53 console. Query logging must stay off (see "What the hosted checker keeps"). |
+| Names | checker.openanimalnutrition.org serves the GUI; the MCP address to publish is https://checker.openanimalnutrition.org/mcp. The service's own address, oan-checker.c5kapc540385r.us-east-1.cs.amazonlightsail.com, also works. openanimalnutrition.org and www.openanimalnutrition.org serve the project's homepage and the IG from GitHub Pages ([openanimalnutrition.github.io](https://github.com/openanimalnutrition/openanimalnutrition.github.io) repository), not from this service. |
+| Certificate | Lightsail certificate `oan-checker-domains` for openanimalnutrition.org, www.openanimalnutrition.org and checker.openanimalnutrition.org, attached to the service (only checker.openanimalnutrition.org still reaches it). It renews automatically while its validation CNAMEs stay in DNS. |
+| DNS | Route 53 hosted zone Z01009783JJPPE1GBH7KU, in the same account: the 3 certificate-validation CNAMEs; an A alias record for checker.openanimalnutrition.org to the Lightsail us-east-1 container zone Z06246771KYU0IRHI74W4; for GitHub Pages, A and AAAA records for openanimalnutrition.org, a CNAME from www.openanimalnutrition.org to openanimalnutrition.github.io and the Pages domain-verification TXT; and GitHub's organization-verification TXT. Alias records to Lightsail can be made only with the AWS CLI (CloudShell), not in the Route 53 console. Query logging must stay off (see "What the hosted checker keeps"). |
 | Domain registration | Namecheap, paid to 29 Jun 2027, auto-renew on, in the steward's Namecheap account. Its nameservers delegate to the Route 53 zone. |
 
 Environment (keep unchanged across deployments):
@@ -33,6 +33,9 @@ OAN_HOSTS=oan-checker.c5kapc540385r.us-east-1.cs.amazonlightsail.com,openanimaln
 OAN_ORIGINS=https://oan-checker.c5kapc540385r.us-east-1.cs.amazonlightsail.com,https://openanimalnutrition.org,https://www.openanimalnutrition.org,https://checker.openanimalnutrition.org
 ```
 
+openanimalnutrition.org and www.openanimalnutrition.org no longer reach this service; they stay
+in both lists so that the environment stays unchanged.
+
 ## Costs
 
 | Item | Cost |
@@ -40,7 +43,7 @@ OAN_ORIGINS=https://oan-checker.c5kapc540385r.us-east-1.cs.amazonlightsail.com,h
 | Lightsail container service, Nano x 1 | $7 a month, including 500 GB of data out; above that, from $0.09 per GB. Charged while disabled; only deleting the service stops the charge. |
 | Route 53 hosted zone | $0.50 a month, plus DNS queries |
 | Domain | Namecheap's yearly .org renewal |
-| Certificate, GitHub organization, public image | no charge |
+| Certificate, GitHub organization, public image, GitHub Pages (homepage and IG) | no charge |
 
 AWS Budgets "OAN monthly cost": $15 a month, emails admin+awsoan@dvmconsulting.com.
 
@@ -82,17 +85,18 @@ the last 50 deployment versions.
 When: misuse that costs money (data out above 500 GB a month) or harms others, a security
 flaw, or a wrong result that could harm animals before a fix can be deployed.
 
-Disabling makes every name answer 503 and keeps the deployment, its images and settings;
+Disabling makes the checker answer 503 and keeps the deployment, its images and settings;
 re-enabling restores the last deployment unchanged. Logs and metrics still expire as usual.
-In AWS CloudShell, in the "OAN Prod" role:
+In AWS CloudShell, in account 950607791713:
 
 ```
 aws lightsail update-container-service --region us-east-1 --service-name oan-checker --is-disabled
 aws lightsail get-container-services --region us-east-1 --service-name oan-checker --query 'containerServices[0].[state,isDisabled]'
-for h in openanimalnutrition.org www.openanimalnutrition.org checker.openanimalnutrition.org; do curl -s -o /dev/null -w "$h %{http_code}\n" https://$h/; done
+curl -s -o /dev/null -w "%{http_code}\n" https://checker.openanimalnutrition.org/
 ```
 
-Repeat the last two commands until the state is `DISABLED` and every name answers 503.
+Repeat the last two commands until the state is `DISABLED` and the checker answers 503. The
+homepage and the IG, on GitHub Pages, stay up.
 
 Back online: the first command with `--no-is-disabled`.
 

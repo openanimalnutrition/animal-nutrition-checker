@@ -371,7 +371,7 @@ every one).
 
 To run it, see [Run it](#run-it) above.
 
-Hosted at https://openanimalnutrition.org/, with the MCP server at
+Hosted at https://checker.openanimalnutrition.org/, with the MCP server at
 https://checker.openanimalnutrition.org/mcp (no sign-in). What the hosted checker keeps is
 stated on its About page (`/about`, from `server/pages/about.html`). How it runs, what it costs, how
 to release, roll back or take it offline: [`docs/OPERATIONS.md`](docs/OPERATIONS.md).
