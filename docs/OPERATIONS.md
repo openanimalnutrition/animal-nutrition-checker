@@ -9,8 +9,11 @@ file in the same pull request.
 - Provisional steward: DVM Consulting, Inc. (acting: Sean Delaney). DVM Consulting pays the
   costs below until a governance body decides how the project is hosted and funded
   ([disclosure of interest](https://github.com/openanimalnutrition/animal-nutrition-ig/blob/main/GOVERNANCE.md)).
-- Privacy questions, misuse and security reports: openanimalnutrition@dvmconsulting.com, an
-  alias that reaches the steward. Errors in a rule or a value: GitHub issues (public).
+- The project's one email address: openanimalnutrition@dvmconsulting.com, a Google group that
+  reaches the steward and accepts mail from anyone. It takes privacy questions, misuse and
+  security reports, offers to join the governance body, and challenges from people without a
+  GitHub account (the steward files those as public issues). Errors in a rule or a value: GitHub
+  issues (public).
 - Second maintainer: none yet.
 
 ## What runs where
@@ -158,7 +161,8 @@ To the governance body, when it decides to take these on:
   (announced 19 Nov 2025). Change the root email to the new holder's.
 - GitHub organization: add the new owners, then remove DVM Consulting's.
 - Domain: transfer the Namecheap registration, or move it into the AWS account.
-- Contact: replace openanimalnutrition@dvmconsulting.com in `server/pages/about.html` and in
-  this file.
+- Contact: move openanimalnutrition@dvmconsulting.com to an address on a domain the steward
+  does not control, and replace it in `server/pages/about.html`, the README, this file, the
+  IG's GOVERNANCE.md and the homepage (`site/index.html` in openanimalnutrition.github.io).
 
 Everything is CC0, so anyone can also run their own copy from the public image.
