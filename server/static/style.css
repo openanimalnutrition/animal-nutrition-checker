@@ -33,10 +33,11 @@ body {
 .site-footer { border-top: 1px solid var(--rule); margin-top: 3rem; padding-top: 1.5rem; padding-bottom: 2rem; }
 
 /* Text */
-h1, h2, h3 { line-height: 1.25; margin: 2rem 0 1rem; }
+h1, h2, h3, h4 { line-height: 1.25; margin: 2rem 0 1rem; }
 h1 { font-size: 2rem; margin-top: 1.5rem; }
 h2 { font-size: 1.5rem; }
 h3 { font-size: 1.1875rem; }
+h4 { font-size: 1.0625rem; }
 h3 small { font-size: 1rem; font-weight: 400; }
 p, ul, ol, dl { margin: 0 0 1rem; }
 p, li { max-width: 46rem; }
@@ -179,7 +180,7 @@ td input { width: 8rem; }
   a, a:visited, summary { color: var(--ink); }
   .site-footer a[href^="http"]::after { content: " (" attr(href) ")"; }
   .nutrient, .summary dd, tr { break-inside: avoid; }
-  h2, h3, caption { break-after: avoid; }
+  h2, h3, h4, caption { break-after: avoid; }
   .verdict { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 

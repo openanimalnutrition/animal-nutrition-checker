@@ -31,7 +31,7 @@ CAT = energy.cat_type_labels(D.tables)
 ALLOWED = {"html", "head", "meta", "title", "link", "body", "a", "form", "fieldset", "legend",
            "label", "select", "option", "optgroup", "input", "textarea", "button", "table",
            "caption", "thead", "tbody", "tr", "th", "td", "details", "summary", "ol", "ul",
-           "li", "dl", "dt", "dd", "h1", "h2", "h3", "p", "small", "strong", "section",
+           "li", "dl", "dt", "dd", "h1", "h2", "h3", "h4", "p", "small", "strong", "section",
            "header", "main", "footer"}
 VOID = {"meta", "link", "input"}
 EXAMPLE = {"requirement": "aafco-cat-adult", "subject": "diet",
