@@ -248,7 +248,7 @@ version; every result states both (`code_release`, `data_version`).
   results differ only in `code_release`. After the advisory board's first use of the GUI
   (three board-certified veterinary nutritionists could not tell what to enter, and a nutrient
   profile pasted with units was not understood line by line), the steward's decisions of 28
-  Oct 2026 (the wording is pending approval):
+  Oct 2026 (the wording approved by the steward the same day):
   - A user guide, `/how-to-use` (from `server/pages/how-to-use.html`, linked from every
     page's footer and from the first two screens): typing values, pasting them, and
     connecting an AI assistant (Claude, ChatGPT, Gemini), with the date it was last revised

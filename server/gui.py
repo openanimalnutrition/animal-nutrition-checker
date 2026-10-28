@@ -33,7 +33,7 @@ REQUIREMENT_HINT = ("One of %d nutrient requirements from the 2006 NRC, the 2026
                     "FEDIAF Sept. 2025.")
 EMPTY_INPUT_REPORT = "Every value entered was used; nothing is missing."
 CHOOSE_LIFE_STAGE = "Choose a life stage"
-# Texts proposed on 28 Oct 2026 after the advisory board's first use (pending approval).
+# Texts approved by the steward on 28 Oct 2026, after the advisory board's first use.
 FIRST_TIME = ('First time here? Read <a href="/how-to-use">How to use</a>, or try '
               '<a href="/example">the worked example</a>.')
 PASTE_HINT = ("One nutrient per line: its name as in the table, then the value, separated by "
