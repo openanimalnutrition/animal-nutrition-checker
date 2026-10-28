@@ -139,8 +139,8 @@ nutrient appeared twice.</p>
 <tr><td data-label="Row">Taurine, copper, selenium in a food with more than 12% moisture</td><td data-label="Type">taurine-wet, copper-wet, selenium-wet</td></tr>
 </tbody>
 </table>
-<p>[Sean: the full id list, 117 rows, can go in an appendix or a link; this table covers the
-common rows.]</p>
+<p>Any other row: its name exactly as the table shows it, for example "Folate, DFE, Vitamin B9,
+500".</p>
 
 <h2 id="way-3">Way 3: an AI assistant</h2>
 <p>Connect the checker to an AI assistant once. Then paste a label, a recipe report or a
@@ -150,61 +150,80 @@ the comparison; the assistant can still misread the source, so check the values 
 <p>The checker's address for AI assistants, no sign-in:</p>
 <p><strong>https://checker.openanimalnutrition.org/mcp</strong></p>
 
-<h3 id="claude">Claude (claude.ai, and the desktop and mobile apps)</h3>
-<p>Steps checked in Claude on [date].</p>
+<h3 id="claude">Claude (claude.ai)</h3>
+<p>Steps checked in Claude on the web, on the Free plan, on 28 October 2026.</p>
 <p>Custom connectors work on every plan: Free allows one; Pro, Max, Team and Enterprise allow
 more. On Team and Enterprise, an Owner adds it.</p>
 <ol>
 <li>Open <a href="https://claude.ai">claude.ai</a> and sign in.</li>
-<li>Open <strong>Settings</strong>, then <strong>Connectors</strong>. [Sean: confirm the
-path]</li>
-<li>Click <strong>Add custom connector</strong>.</li>
-<li>Name: <strong>Open Animal Nutrition Checker</strong>. URL: the address above.</li>
-<li>Leave <strong>No sign-in</strong> selected. A warning that anyone with the address can
-use it is expected. Click <strong>Add</strong>. [Sean: confirm the button]</li>
-<li>Optional: the five tools are listed as <strong>Read-only tools</strong>, each set to
-"Needs approval". Set them to always allow, or approve each call as it comes.</li>
-<li>In a chat, check that <strong>Open Animal Nutrition Checker</strong> is on in the tools
-menu.</li>
+<li>Click your name in the lower left, then <strong>Settings</strong>.</li>
+<li>Under <strong>Customize</strong>, click <strong>Connectors</strong>.</li>
+<li>Click <strong>+ Add</strong> (upper right), then <strong>Add custom
+connector</strong>.</li>
+<li>Name: <strong>Open Animal Nutrition Checker</strong>. MCP server URL: the address above.
+Click <strong>Continue</strong>.</li>
+<li>Under Authentication, leave <strong>No sign-in</strong> selected (marked "Detected"). The
+warning "Without sign-in, anyone with the server URL can use this connector" is expected.
+Click <strong>Add</strong>.</li>
+<li>Click <strong>Connect</strong>.</li>
+<li>Optional: under <strong>Tool permissions</strong>, the five <strong>Read-only
+tools</strong> are set to <strong>Needs approval</strong>, so Claude asks before each call.
+To skip the prompts, choose <strong>Always allow</strong> in that menu.</li>
+<li>In a chat, click <strong>+</strong> in the message box, then
+<strong>Connectors</strong>: Open Animal Nutrition Checker is listed with its switch on.</li>
 </ol>
 
 <h3 id="chatgpt">ChatGPT (chatgpt.com)</h3>
-<p>Steps checked in ChatGPT on [date].</p>
-<p>[Sean: which plans allow this is unconfirmed; the 25 Oct test used your account.]</p>
+<p>Steps checked in ChatGPT on the web, on the Plus plan, on 28 October 2026 (and on a
+Business plan on 25 October 2026).</p>
 <ol>
 <li>Open <a href="https://chatgpt.com">chatgpt.com</a> and sign in.</li>
-<li>In the left panel, click <strong>Plugins</strong>, then <strong>Add</strong>, then
-<strong>Add custom MCP server</strong>.</li>
-<li>Name: <strong>Open Animal Nutrition Checker</strong>. Server URL: the address above.</li>
-<li>Authentication: <strong>No authentication</strong>.</li>
+<li>In the left panel, click <strong>Plugins</strong>, then the <strong>Personal</strong>
+tab.</li>
+<li>Click <strong>Add</strong> (upper right), then <strong>Add custom MCP
+server</strong>.</li>
+<li>Name: <strong>Open Animal Nutrition Checker</strong>. Under <strong>Connection</strong>,
+leave <strong>Server URL</strong> selected and enter the address above.</li>
+<li>Change <strong>Authentication</strong> from OAuth to <strong>No
+authentication</strong>.</li>
 <li>Tick <strong>I understand and want to continue</strong>, then click <strong>Create as a
 plugin</strong>.</li>
-<li>Click <strong>Connect</strong>.</li>
-<li>In each chat, choose the checker from the <strong>+</strong> menu.</li>
+<li>Click <strong>Connect Open Animal Nutrition Checker</strong>. A green confirmation
+appears.</li>
+<li>In each chat, click <strong>+</strong> in the message box, then <strong>Open Animal
+Nutrition Checker</strong>. Its name appears in the message box, and that chat can use
+it.</li>
 </ol>
 
 <h3 id="gemini">Gemini (gemini.google.com)</h3>
-<p>Steps checked in Gemini on [date].</p>
+<p>Steps checked in Gemini on the web, on the Google AI Pro plan, on 28 October 2026.</p>
 <p>You need a personal Google account (not a work or school one) with <strong>Keep
 Activity</strong> on. Google also lists: 18 or over, in the US, and English.</p>
 <ol>
 <li>Open <a href="https://gemini.google.com">gemini.google.com</a>, signed in with your
 personal account.</li>
-<li>Click <strong>Settings</strong>, lower left.</li>
-<li>In the panel, click <strong>Personal Intelligence</strong>.</li>
+<li>Click the gear icon in the lower left, then <strong>Personal Intelligence</strong>.</li>
 <li>Click <strong>Connected Apps</strong>.</li>
-<li>Click <strong>+ Custom</strong>, upper right.</li>
-<li>Enter the address above as the MCP server URL. [Sean: confirm any name or
-authentication field, and the button]</li>
-<li>[Sean: confirm how to turn it on in a chat]</li>
+<li>Click <strong>+ Custom</strong> (upper right).</li>
+<li>In <strong>MCP Server URL</strong>, enter the address above. Click
+<strong>Next</strong>.</li>
+<li>Read Google's notice, tick <strong>I understand and accept the security and privacy risks
+of connecting this custom app</strong>, and click <strong>Connect</strong>. (The checker's
+privacy statement is on its <a href="/about">About</a> page.)</li>
+<li>Gemini names it <strong>Open Animal Nutrition</strong> and lists its five tools. Click
+<strong>Connect</strong>. It appears under <strong>Custom apps</strong>.</li>
+<li>A chat has no switch for it. With <strong>Personal Intelligence</strong> on (in a chat,
+<strong>+</strong>, then <strong>More tools</strong>), Gemini calls the checker when you ask
+it to, and shows that it is connecting to Open Animal Nutrition while it works.</li>
 </ol>
 
 <h3 id="ask">What to ask</h3>
 <p>Give the animal's facts and the requirement up front. Otherwise assistants tend to assume
 them. For example:</p>
 <p><strong>Use the Open Animal Nutrition checker. Compare this diet with AAFCO Dog Maintenance
-for a 20 kg adult spayed pet dog, walked twice a day. Afterwards, list each value you
-entered, per Mcal, and how you converted it.</strong></p>
+for a 20 kg adult spayed pet dog, walked twice a day. Give each nutrient's band and verdict
+in the checker's own words. Afterwards, list each value you entered, per Mcal, and how you
+converted it.</strong></p>
 <p><strong>[paste the label, recipe report or nutrient profile here]</strong></p>
 <ul>
 <li><strong>Check the values it entered</strong> against your source. A slip (for example,
