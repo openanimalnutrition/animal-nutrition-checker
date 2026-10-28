@@ -59,8 +59,8 @@ Everything in an issue is public and stays in the record. The steward answers in
 once a governance body is formed, it decides. An accepted change is made by a pull request,
 with its entry in the changes document and a new data version.
 
-No GitHub account? Email admin+oan@dvmconsulting.com, and the steward will file it for you
-as a public issue.
+No GitHub account? Email openanimalnutrition@dvmconsulting.com, and the steward will file it
+for you as a public issue.
 
 ## Run it
 
