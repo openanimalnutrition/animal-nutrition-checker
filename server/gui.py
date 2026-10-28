@@ -7,6 +7,8 @@
 3. The result: the caveats on top, then the animal and energy, the input report and one block
    per nutrient (Screen C); "Download JSON" gives the same bytes as the MCP check_diet's JSON.
 4. About (Screen D): server/pages/about.html in the same frame.
+5. How to use: server/pages/how-to-use.html in the same frame; its worked example (EXAMPLE)
+   opens pre-filled on Screen B at /example.
 
 Every text from the data, the request or the result is HTML-escaped here.
 """
@@ -31,6 +33,27 @@ REQUIREMENT_HINT = ("One of %d nutrient requirements from the 2006 NRC, the 2026
                     "FEDIAF Sept. 2025.")
 EMPTY_INPUT_REPORT = "Every value entered was used; nothing is missing."
 CHOOSE_LIFE_STAGE = "Choose a life stage"
+# Texts proposed on 28 Oct 2026 after the advisory board's first use (pending approval).
+FIRST_TIME = ('First time here? Read <a href="/how-to-use">How to use</a>, or try '
+              '<a href="/example">the worked example</a>.')
+PASTE_HINT = ("One nutrient per line: its name as in the table, then the value, separated by "
+              "commas (for example: Calcium, Ca, 3.16). For a range, give low then high "
+              "(Calcium, Ca, 1.2, 3); for only a high, leave low empty (Calcium, Ca, , 6). "
+              "Numbers only, with no units. Click Parse to see how each line was read; the "
+              "values then fill the table below, and nothing is checked until you click Check.")
+UNITS_OTHER = " Rows with another unit take the unit shown; the MBW rows are per Mcal too."
+EXAMPLE_NOTE = ("The worked example from How to use: a 20 kg adult dog, and a dry food whose "
+                "label gives crude protein 26%, crude fat 16%, calcium 1.2%, phosphorus 1.0%, "
+                "moisture 10% and 3,800 kcal ME/kg, converted to per Mcal. Click Check to see "
+                "the result.")
+# The worked example of How to use (pages/how-to-use.html; a test checks the page against its
+# result).
+EXAMPLE = {"requirement": "aafco-dog-adult", "subject": "diet",
+           "animal": {"body_weight_kg": 20,
+                      "adult_dog_type": "Average laboratory or active (130 * kg BW^0.75)"},
+           "entries": {"protein": {"low": 68.4}, "fat": {"low": 42.1},
+                       "calcium": {"low": 3.16}, "phosphorus": {"low": 2.63},
+                       "energy-density": {"low": 4.22}}}
 # The order of the animal facts (steward, 26 Oct 2026: weight first, as a veterinarian
 # describes a patient). A requirement shows only the facts it reads.
 FACT_ORDER = ("body_weight_kg", "optimal_body_weight_kg", "life_stage", "lactation_week",
@@ -139,6 +162,18 @@ def request_from_form(data, form):
     return req
 
 
+def _split_line(by_name, line):
+    """(id, [low] or [low, high]) of a pasted line, or None. A row's name may hold commas
+    ("Calcium, Ca"), so the longest leading run of fields that names a row is the name, and
+    one or two fields must follow it."""
+    parts = [p.strip() for p in (line.split("\t") if "\t" in line else line.split(","))]
+    for k in range(len(parts) - 1, 0, -1):
+        nid = by_name.get(", ".join(parts[:k]).lower())
+        if nid is not None and 1 <= len(parts) - k <= 2:
+            return nid, parts[k:]
+    return None
+
+
 def parse_paste(data, text):
     """(entries {id: {low, high}}, parsed rows, lines not understood) from pasted lines
     "name, low, high" (commas or tabs; a name or an id, any case)."""
@@ -150,13 +185,13 @@ def parse_paste(data, text):
     for line in text.splitlines():
         if not line.strip():
             continue
-        parts = [p.strip() for p in (line.split("\t") if "\t" in line else line.rsplit(",", 2))]
-        nid = by_name.get(parts[0].lower()) if parts else None
-        if nid is None or len(parts) < 2 or len(parts) > 3:
+        found = _split_line(by_name, line)
+        if found is None:
             bad.append(line)
             continue
-        low = parts[1] if len(parts) > 1 else ""
-        high = parts[2] if len(parts) > 2 else ""
+        nid, values = found
+        low = values[0]
+        high = values[1] if len(values) > 1 else ""
         if nid in entries or not (low or high):
             bad.append(line)
             continue
@@ -199,11 +234,12 @@ def step1(data, chosen=None):
                     e(plural), e(standard), options))
     return ('<form method="get" action="/">\n'
             '<h1><label for="requirement">Choose a requirement</label></h1>\n'
+            '<p>%s</p>\n'
             '<p class="field">\n<small class="hint" id="requirement-hint">%s</small>\n'
             '<select id="requirement" name="requirement" aria-describedby="requirement-hint">'
             '\n<option value="">Choose a requirement</option>\n%s\n</select>\n</p>\n'
             '<p class="actions"><button type="submit">Next</button></p>\n</form>') % (
-        e(REQUIREMENT_HINT % len(reqs)), "\n".join(groups))
+        FIRST_TIME, e(REQUIREMENT_HINT % len(reqs)), "\n".join(groups))
 
 
 # Screen B: enter values.
@@ -336,7 +372,8 @@ def value_tables(data, entries):
     return "\n".join(parts)
 
 
-def step2(data, rid, request=None, message=""):
+def step2(data, rid, request=None, message="", note=""):
+    """Screen B; note is a paragraph's text shown above the first Check button."""
     request = request or {}
     animal = request.get("animal", {})
     entries = request.get("entries", {})
@@ -348,26 +385,24 @@ def step2(data, rid, request=None, message=""):
     subjects = "".join('<option value="%s"%s>%s</option>' % (
         e(s), " selected" if s == subject else "", e(s)) for s in result.SUBJECTS)
     return (
-        '<form method="post" action="/check">\n<h1>Enter values</h1>\n'
+        '<form method="post" action="/check">\n<h1>Enter values</h1>\n<p>%s</p>\n'
         '<dl class="summary">\n<dt>Requirement</dt>\n<dd>%s <a class="noprint" href="/" '
         'aria-label="Change the requirement">Change</a></dd>\n</dl>\n'
-        '<input type="hidden" name="requirement" value="%s">\n'
+        '<input type="hidden" name="requirement" value="%s">\n%s'
         '<p class="actions"><button type="submit">Check</button></p>\n'
         '<fieldset>\n<legend>Animal and energy</legend>\n%s\n</fieldset>\n'
-        '<h2>Values</h2>\n'
+        '<h2>Values</h2>\n<p>%s</p>\n'
         '<p class="field">\n<label for="subject">What is entered</label>\n'
         '<select id="subject" name="subject">%s</select>\n</p>\n'
         '<p class="field">\n<label for="paste">Or paste values instead of typing them.</label>\n'
-        '<small class="hint" id="paste-hint">One nutrient per line: name, low, high (for '
-        'example: Calcium, Ca, 1.2, 3). Leave low or high empty if you have only one. Click '
-        'Parse to see how each line was read; the values then fill the table below, and '
-        'nothing is checked until you click Check.</small>\n'
+        '<small class="hint" id="paste-hint">%s</small>\n'
         '<textarea id="paste" name="paste" rows="8" aria-describedby="paste-hint"></textarea>'
         '\n</p>\n<p class="actions"><button type="submit" class="secondary" '
-        'formaction="/parse">Parse the pasted lines</button></p>\n%s\n'
-        '<p>Every entry is per Mcal (or the unit shown), on the MBW rows too.</p>\n%s\n'
+        'formaction="/parse">Parse the pasted lines</button></p>\n%s\n%s\n'
         '<p class="actions"><button type="submit">Check</button></p>\n</form>') % (
-        e(req["name"]), e(rid), facts, subjects, message, value_tables(data, entries))
+        FIRST_TIME, e(req["name"]), e(rid), "<p>%s</p>\n" % e(note) if note else "", facts,
+        e(caveats.UNITS_TEXT + UNITS_OTHER), subjects, e(PASTE_HINT), message,
+        value_tables(data, entries))
 
 
 def parsed_message(data, parsed, bad):

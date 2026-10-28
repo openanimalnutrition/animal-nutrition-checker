@@ -31,7 +31,7 @@ and not veterinary advice; every result says so first.
 - The steward keeps working on the checker. Every change goes through a pull request, is
   recorded with its reason in `docs/changes-from-21OCT26b.md`, and gets a new data version
   when the data change (`data/RELEASE`; now 21OCT26b.11) and a new release number when the
-  code's rules change (`oan/result.py`; now 0.10.0). Every result states both
+  code's rules change (`oan/result.py`; now 0.10.1). Every result states both
   (`code_release`, `data_version`).
 
 ## Where the reasoning is
@@ -367,7 +367,10 @@ takes the same inputs and its "download JSON" gives the same bytes. Its pages fo
 mockups in `docs/mockups/oan-checker` (release 0.10.0): plain HTML and one stylesheet, no
 script. A requirement's form shows only the animal facts it reads, and, once a life stage is
 chosen, only those that life stage uses (in browsers without the CSS `:has()` selector,
-every one).
+every one). How to use (`/how-to-use`, from `server/pages/how-to-use.html`) is the user guide:
+typing values, pasting them, and connecting an AI assistant, with a worked example that opens
+pre-filled at `/example` (`gui.EXAMPLE`; a test checks the guide's table against its result,
+and its "for checker release" against the code release).
 
 To run it, see [Run it](#run-it) above.
 

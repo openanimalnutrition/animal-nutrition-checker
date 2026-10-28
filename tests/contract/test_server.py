@@ -30,6 +30,7 @@ sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.join(ROOT, "server"))
 from oan import caveats, energy, result  # noqa: E402
 import mcp_tools  # noqa: E402
+from gui import EXAMPLE as GUI_EXAMPLE  # noqa: E402
 
 PORT = 8791
 BASE = "http://127.0.0.1:%d" % PORT
@@ -311,6 +312,20 @@ class Server(unittest.TestCase):
                      "https://checker.openanimalnutrition.org/mcp"):
             self.assertIn(text, page)
 
+    def test_how_to_use_and_example(self):
+        self.assertIn('<a href="/how-to-use">', self.http.get("/").text)
+        page = self.http.get("/how-to-use").text
+        self.assertLess(page.index("Caveats"), page.index("<h1>How to use"))
+        for text in ("for checker release %s." % result.CODE_RELEASE, 'href="/example"',
+                     "https://checker.openanimalnutrition.org/mcp"):
+            self.assertIn(text, page)
+        page = self.http.get("/example").text
+        self.assertIn('<input type="hidden" name="requirement" value="aafco-dog-adult">', page)
+        self.assertIn('name="low.protein" value="68.4"', page)
+        r = self.http.post("/check", data=dict(form_of(GUI_EXAMPLE)), headers={"origin": BASE})
+        self.assertEqual(r.status_code, 200)
+        self.assertIn("Lower (10 to &lt;20% of Range)", r.text)
+
     def test_steps(self):
         self.assertIn("Choose a requirement", self.http.get("/").text)
         page = self.http.get("/", params={"requirement": "nrc-puppy-4-14-wk"}).text
@@ -324,6 +339,10 @@ class Server(unittest.TestCase):
         self.assertIn("2 rows parsed", r.text)
         self.assertIn("Not understood (1)", r.text)
         self.assertIn('name="low.calcium" value="1.2"', r.text)
+        r = self.http.post("/parse", data={"requirement": "nrc-dog-adult",
+                                           "paste": "Calcium, Ca, 3.16"})
+        self.assertIn('name="low.calcium" value="3.16"', r.text)
+        self.assertIn('name="high.calcium" value=""', r.text)
 
 
 
@@ -339,6 +358,8 @@ class Log(unittest.TestCase):
                               headers={"user-agent": mark}) as http:
                 http.get("/%s?q=%s" % (mark, mark))
                 http.get("/", params={"requirement": mark})
+                http.get("/how-to-use", params={"q": mark})
+                http.get("/example", params={"q": mark})
                 http.get("/", headers={"host": mark + ".example"})
                 http.post("/check", data=dict(form_of(REQUEST), **{"low.calcium": mark}))
                 http.post("/check", data={"requirement": "nrc-dog-adult", mark: "1"})

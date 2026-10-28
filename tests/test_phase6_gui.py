@@ -47,6 +47,8 @@ NRC_DOG = {"requirement": "nrc-dog-adult",
                        "protein-mbw": {"low": 60}}}
 STYLE = open(os.path.join(ROOT, "server", "static", "style.css"), encoding="utf-8").read()
 ABOUT = open(os.path.join(ROOT, "server", "pages", "about.html"), encoding="utf-8").read()
+HOW_TO_USE = open(os.path.join(ROOT, "server", "pages", "how-to-use.html"),
+                  encoding="utf-8").read()
 
 
 class Page(HTMLParser):
@@ -110,6 +112,9 @@ def pages():
     """[(name, html)] of every page kind, for every requirement's Screen B."""
     out = [("choose", gui.page(D, gui.step1(D), "Choose a requirement")),
            ("about", gui.page(D, ABOUT, "About")),
+           ("how to use", gui.page(D, HOW_TO_USE, "How to use")),
+           ("example", gui.page(D, gui.step2(D, gui.EXAMPLE["requirement"], gui.EXAMPLE,
+                                             note=gui.EXAMPLE_NOTE), "Enter values")),
            ("error", gui.page(D, '<p class="error">x</p>', "Error"))]
     for r in D.tables["requirements"]:
         out.append(("enter " + r["id"], gui.page(D, gui.step2(D, r["id"]), "Enter values")))
@@ -187,6 +192,7 @@ class Markup(unittest.TestCase):
         for name, html in PAGES:
             self.assertIn('<a href="/about#contact">Report an error</a>', html, name)
             self.assertIn('<a href="/about">About</a>', html, name)
+            self.assertIn('<a href="/how-to-use">How to use</a>', html, name)
             self.assertIn("Code %s, data %s (%s)" % (
                 result.CODE_RELEASE, D.version, D.sha256[:12]), html, name)
 
@@ -410,6 +416,110 @@ class Texts(unittest.TestCase):
             self.assertIn("<p>Status: %s</p>" % gui.e(c["status"]), html)
 
 
+class Paste(unittest.TestCase):
+    """The pasted lines: a row's name may hold commas (28 Oct 2026: "Calcium, Ca, 3.16", the
+    hint's own form with one value, was read as low "Ca" and high 3.16)."""
+
+    def parse(self, line):
+        _, parsed, bad = gui.parse_paste(D, line)
+        return parsed[0] if parsed else None
+
+    def test_lines_read_as_before(self):
+        for line, want in (
+                ("Protein, 60, 70", ("protein", "60", "70")),
+                ("Protein, , 70", ("protein", "", "70")),
+                ("Protein, 68.4,", ("protein", "68.4", "")),
+                ("Calcium, Ca, 1.2, 3", ("calcium", "1.2", "3")),
+                ("Calcium, Ca, , 6", ("calcium", "", "6")),
+                ("Protein\t68.4", ("protein", "68.4", "")),
+                ("Calcium, Ca\t3.16", ("calcium", "3.16", "")),
+                ("CALCIUM, 3.16", ("calcium", "3.16", "")),
+                ("energy-density, 4.22", ("energy-density", "4.22", "")),
+                # still passed on, for the input report to reject with a reason
+                ("Protein, 68.4 g/Mcal", ("protein", "68.4 g/Mcal", ""))):
+            self.assertEqual(self.parse(line), want, line)
+
+    def test_names_with_commas(self):
+        for line, want in (
+                ("Calcium, Ca, 3.16", ("calcium", "3.16", "")),
+                ("Folate, DFE, Vitamin B9, 500", ("folate", "500", "")),
+                ("Calcium, Ca (NRC puppies 4 to 14 weeks, expected adult weight over 25 kg), "
+                 "2.5", ("calcium-large-breed-puppy", "2.5", ""))):
+            self.assertEqual(self.parse(line), want, line)
+
+    def test_lines_not_understood(self):
+        for line in ("Ca, 3.16", "Protein: 68.4", "Protein 68.4", "Protein", "Protein, 1, 2, 3",
+                     "Protein, ,", "no such thing, 1, 2"):
+            self.assertIsNone(self.parse(line), line)
+        _, parsed, bad = gui.parse_paste(D, "Protein, 60\nprotein, 70")
+        self.assertEqual((len(parsed), bad), (1, ["protein, 70"]))
+
+    def test_every_row_name_and_id(self):
+        for nid, name, _ in gui.rows(D):
+            for label in (name, nid):
+                self.assertEqual(self.parse("%s, 1" % label), (nid, "1", ""), label)
+                self.assertEqual(self.parse("%s, 1, 2" % label), (nid, "1", "2"), label)
+
+    def test_hint_examples(self):
+        for line, want in (("Calcium, Ca, 3.16", ("calcium", "3.16", "")),
+                           ("Calcium, Ca, 1.2, 3", ("calcium", "1.2", "3")),
+                           ("Calcium, Ca, , 6", ("calcium", "", "6"))):
+            self.assertIn(line, gui.PASTE_HINT)
+            self.assertEqual(self.parse(line), want, line)
+
+
+class HowToUse(unittest.TestCase):
+    """The user guide (pages/how-to-use.html) and its worked example (gui.EXAMPLE)."""
+
+    def test_revised_for_this_release(self):
+        found = re.search(r"Last revised (\d{1,2} \w+ \d{4}), for checker release ([\d.]+)\.",
+                          HOW_TO_USE)
+        self.assertIsNotNone(found)
+        self.assertEqual(found.group(2), result.CODE_RELEASE)
+
+    def test_example_result_as_the_guide_shows_it(self):
+        res = result.check(D, gui.EXAMPLE)
+        page = Page(HOW_TO_USE)
+        rows = {}
+        for tr in page.all("tr"):
+            cells = [Page.inner_text(c) for c in tr[2]
+                     if not isinstance(c, str) and c[0] in ("th", "td")]
+            rows[cells[0]] = cells[1:]
+        shown = {n["name"]: n for n in res["nutrients"]}
+        for name, cells in rows.items():
+            key = re.sub(r" \((computed|kcal/g DM)\)$", "", name)
+            if key not in shown:
+                continue
+            n = shown.pop(key)
+            entry = n["entry"] or n["low"]
+            self.assertEqual(cells[1:5], [
+                result.numbers.to_text(n["minimum"]), result.numbers.to_text(n["range_high"]),
+                entry["outcome_text"], entry["verdict"] or "none"], name)
+        self.assertEqual(shown, {})
+        html = gui.result_page(D, gui.EXAMPLE, res)
+        self.assertIn("<p>%s</p>" % gui.EMPTY_INPUT_REPORT, html)
+        self.assertIn('"%s"' % gui.EMPTY_INPUT_REPORT, re.sub(r"\s+", " ", HOW_TO_USE))
+
+    def test_example_values_from_the_label(self):
+        # 26% x 10,000 / 3,800 kcal ME/kg, and so on; energy density on dry matter (10% water)
+        for nid, percent in (("protein", 26), ("fat", 16), ("calcium", 1.2),
+                             ("phosphorus", 1.0)):
+            self.assertEqual(gui.EXAMPLE["entries"][nid]["low"],
+                             round(percent * 10000 / 3800, 1 if percent > 2 else 2), nid)
+        self.assertEqual(gui.EXAMPLE["entries"]["energy-density"]["low"], round(3.8 / 0.9, 2))
+        self.assertIn(gui.EXAMPLE["animal"]["adult_dog_type"], DOG)
+
+    def test_first_time_link_on_steps_1_and_2(self):
+        self.assertIn(gui.FIRST_TIME, gui.step1(D))
+        self.assertIn(gui.FIRST_TIME, gui.step2(D, "nrc-cat-adult"))
+
+    def test_units_text_on_step_2(self):
+        html = gui.step2(D, "nrc-cat-adult")
+        self.assertIn("<h2>Values</h2>\n<p>%s</p>" % gui.e(caveats.UNITS_TEXT + gui.UNITS_OTHER),
+                      html)
+        self.assertNotIn("Every entry is per Mcal (or the unit shown)", html)
+
+
 class Forms(unittest.TestCase):
     """The pages' forms, read back by the server's form reader."""
 
@@ -422,6 +532,11 @@ class Forms(unittest.TestCase):
         page = Page(html)
         form = [i for i, f in enumerate(page.all("form")) if f[1].get("id") == "inputs"][0]
         self.assertEqual(gui.request_from_form(D, form_fields(page, form)), EXAMPLE)
+
+    def test_example_gives_its_request(self):
+        html = gui.step2(D, gui.EXAMPLE["requirement"], gui.EXAMPLE, note=gui.EXAMPLE_NOTE)
+        self.assertEqual(gui.request_from_form(D, form_fields(Page(html))), gui.EXAMPLE)
+        self.assertLess(html.index(gui.e(gui.EXAMPLE_NOTE)), html.index("<button"))
 
     def test_check_is_the_first_submit(self):
         page = Page(gui.step2(D, "aafco-cat-adult"))
