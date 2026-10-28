@@ -244,6 +244,27 @@ version; every result states both (`code_release`, `data_version`).
     verdict and status under each value entered; the About page adds "Use with AI" (the MCP
     address), and every page's "Report an error" links to its Contact section.
 
+- 0.10.1 (28 Oct 2026): data version 21OCT26b.11; the rules and verdicts are unchanged, and
+  results differ only in `code_release`. After the advisory board's first use of the GUI
+  (three board-certified veterinary nutritionists could not tell what to enter, and a nutrient
+  profile pasted with units was not understood line by line), the steward's decisions of 28
+  Oct 2026 (the wording approved by the steward the same day):
+  - A user guide, `/how-to-use` (from `server/pages/how-to-use.html`, linked from every
+    page's footer and from the first two screens): typing values, pasting them, and
+    connecting an AI assistant (Claude, ChatGPT, Gemini), with the date it was last revised
+    and the release it was revised for. Its worked example, a 20 kg adult dog under AAFCO Dog
+    Maintenance from a label, opens pre-filled at `/example`; a test fails if the example's
+    result no longer matches the guide's table, or if the code release changes without the
+    guide being revised for it.
+  - Pasted lines: a row's name may hold commas. "Calcium, Ca, 3.16" was read as low "Ca" and
+    high 3.16 (the hint's own example, "Calcium, Ca, 1.2, 3", with one value), and names with
+    two commas ("Folate, DFE, Vitamin B9") were not understood. The longest run of leading
+    fields that names a row is now the name. Every line read before is read the same way.
+  - The paste hint gives one value first, then a range and a high alone, and says numbers
+    only, with no units.
+  - The values screen gives the units rule that the MCP tools already gave (approved 25 Oct
+    2026): every entry per Mcal, with the formula from a label's percentage or amount per kg.
+
 ## Where the template's own text is kept
 
 - [template-21OCT26b-notes.csv](template-21OCT26b-notes.csv): all 301 template notes word for

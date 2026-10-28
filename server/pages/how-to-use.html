@@ -1,0 +1,254 @@
+<h1>How to use the Open Animal Nutrition nutrient checker</h1>
+<p>Last revised 28 October 2026, for checker release 0.10.1.</p>
+
+<p>The checker compares a dog or cat diet's nutrient values with one requirement (NRC, AAFCO or
+FEDIAF). It tells you where each value lies between that requirement's minimum and range
+high, in the Dynamic Decile System's band names, with a proposed verdict.</p>
+
+<p><strong>The checker's web page is not an AI.</strong> It does not read labels or reports,
+and it does not convert units. It takes numbers, each already per 1,000 kcal ME (per Mcal). If
+you have a label, a recipe report or an AI's nutrient profile as it is, use
+<a href="#way-3">way 3</a>: an AI assistant connected to the checker reads and converts it,
+and the checker does the comparison.</p>
+
+<table class="stack">
+<thead><tr><th scope="col">You have</th><th scope="col">Use</th></tr></thead>
+<tbody>
+<tr><td data-label="You have">A few values, already per Mcal</td><td data-label="Use"><a href="#way-1">1. Type them</a></td></tr>
+<tr><td data-label="You have">Many values per Mcal, in a list or a spreadsheet</td><td data-label="Use"><a href="#way-2">2. Paste them</a></td></tr>
+<tr><td data-label="You have">A label, a recipe report or an AI's nutrient profile, as it is</td><td data-label="Use"><a href="#way-3">3. An AI assistant</a></td></tr>
+</tbody>
+</table>
+
+<h2 id="units">Converting to per Mcal</h2>
+<p>Every value goes in per Mcal (1,000 kcal ME), in the unit shown on its row. Use the same
+basis (as fed, or dry matter) for both numbers in each formula.</p>
+<ul>
+<li>From a percentage: g/Mcal = % × 10,000 ÷ kcal ME per kg. 26% protein in a food with
+3,800 kcal ME/kg: 26 × 10,000 ÷ 3,800 = <strong>68.4 g/Mcal</strong>.</li>
+<li>From an amount per kg: amount per Mcal = amount per kg ÷ (kcal ME per kg ÷ 1,000).</li>
+<li>Per 1,000 kcal is already per Mcal. Per 100 kcal: multiply by 10.</li>
+<li>The Energy Density row is kcal per gram of dry matter: 3,800 kcal/kg as fed at 10%
+moisture is 3.8 ÷ 0.90 = <strong>4.22 kcal/g DM</strong>.</li>
+</ul>
+
+<h2 id="way-1">Way 1: type the values</h2>
+<p>Example: <strong>a 20 kg adult dog</strong>, against AAFCO Dog Maintenance, eating a dry
+food whose label gives crude protein 26%, crude fat 16%, calcium 1.2%, phosphorus 1.0%,
+moisture 10% and 3,800 kcal ME/kg. Per Mcal: protein 68.4, fat 42.1, calcium 3.16,
+phosphorus 2.63 (g/Mcal); energy density 4.22 kcal/g DM.</p>
+<p>To see it without typing, open <a href="/example">the worked example</a>, already filled
+in, and click Check. To type it yourself:</p>
+<ol>
+<li>Open <a href="/">the checker's first page</a>.</li>
+<li>Under <strong>Choose a requirement</strong>, choose <strong>AAFCO Dog
+Maintenance</strong> (in the group "Dogs: AAFCO"). Click <strong>Next</strong>.</li>
+<li>Under <strong>Animal and energy</strong>, type <strong>20</strong> in <strong>Current
+body weight (kg)</strong>.</li>
+<li>In <strong>Type of adult dog</strong>, choose the one that fits, for example
+<strong>Average laboratory or active (130 * kg BW^0.75)</strong>. The other boxes are
+optional.</li>
+<li>Leave <strong>What is entered</strong> as <strong>diet</strong>.</li>
+<li>In the table, type <strong>68.4</strong> in the <strong>Low (Min entry)</strong> box of
+<strong>Protein</strong>. Leave <strong>High (Max entry)</strong> empty.</li>
+<li>Do the same for <strong>Fat, Total Lipid</strong> (42.1), <strong>Calcium, Ca</strong>
+(3.16), <strong>Phosphorus, P</strong> (2.63) and, under Energy, <strong>Energy
+Density</strong> (4.22).</li>
+<li>Click <strong>Check</strong>.</li>
+</ol>
+<p><strong>Low and High are the diet's own values, not the standard's limits.</strong> The
+checker already has the limits. Most diets have one value per nutrient: type it in Low. Use
+both boxes only for a range, such as an analysed minimum and maximum. Leave every other row
+empty.</p>
+
+<h3 id="result">Reading the result</h3>
+<p>The result opens with what it is not (not a safety or compliance assessment, not
+veterinary advice), then the animal and energy used, an input report, and one block per
+nutrient. For this example:</p>
+<table class="stack">
+<thead><tr><th scope="col">Nutrient (g/Mcal)</th><th scope="col">Entered</th><th scope="col">Minimum</th><th scope="col">Range high</th><th scope="col">Band</th><th scope="col">Verdict</th></tr></thead>
+<tbody>
+<tr><th scope="row">Protein</th><td data-label="Entered">68.4</td><td data-label="Minimum">45</td><td data-label="Range high">180</td><td data-label="Band">Lower (10 to &lt;20% of Range)</td><td data-label="Verdict">none</td></tr>
+<tr><th scope="row">Fat, Total Lipid</th><td data-label="Entered">42.1</td><td data-label="Minimum">13.8</td><td data-label="Range high">55.2</td><td data-label="Band">High (60 to &lt;70% of Range)</td><td data-label="Verdict">none</td></tr>
+<tr><th scope="row">Calcium, Ca</th><td data-label="Entered">3.16</td><td data-label="Minimum">1.25</td><td data-label="Range high">6.25</td><td data-label="Band">Low Moderate (30 to &lt;40% of Range)</td><td data-label="Verdict">none</td></tr>
+<tr><th scope="row">Phosphorus, P</th><td data-label="Entered">2.63</td><td data-label="Minimum">1</td><td data-label="Range high">4</td><td data-label="Band">High Moderate (50 to &lt;60% of Range)</td><td data-label="Verdict">none</td></tr>
+<tr><th scope="row">Ca : P ratio (computed)</th><td data-label="Entered">1.20</td><td data-label="Minimum">1</td><td data-label="Range high">2</td><td data-label="Band">Low (20 to &lt;30% of Range)</td><td data-label="Verdict">none</td></tr>
+<tr><th scope="row">Energy Density (kcal/g DM)</th><td data-label="Entered">4.22</td><td data-label="Minimum">3.5</td><td data-label="Range high">6</td><td data-label="Band">Low (20 to &lt;30% of Range)</td><td data-label="Verdict">none</td></tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Band</strong>: where the value lies, from "Very Severely Restricted (&lt;25% of
+Min)" to "Highest (90% of Range or Greater)".</li>
+<li><strong>Verdict</strong>: deficient, excess or none (proposed, pending
+ratification).</li>
+<li><strong>Range high</strong>: each says what kind of maximum it is. Protein's 180 is the
+minimum × 4, a banding choice, not a safe limit.</li>
+<li><strong>Input report</strong>: any value that was not used, and why. For this example it
+says "Every value entered was used; nothing is missing."</li>
+<li><strong>Only the nutrients entered are checked.</strong> This example checks six; it says
+nothing about the rest of the diet.</li>
+</ul>
+<p><strong>Change the inputs</strong> takes you back with everything kept.
+<strong>Download JSON</strong> gives you the result in a common file format to save locally
+on your device.</p>
+
+<h2 id="way-2">Way 2: paste the values</h2>
+<p>Do steps 1 to 5 of way 1, then:</p>
+<ol>
+<li>In <strong>Or paste values instead of typing them</strong>, put one nutrient per line:
+the name, a comma, then the value (if a range see below for format: name, value, value).
+For the example:
+<ul class="plain">
+<li>Protein, 68.4</li>
+<li>Fat, 42.1</li>
+<li>Calcium, 3.16</li>
+<li>Phosphorus, 2.63</li>
+<li>Energy Density, 4.22</li>
+</ul>
+</li>
+<li>Click <strong>Parse the pasted lines</strong>. The page shows how many rows it read,
+lists any line it did not understand, and fills the table.</li>
+<li>Look over the table, then click <strong>Check</strong>.</li>
+</ol>
+<p>The paste box reads only this format:</p>
+<ul>
+<li><strong>Numbers only</strong>: no units, % signs or colons, and each value already per
+Mcal.</li>
+<li><strong>One value</strong>: "Protein, 68.4". <strong>A range</strong>: "Protein, 60, 70".
+<strong>Only a high</strong>: "Protein, , 70".</li>
+<li><strong>The name</strong> must be the row's name as the table shows it, or its id
+(below). Other names are not understood: not "Ca", "Vitamin A", "Linoleic acid" or "Crude
+protein".</li>
+<li><strong>From a spreadsheet</strong>: copy the name, low and high columns; tabs work as
+well as commas.</li>
+</ul>
+<p>"Not understood" means the name did not match a row, the line had no comma or tab, or the
+nutrient appeared twice.</p>
+<p>Names that work (name or id, any case):</p>
+<table class="stack">
+<thead><tr><th scope="col">Row</th><th scope="col">Type</th></tr></thead>
+<tbody>
+<tr><td data-label="Row">Protein, Fat, Calcium, Phosphorus, Potassium, Sodium, Chloride, Magnesium, Iron, Zinc, Iodine, Choline, Biotin, Folate, Water</td><td data-label="Type">the word alone</td></tr>
+<tr><td data-label="Row">Taurine, Copper, Selenium in a food with 12% moisture or less</td><td data-label="Type">the word alone</td></tr>
+<tr><td data-label="Row">Linoleic acid (LA)</td><td data-label="Type">linoleic-acid</td></tr>
+<tr><td data-label="Row">alpha-Linolenic acid (ALA)</td><td data-label="Type">alpha-linolenic-acid</td></tr>
+<tr><td data-label="Row">EPA + DHA</td><td data-label="Type">epa-dha</td></tr>
+<tr><td data-label="Row">Vitamin A (for dogs)</td><td data-label="Type">vitamin-a</td></tr>
+<tr><td data-label="Row">Retinol (for cats)</td><td data-label="Type">retinol</td></tr>
+<tr><td data-label="Row">Vitamin D, Vitamin E</td><td data-label="Type">vitamin-d, vitamin-e</td></tr>
+<tr><td data-label="Row">Thiamin(e), Vitamin B1</td><td data-label="Type">thiamine</td></tr>
+<tr><td data-label="Row">Fiber, total dietary (TDF)</td><td data-label="Type">fiber-total (not a label's crude fibre)</td></tr>
+<tr><td data-label="Row">Taurine, copper, selenium in a food with more than 12% moisture</td><td data-label="Type">taurine-wet, copper-wet, selenium-wet</td></tr>
+</tbody>
+</table>
+<p>Any other row: its name exactly as the table shows it, for example "Folate, DFE, Vitamin B9,
+500".</p>
+
+<h2 id="way-3">Way 3: an AI assistant</h2>
+<p>Connect the checker to an AI assistant once. Then paste a label, a recipe report or a
+nutrient profile into the chat as it is. The assistant reads it, converts the units, asks for
+the animal's facts, sends the values to the checker and explains the result. The checker does
+the comparison; the assistant can still misread the source, so check the values it sent.</p>
+<p>The checker's address for AI assistants, no sign-in:</p>
+<p><strong>https://checker.openanimalnutrition.org/mcp</strong></p>
+
+<h3 id="connect">Steps To Connect Popular AIs To Checker (via MCP Server)</h3>
+<p>You Can Also Ask Your AI For Help Connecting To A Custom MCP Server</p>
+
+<h4 id="claude">Claude (claude.ai)</h4>
+<p>Steps checked in Claude on the web, on the Free plan, on 28 October 2026.</p>
+<p>Custom connectors work on every plan: Free allows one; Pro, Max, Team and Enterprise allow
+more. On Team and Enterprise, an Owner adds it.</p>
+<ol>
+<li>Open <a href="https://claude.ai">claude.ai</a> and sign in.</li>
+<li>Click your name in the lower left, then <strong>Settings</strong>.</li>
+<li>Under <strong>Customize</strong>, click <strong>Connectors</strong>.</li>
+<li>Click <strong>+ Add</strong> (upper right), then <strong>Add custom
+connector</strong>.</li>
+<li>Name: <strong>Open Animal Nutrition Checker</strong>. MCP server URL: the address above.
+Click <strong>Continue</strong>.</li>
+<li>Under Authentication, leave <strong>No sign-in</strong> selected (marked "Detected"). The
+warning "Without sign-in, anyone with the server URL can use this connector" is expected.
+Click <strong>Add</strong>.</li>
+<li>Click <strong>Connect</strong>.</li>
+<li>Optional: under <strong>Tool permissions</strong>, the five <strong>Read-only
+tools</strong> are set to <strong>Needs approval</strong>, so Claude asks before each call.
+To skip the prompts, choose <strong>Always allow</strong> in that menu.</li>
+<li>In a chat, click <strong>+</strong> in the message box, then
+<strong>Connectors</strong>: Open Animal Nutrition Checker is listed with its switch on.</li>
+</ol>
+
+<h4 id="chatgpt">ChatGPT (chatgpt.com)</h4>
+<p>Steps checked in ChatGPT on the web, on the Plus plan, on 28 October 2026 (and on a
+Business plan on 25 October 2026).</p>
+<ol>
+<li>Open <a href="https://chatgpt.com">chatgpt.com</a> and sign in.</li>
+<li>In the left panel, click <strong>Plugins</strong>, then the <strong>Personal</strong>
+tab.</li>
+<li>Click <strong>Add</strong> (upper right), then <strong>Add custom MCP
+server</strong>.</li>
+<li>Name: <strong>Open Animal Nutrition Checker</strong>. Under <strong>Connection</strong>,
+leave <strong>Server URL</strong> selected and enter the address above.</li>
+<li>Change <strong>Authentication</strong> from OAuth to <strong>No
+authentication</strong>.</li>
+<li>Tick <strong>I understand and want to continue</strong>, then click <strong>Create as a
+plugin</strong>.</li>
+<li>Click <strong>Connect Open Animal Nutrition Checker</strong>. A green confirmation
+appears.</li>
+<li>In each chat, click <strong>+</strong> in the message box, then <strong>Open Animal
+Nutrition Checker</strong>. Its name appears in the message box, and that chat can use
+it.</li>
+</ol>
+
+<h4 id="gemini">Gemini (gemini.google.com)</h4>
+<p>Steps checked in Gemini on the web, on the Google AI Pro plan, on 28 October 2026.</p>
+<p>You need a personal Google account (not a work or school one) with <strong>Keep
+Activity</strong> on. Google also lists: 18 or over, in the US, and English.</p>
+<ol>
+<li>Open <a href="https://gemini.google.com">gemini.google.com</a>, signed in with your
+personal account.</li>
+<li>Click the gear icon in the lower left, then <strong>Personal Intelligence</strong>.</li>
+<li>Click <strong>Connected Apps</strong>.</li>
+<li>Click <strong>+ Custom</strong> (upper right).</li>
+<li>In <strong>MCP Server URL</strong>, enter the address above. Click
+<strong>Next</strong>.</li>
+<li>Read Google's notice, tick <strong>I understand and accept the security and privacy risks
+of connecting this custom app</strong>, and click <strong>Connect</strong>. (The checker's
+privacy statement is on its <a href="/about">About</a> page.)</li>
+<li>Gemini names it <strong>Open Animal Nutrition</strong> and lists its five tools. Click
+<strong>Connect</strong>. It appears under <strong>Custom apps</strong>.</li>
+<li>A chat has no switch for it. With <strong>Personal Intelligence</strong> on (in a chat,
+<strong>+</strong>, then <strong>More tools</strong>), Gemini calls the checker when you ask
+it to, and shows that it is connecting to Open Animal Nutrition while it works.</li>
+</ol>
+
+<h3 id="ask">What to ask</h3>
+<p>Give the animal's facts and the requirement up front. Otherwise assistants tend to assume
+them. For example:</p>
+<p><strong>Use the Open Animal Nutrition checker. Compare this diet with AAFCO Dog Maintenance
+for a 20 kg adult spayed pet dog, walked twice a day. Give each nutrient's band and verdict
+in the checker's own words. Afterwards, list each value you entered, per Mcal, and how you
+converted it.</strong></p>
+<p><strong>[paste the label, recipe report or nutrient profile here]</strong></p>
+<ul>
+<li><strong>Check the values it entered</strong> against your source. A slip (for example,
+10 times too high) often shows up as an implausible band or an excess, but not always.</li>
+<li><strong>The checker's words are the result</strong>: its band names and verdicts. "Meets
+AAFCO" or "complete and balanced" in a summary is the assistant's wording, not the
+checker's.</li>
+<li><strong>Privacy</strong>: the checker keeps no record of what is entered. What you type
+into an assistant is covered by its provider's terms. A temporary or incognito chat keeps the
+diet out of your chat history and memory.</li>
+</ul>
+
+<h2 id="problems">If something goes wrong</h2>
+<ul>
+<li><strong>Every pasted line is "Not understood"</strong>: the text has units, colons or
+other names. Retype it as in <a href="#way-2">way 2</a>, or paste it into an AI assistant
+(<a href="#way-3">way 3</a>).</li>
+<li><strong>A value is "Not used"</strong>: the input report says why (for example, text
+instead of a number).</li>
+<li><strong>An error, or a result you think is wrong</strong> not due to an AI assistant
+limitation or ignoring the checker but rather the checker itself: say how on the
+<a href="/about#contact">About page</a> (public issues, or email).</li>
+</ul>

@@ -3,8 +3,9 @@
 Routes: GET / (choose a requirement, then the inputs), POST /parse (pasted lines, shown
 parsed), POST /check (the result page), POST /check.json (the result's JSON, the same bytes as
 the MCP's check_diet), POST /edit (back to the inputs), GET /about (hosting, privacy and
-contact, from pages/about.html), GET /static/style.css, and /mcp (MCP, stateless Streamable
-HTTP).
+contact, from pages/about.html), GET /how-to-use (the user guide, from pages/how-to-use.html),
+GET /example (the inputs, pre-filled with the guide's worked example), GET /static/style.css,
+and /mcp (MCP, stateless Streamable HTTP).
 
 Limits: request bodies of at most 32 KB; known fields only; Host checked on every request and
 Origin on every POST; a content security policy with no scripts; no cross-origin access. The
@@ -116,6 +117,19 @@ async def about(request):
     return HTMLResponse(gui.page(DATA, ABOUT, "About"))
 
 
+with open(os.path.join(HERE, "pages", "how-to-use.html"), encoding="utf-8") as f:
+    HOW_TO_USE = f.read()
+
+
+async def how_to_use(request):
+    return HTMLResponse(gui.page(DATA, HOW_TO_USE, "How to use"))
+
+
+async def example(request):
+    return HTMLResponse(gui.page(DATA, gui.step2(
+        DATA, gui.EXAMPLE["requirement"], gui.EXAMPLE, note=gui.EXAMPLE_NOTE), "Enter values"))
+
+
 async def home(request):
     rid = request.query_params.get("requirement")
     if rid and any(r["id"] == rid for r in DATA.tables["requirements"]):
@@ -200,6 +214,8 @@ app = Starlette(
         Route("/check.json", check_json, methods=["POST"]),
         Route("/edit", edit, methods=["POST"]),
         Route("/about", about, methods=["GET"]),
+        Route("/how-to-use", how_to_use, methods=["GET"]),
+        Route("/example", example, methods=["GET"]),
         Mount("/static", StaticFiles(directory=os.path.join(HERE, "static")), name="static"),
         Route("/mcp", MCPEndpoint(), methods=["GET", "POST", "DELETE"]),
     ],
